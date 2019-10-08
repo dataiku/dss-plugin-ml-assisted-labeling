@@ -1,0 +1,82 @@
+@import '/static/public/styles/1.0.0/dku-styles.css';
+
+body {
+    margin: 0;
+}
+textarea:focus {
+    outline: none;
+    border: 1px solid #3b99fc;
+}
+textarea::-webkit-input-placeholder, textarea::-moz-placeholder, textarea:-ms-input-placeholder {
+    color: #ccc;  
+}
+
+#app {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    text-align: center;
+}
+#fatal-error {
+    margin: 100px auto;
+    text-align: center;
+    color: var(--error-red);
+}
+#item-to-classify {
+    flex: 1 1 100px;
+    overflow: hidden;
+}
+#item-to-classify img {
+    max-width: 100%;
+    max-height: 100%;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+#category-buttons, #skip-buttons {
+    text-align: center;
+    margin: 5px;
+}
+.category-button, .skip-button {
+    margin: 3px 5px;
+    padding: 10px 20px;
+}
+button.category-button, button.skip-button {
+    border-radius: 0;
+    border-color: rgb(216, 216, 216);
+    outline: none;
+    cursor: pointer;
+    position: relative;
+}
+button>i {
+    opacity: 0.4;
+}
+.category-button > .ratio {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0.1;
+    background: green;
+}
+.comment-area {
+    margin: 0px;
+    width: 60%;
+    max-width: 80%;
+    height: 40px;
+    min-height: 20px;
+}
+#done {
+    width: 100%;
+    text-align: center;
+    margin-top: 47vh;
+}
+#done div {
+    font-family: cursive;
+    font-size: 2em;
+}
+#progress {
+    color: grey;
+    font-family: monospace;
+    margin-bottom: 10px;
+}

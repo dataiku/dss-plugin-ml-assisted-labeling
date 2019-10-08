@@ -1,0 +1,60 @@
+{
+    "meta": {
+        "label": "Bounding box labeling",
+        "description": "Manually classify objects in images from a folder for use in supervised learning",
+        "icon": "icon-picture"
+    },
+    "baseType": "STANDARD",
+    "hasBackend": "true",
+    "standardWebAppLibraries" : ["jquery", "dataiku", "bootstrap", "font_awesome"],
+
+    "params": [
+        {
+            "type": "FOLDER", 
+            "name": "folder", 
+            "label": "Images", 
+            "description": "Folder containing the images to label", 
+            "mandatory": true, 
+            "canSelectForeign": true
+        },
+        {
+            "type": "DATASET", 
+            "name": "queries", 
+            "label":"Queries", 
+            "description": "Dataset containing queries to label ranked by importance", 
+            "mandatory": true, 
+            "canSelectForeign": false,
+            "canCreateDataset": false
+        },
+        {
+            "type": "DATASET", 
+            "name": "annotations", 
+            "label":"Annotations", 
+            "description": "Dataset to save the annotations into", 
+            "mandatory": true, 
+            "canSelectForeign": false,
+            "canCreateDataset": false
+        },
+        {
+            "type": "DATASET", 
+            "name": "annotations_control", 
+            "label":"Control annotations", 
+            "description": "Dataset to save the control annotations into", 
+            "mandatory": true, 
+            "canSelectForeign": false,
+            "canCreateDataset": false
+        },
+        {
+            "name": "categories",
+            "type": "KEY_VALUE_LIST",
+            "label": "Categories",
+            "description": "Category name → optional description",
+            "mandatory": true
+        }
+    ],
+    
+    // Will appear in the action menu for folders
+    "roles": [
+        {"type": "FOLDER", "targetParamsKey": "folder"}
+    ]
+}
