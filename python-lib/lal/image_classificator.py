@@ -9,11 +9,13 @@ from dataiku.customwebapp import *
 
 
 class ImageClassificator(object):
-    required_schema = [{"name": "path", "type": "string"},
-                       {"name": "class", "type": "string"},
-                       {"name": "comment", "type": "string"},
-                       {"name": "session", "type": "int"},
-                       {"name": "annotator", "type": "string"}]
+
+    required_labels_schema = [{"name": "path", "type": "string"},
+                              {"name": "class", "type": "string"},
+                              {"name": "comment", "type": "string"},
+                              {"name": "session", "type": "int"},
+                              {"name": "annotator", "type": "string"}]
+
     logger = logging.getLogger(__name__)
 
     def __init__(self):
@@ -21,20 +23,19 @@ class ImageClassificator(object):
 
         self.config = self.read_config()
 
-        self.current_schema = None
-        self.current_schema_columns = None
         self.remaining = None
-        self.current_df = None
+        self.annotations_df = None
 
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
-        self.dataset = dataiku.Dataset(self.config["dataset"])
+        self.labels_ds = dataiku.Dataset(self.config["labels_ds"])
         self.folder = dataiku.Folder(self.config["folder"])
 
-        self.init_schema()
+        self.current_schema, self.current_schema_columns = self.init_schema()
+
         self.validate_schema()
         self.init_current_df()
 
-        self.labelled = set(self.current_df.loc[self.current_df['annotator'] == self.current_user]['path'])
+        self.labelled = set(self.annotations_df.loc[self.annotations_df['annotator'] == self.current_user]['path'])
         self.all_paths = set(self.folder.list_paths_in_partition())
         self.remaining = self.get_remaining_queries()
 
@@ -44,26 +45,27 @@ class ImageClassificator(object):
 
         if "folder" not in config:
             raise ValueError("Image folder not specified. Go to settings tab.")
-        if "dataset" not in config:
-            raise ValueError("Output dataset not specified. Go to settings tab.")
+        if "labels_ds" not in config:
+            raise ValueError("Labels dataset not specified. Go to settings tab.")
         if "query_dataset" not in config:
             raise ValueError("Queries dataset not specified. Go to settings tab.")
 
         return config
 
     def init_schema(self):
-        self.dataset.write_schema(self.required_schema)
+        self.labels_ds.write_schema(self.required_labels_schema)
         try:
-            self.current_schema = self.dataset.read_schema()
+            current_schema = self.labels_ds.read_schema()
         except:
-            self.dataset.write_schema(self.required_schema)
+            self.labels_ds.write_schema(self.required_labels_schema)
 
         # TODO : What's going on here? Why writing schema 2 times?
 
-        self.current_schema_columns = [c['name'] for c in self.current_schema]
+        current_schema_columns = [c['name'] for c in current_schema]
+        return current_schema, current_schema_columns
 
     def validate_schema(self):
-        required_columns = [c['name'] for c in self.required_schema]
+        required_columns = [c['name'] for c in self.required_labels_schema]
 
         if not set(required_columns).issubset(set(self.current_schema_columns)):
             raise ValueError(
@@ -72,15 +74,15 @@ class ImageClassificator(object):
 
     def init_current_df(self):
         try:
-            self.current_df = self.dataset.get_dataframe()
+            self.annotations_df = self.labels_ds.get_dataframe()
         except:
             self.logger.info("Dataset probably empty")
-            self.current_df = pd.DataFrame(columns=self.current_schema_columns, index=[])
+            self.annotations_df = pd.DataFrame(columns=self.current_schema_columns, index=[])
             for col in self.current_schema:
                 n = col["name"]
                 t = col["type"]
                 t = schema_handling.DKU_PANDAS_TYPES_MAP.get(t, np.object_)
-                self.current_df[n] = self.current_df[n].astype(t)
+                self.annotations_df[n] = self.annotations_df[n].astype(t)
 
     def get_remaining_queries(self):
         try:

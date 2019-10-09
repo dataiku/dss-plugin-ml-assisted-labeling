@@ -19,9 +19,9 @@
         },
         {
             "type": "DATASET",
-            "name": "dataset",
+            "name": "labels_ds",
             "label":"Labels",
-            "description": "Dataset to save the labels into 11111",
+            "description": "Dataset to save the labels into",
             "mandatory": false,
             "canSelectForeign": false,
             "canCreateDataset": true
