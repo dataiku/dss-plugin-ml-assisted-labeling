@@ -14,10 +14,10 @@ class ImageClassificator(object):
                        {"name": "comment", "type": "string"},
                        {"name": "session", "type": "int"},
                        {"name": "annotator", "type": "string"}]
+    logger = logging.getLogger(__name__)
 
     def __init__(self):
         super(ImageClassificator, self).__init__()
-        self.logger = logging.getLogger(__name__)
 
         self.config = self.read_config()
 
@@ -32,7 +32,11 @@ class ImageClassificator(object):
 
         self.init_schema()
         self.validate_schema()
-        self.do_something()
+        self.init_current_df()
+
+        self.labelled = set(self.current_df.loc[self.current_df['annotator'] == self.current_user]['path'])
+        self.all_paths = set(self.folder.list_paths_in_partition())
+        self.remaining = self.get_remaining_queries()
 
     def read_config(self):
         config = get_webapp_config()
@@ -42,6 +46,8 @@ class ImageClassificator(object):
             raise ValueError("Image folder not specified. Go to settings tab.")
         if "dataset" not in config:
             raise ValueError("Output dataset not specified. Go to settings tab.")
+        if "query_dataset" not in config:
+            raise ValueError("Queries dataset not specified. Go to settings tab.")
 
         return config
 
@@ -64,7 +70,7 @@ class ImageClassificator(object):
                 "The target dataset should have columns: {}. The provided dataset has columns: {}. Please edit the schema in the dataset settings.".format(
                     ', '.join(required_columns), ', '.join(self.current_schema_columns)))
 
-    def do_something(self):
+    def init_current_df(self):
         try:
             self.current_df = self.dataset.get_dataframe()
         except:
@@ -76,13 +82,13 @@ class ImageClassificator(object):
                 t = schema_handling.DKU_PANDAS_TYPES_MAP.get(t, np.object_)
                 self.current_df[n] = self.current_df[n].astype(t)
 
-        self.labelled = set(self.current_df.loc[self.current_df['annotator'] == self.current_user]['path'])
-        self.all_paths = set(self.folder.list_paths_in_partition())
-
+    def get_remaining_queries(self):
         try:
+            self.logger.info("Trying to sort queries by uncertainty")
             queries = dataiku.Dataset(self.config["query_dataset"]).get_dataframe()['path'].sort_values('uncertainty')
-            self.remaining = queries.loc[queries.apply(lambda x: x not in self.labelled)].values.tolist()
+            remaining = queries.loc[queries.apply(lambda x: x not in self.labelled)].values.tolist()
             # We use pop to get samples from this list so we need to reverse the order
-            self.remaining = self.remaining[::-1]
-        except:  # random
-            self.remaining = self.all_paths - self.labelled
+            return remaining[::-1]
+        except:
+            self.logger.info("Not taking into account uncertainty, serving random queries")
+            return self.all_paths - self.labelled
