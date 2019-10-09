@@ -18,11 +18,11 @@
             "canSelectForeign": true
         },
         {
-            "type": "DATASET", 
-            "name": "dataset", 
-            "label":"Labels", 
-            "description": "Dataset to save the labels into", 
-            "mandatory": true, 
+            "type": "DATASET",
+            "name": "dataset",
+            "label":"Labels",
+            "description": "Dataset to save the labels into 11111",
+            "mandatory": false,
             "canSelectForeign": false,
             "canCreateDataset": true
         },
