@@ -21,7 +21,7 @@
             "type": "DATASET", 
             "name": "queries", 
             "label":"Queries", 
-            "description": "Dataset containing queries to label ranked by importance", 
+            "description": "Dataset containing queries to label ranked by importance 222", 
             "mandatory": true, 
             "canSelectForeign": false,
             "canCreateDataset": false
@@ -51,10 +51,5 @@
             "description": "Category name → optional description",
             "mandatory": true
         }
-    ],
-    
-    // Will appear in the action menu for folders
-    "roles": [
-        {"type": "FOLDER", "targetParamsKey": "folder"}
     ]
 }
