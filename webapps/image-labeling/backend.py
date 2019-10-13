@@ -4,13 +4,6 @@ from lal.lal_handler import LALHandler
 
 lal_handler = LALHandler()
 
-
-@app.route('/get-image-base64')
-def get_image():
-    path = request.args.get('path')
-    return jsonify(lal_handler.get_image(path))
-
-
 @app.route('/sample')
 def get_sample():
     return jsonify(lal_handler.get_sample())

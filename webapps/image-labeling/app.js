@@ -1,12 +1,5 @@
-let categories = (dataiku.getWebAppConfig().categories||[]).map(it => ({name: it.from, description: it.to}));
-let currentPath;
-
-
-
-
-
-
-
+let categories = (dataiku.getWebAppConfig().categories || []).map(it => ({name: it.from, description: it.to}));
+let currentSID;
 
 
 var mousePressed = false;
@@ -24,15 +17,15 @@ function initCanvas(elementId, image_data) {
 
     // Draw the image
     var image = new Image();
-    image.onload = function() {
+    image.onload = function () {
         canvas.width = image.width;
         canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
     };
     image.src = image_data;
-    
+
     elementId = '#' + elementId;
-    
+
     $(elementId).mousedown(function (e) {
         mousePressed = true;
         draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
@@ -49,7 +42,7 @@ function initCanvas(elementId, image_data) {
     $(elementId).mouseup(function (e) {
         mousePressed = false;
     });
-        $(elementId).mouseleave(function (e) {
+    $(elementId).mouseleave(function (e) {
         mousePressed = false;
     });
 }
@@ -65,14 +58,9 @@ function draw(x, y, isDown) {
         ctx.closePath();
         ctx.stroke();
     }
-    lastX = x; lastY = y;
+    lastX = x;
+    lastY = y;
 }
-
-
-
-
-
-
 
 
 function drawApp(categories) {
@@ -88,7 +76,7 @@ function drawApp(categories) {
     } catch (e) {
         console.warn(e);
     }
-    $('#skip').click(skip)
+    $('#skip').click(skip);
     next();
 }
 
@@ -114,7 +102,10 @@ function drawCategories(categories) {
     $('#category-buttons').empty();
     categories.forEach(drawCategory);
     $('#category-buttons button').each((idx, button) => {
-        $(button).click(() => { classify(categories[idx].name); next()})
+        $(button).click(() => {
+            classify(categories[idx].name);
+            next()
+        })
     });
 }
 
@@ -134,30 +125,34 @@ function skip() {
         .catch(displayFatalError);
 }
 
-function drawItem() {
-    if (!currentPath || !currentPath.length) {
+function drawItem(imgData) {
+    //TODO: use a better condition
+    if (!imgData) {
         $('#app').html('<div id="done"><div>The End</div><p>All the images were labelled (or skipped, refresh to see the skipped ones)</p></div>')
     } else {
-        webappBackend.get('get-image-base64', {path: currentPath}).then(function(resp) {
-            let contentType = 'image/jpg';
-            initCanvas("item-to-classify-canvas", `data:${contentType};base64,${resp.data}`);
-            $('#comment').val('');
-        });
+        let contentType = 'image/jpg';
+        initCanvas("item-to-classify-canvas", `data:${contentType};base64,${imgData}`);
+        $('#comment').val('');
     }
 }
 
 function classify(category) {
     const comment = $('#comment').val()
-    webappBackend.post('classify', {path: currentPath, comment: $('#comment').val(), category: category, points: String(points)}, updateProgress);
+    webappBackend.post('classify', {
+        sid: currentSID,
+        comment: $('#comment').val(),
+        category: category,
+        points: String(points)
+    }, updateProgress);
 }
 
 function updateProgress(resp) {
-    currentPath = resp.nextPath;
+    currentSID = resp.sid;
     $('#total').text(resp.total);
     $('#labelled').text(resp.labelled);
     $('#skipped').text(resp.skipped);
     $.each(resp.byCategory, (name, count) => setCategoryCount(name, count, resp.total))
-    drawItem();
+    drawItem(resp.data);
     $('#app').show();
 }
 

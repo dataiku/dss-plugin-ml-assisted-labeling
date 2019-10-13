@@ -1,16 +1,17 @@
 import logging
 
+import dataiku
 import numpy as np
 import pandas as pd
-
-import dataiku
 from dataiku.core import schema_handling
 from dataiku.customwebapp import *
+from base64 import b64encode
+
+from lal.base_classifier import BaseClassifier
 
 
-class ImageClassificator(object):
-
-    required_labels_schema = [{"name": "path", "type": "string"},
+class ImageClassifier(BaseClassifier):
+    required_labels_schema = [{"name": "id", "type": "string"},
                               {"name": "class", "type": "string"},
                               {"name": "comment", "type": "string"},
                               {"name": "session", "type": "int"},
@@ -19,11 +20,10 @@ class ImageClassificator(object):
     logger = logging.getLogger(__name__)
 
     def __init__(self):
-        super(ImageClassificator, self).__init__()
+        super(ImageClassifier, self).__init__()
 
         self.config = self.read_config()
 
-        self.remaining = None
         self.annotations_df = None
 
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
@@ -35,9 +35,17 @@ class ImageClassificator(object):
         self.validate_schema()
         self.init_current_df()
 
-        self.labelled = set(self.annotations_df.loc[self.annotations_df['annotator'] == self.current_user]['path'])
-        self.all_paths = set(self.folder.list_paths_in_partition())
-        self.remaining = self.get_remaining_queries()
+    def get_sample_by_id(self, sid):
+        self.logger.info('Reading image from: ' + str(sid))
+        with self.folder.get_download_stream(sid) as s:
+            data = b64encode(s.read())
+        return data
+
+    def get_all_sample_ids(self):
+        return set(self.folder.list_paths_in_partition())
+
+    def get_labeled_sample_ids(self):
+        return set(self.annotations_df.loc[self.annotations_df['annotator'] == self.current_user]['id'])
 
     def read_config(self):
         config = get_webapp_config()
@@ -83,14 +91,3 @@ class ImageClassificator(object):
                 t = col["type"]
                 t = schema_handling.DKU_PANDAS_TYPES_MAP.get(t, np.object_)
                 self.annotations_df[n] = self.annotations_df[n].astype(t)
-
-    def get_remaining_queries(self):
-        try:
-            self.logger.info("Trying to sort queries by uncertainty")
-            queries = dataiku.Dataset(self.config["query_dataset"]).get_dataframe()['path'].sort_values('uncertainty')
-            remaining = queries.loc[queries.apply(lambda x: x not in self.labelled)].values.tolist()
-            # We use pop to get samples from this list so we need to reverse the order
-            return remaining[::-1]
-        except:
-            self.logger.info("Not taking into account uncertainty, serving random queries")
-            return self.all_paths - self.labelled
