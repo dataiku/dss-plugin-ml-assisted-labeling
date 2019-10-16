@@ -1,8 +1,9 @@
 from flask import request, jsonify
 
+from lal.image_classifier import ImageClassifier
 from lal.lal_handler import LALHandler
 
-lal_handler = LALHandler()
+lal_handler = LALHandler(ImageClassifier())
 
 @app.route('/sample')
 def get_sample():

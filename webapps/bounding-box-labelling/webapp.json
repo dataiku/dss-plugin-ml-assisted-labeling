@@ -19,7 +19,7 @@
         },
         {
             "type": "DATASET", 
-            "name": "queries", 
+            "name": "queries_ds",
             "label":"Queries", 
             "description": "Dataset containing queries to label ranked by importance 222", 
             "mandatory": true, 
@@ -28,7 +28,7 @@
         },
         {
             "type": "DATASET", 
-            "name": "annotations", 
+            "name": "annotations_ds",
             "label":"Annotations", 
             "description": "Dataset to save the annotations into", 
             "mandatory": true, 

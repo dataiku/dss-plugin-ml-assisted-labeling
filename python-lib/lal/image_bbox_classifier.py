@@ -1,93 +1,73 @@
+import datetime
+import json
 import logging
-
-import dataiku
-import numpy as np
-import pandas as pd
-from dataiku.core import schema_handling
-from dataiku.customwebapp import *
 from base64 import b64encode
 
+import dataiku
 from lal.base_classifier import BaseClassifier
 
 
-class ImageClassifier(BaseClassifier):
-    required_labels_schema = [{"name": "id", "type": "string"},
-                              {"name": "class", "type": "string"},
-                              {"name": "comment", "type": "string"},
-                              {"name": "session", "type": "int"},
-                              {"name": "annotator", "type": "string"}]
-
+class ImageBboxClassifier(BaseClassifier):
     logger = logging.getLogger(__name__)
 
     def __init__(self):
-        super(ImageClassifier, self).__init__()
+        super(ImageBboxClassifier, self).__init__()
+        # TODO: move to base class
+        self.queries_ds = dataiku.Dataset(self.config['queries_ds'])
+        self.queries_df = self.queries_ds.get_dataframe()
 
-        self.config = self.read_config()
-
-        self.annotations_df = None
+        self.control_ds = dataiku.Dataset(self.config["annotations_control"])
+        self.control_df = self.prepare_annotation_dataset(self.control_ds)
 
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
-        self.labels_ds = dataiku.Dataset(self.config["labels_ds"])
-        self.folder = dataiku.Folder(self.config["folder"])
 
-        self.current_schema, self.current_schema_columns = self.init_schema()
+    def add_annotation(self, annotaion):
+        path = annotaion.get('sid')
+        cat = annotaion.get('category')
+        bbox = annotaion.get('bbox')
+        comment = annotaion.get('comment')
 
-        self.validate_schema()
-        self.init_current_df()
+        bbox = json.loads(bbox)
+
+        for bb in bbox:
+            self.annotations_df = self.annotations_df.append({
+                'path': path,
+                'class': bb['label'],
+                'comment': comment,
+                'timestamp': datetime.datetime.now(),
+                'annotator': self.current_user,
+                'x1': bb['left'],
+                'y1': bb['top'] + bb['height'],
+                'x2': bb['left'] + bb['width'],
+                'y2': bb['top']
+            }, ignore_index=True)
+
+    def get_all_sample_ids(self):
+        user_queries_df = self.queries_df[self.queries_df['annotator'] == self.current_user]
+        self.logger.info("All user sample ids count: {}".format(len(user_queries_df)))
+        return set(user_queries_df.path)
+
+    def get_labeled_sample_ids(self):
+        return set(self.annotations_df[self.annotations_df['annotator'] == self.current_user].path)
 
     def get_sample_by_id(self, sid):
         self.logger.info('Reading image from: ' + str(sid))
         with self.folder.get_download_stream(sid) as s:
             data = b64encode(s.read())
-        return data
+        bboxes = self.queries_df[self.queries_df['path'] == sid][['x1', 'y1', 'x2', 'y2']].to_dict('records')
 
-    def get_all_sample_ids(self):
-        return set(self.folder.list_paths_in_partition())
+        self.logger.info("BBOX: {}".format(bboxes))
+        return {"img": data, "bbox": bboxes}
 
-    def get_labeled_sample_ids(self):
-        return set(self.annotations_df.loc[self.annotations_df['annotator'] == self.current_user]['id'])
-
-    def read_config(self):
-        config = get_webapp_config()
-        self.logger.info("Webapp config: %s" % repr(config))
-
-        if "folder" not in config:
-            raise ValueError("Image folder not specified. Go to settings tab.")
-        if "labels_ds" not in config:
-            raise ValueError("Labels dataset not specified. Go to settings tab.")
-        if "query_dataset" not in config:
-            raise ValueError("Queries dataset not specified. Go to settings tab.")
-
-        return config
-
-    def init_schema(self):
-        self.labels_ds.write_schema(self.required_labels_schema)
-        try:
-            current_schema = self.labels_ds.read_schema()
-        except:
-            self.labels_ds.write_schema(self.required_labels_schema)
-
-        # TODO : What's going on here? Why writing schema 2 times?
-
-        current_schema_columns = [c['name'] for c in current_schema]
-        return current_schema, current_schema_columns
-
-    def validate_schema(self):
-        required_columns = [c['name'] for c in self.required_labels_schema]
-
-        if not set(required_columns).issubset(set(self.current_schema_columns)):
-            raise ValueError(
-                "The target dataset should have columns: {}. The provided dataset has columns: {}. Please edit the schema in the dataset settings.".format(
-                    ', '.join(required_columns), ', '.join(self.current_schema_columns)))
-
-    def init_current_df(self):
-        try:
-            self.annotations_df = self.labels_ds.get_dataframe()
-        except:
-            self.logger.info("Dataset probably empty")
-            self.annotations_df = pd.DataFrame(columns=self.current_schema_columns, index=[])
-            for col in self.current_schema:
-                n = col["name"]
-                t = col["type"]
-                t = schema_handling.DKU_PANDAS_TYPES_MAP.get(t, np.object_)
-                self.annotations_df[n] = self.annotations_df[n].astype(t)
+    @property
+    def annotations_required_schema(self):
+        return [
+            {"name": "path", "type": "string"},
+            {"name": "annotator", "type": "string"},
+            {"name": "x1", "type": "int"},
+            {"name": "y1", "type": "int"},
+            {"name": "x2", "type": "int"},
+            {"name": "y2", "type": "int"},
+            {"name": "class", "type": "str"},
+            {"name": "timestamp", "type": "int"},
+        ]
