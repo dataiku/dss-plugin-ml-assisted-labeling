@@ -19,7 +19,7 @@
         },
         {
             "type": "DATASET",
-            "name": "labels_ds",
+            "name": "annotations_ds",
             "label":"Labels",
             "description": "Dataset to save the labels into",
             "mandatory": false,
@@ -28,9 +28,9 @@
         },
         {
             "type": "DATASET", 
-            "name": "query_dataset", 
+            "name": "queries_ds",
             "label":"Queries", 
-            "description": "Dataset containing queries to label ranked by importance", 
+            "description": "123Dataset containing queries to label ranked by importance",
             "mandatory": false, 
             "canSelectForeign": false,
             "canCreateDataset": false
