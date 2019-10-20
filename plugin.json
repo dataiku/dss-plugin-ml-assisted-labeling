@@ -1,5 +1,5 @@
 {
-    "id": "image-labeling",
+    "id": "active-learning",
     "version": "0.1.0",
     "meta": {
         "label": "Image labeling",
