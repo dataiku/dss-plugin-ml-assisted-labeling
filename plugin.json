@@ -1,13 +1,13 @@
 {
     "id": "active-learning",
-    "version": "0.1.0",
+    "version": "0.0.1",
     "meta": {
-        "label": "Image labeling",
+        "label": "Image labeling + Active learning",
         "description": "Manually classify images for use in supervised learning",
-        "author": "Dataiku (Joachim Zentici)",
+        "author": "Dataiku (Joachim Zentici, aabraham, aavtomonov)",
         "icon": "icon-picture",
         "licenseInfo": "Apache Software License",
         "url": "https://www.dataiku.com/dss/plugins/info/image-labeling.html",
-        "tags": ["Deep Learning", "Images"]
+        "tags": ["Deep Learning", "Images", "Active learning"]
     }
 }
