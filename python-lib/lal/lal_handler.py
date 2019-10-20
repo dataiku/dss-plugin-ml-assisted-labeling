@@ -16,7 +16,7 @@ class LALHandler(object):
         self.config = get_webapp_config()
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
 
-        self.lal_app = classifier
+        self.classifier = classifier
 
         self.remaining = self.get_remaining_queries()
 
@@ -29,23 +29,28 @@ class LALHandler(object):
         #     return remaining[::-1]
         # except:
         # self.logger.info("Not taking into account uncertainty, serving random queries")
-        return self.lal_app.get_all_sample_ids() - self.lal_app.get_labeled_sample_ids()
+        return self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids()
 
     def get_sample(self):
-        self.logger.info("Getting sample, remaining: {}".format(len(self.remaining)))
+        self.logger.info("Getting sample")
+        if self.is_stopping_criteria_met():
+            return {
+                "is_done": True
+            }
         if len(self.remaining) > 0:
             sid = self.remaining.pop()
         else:
             sid = None
-        total_count = len(self.lal_app.get_all_sample_ids())
+        total_count = len(self.classifier.get_all_sample_ids())
         # -1 because the current is not counted :
-        labelled_count = len(self.lal_app.get_labeled_sample_ids())
+        labelled_count = len(self.classifier.get_labeled_sample_ids())
         skipped_count = total_count - labelled_count - len(self.remaining) - 1
-        by_category = self.lal_app.annotations_df['class'].value_counts().to_dict()
+        by_category = self.classifier.annotations_df['class'].value_counts().to_dict()
 
         return {
+            "is_done": False,
             "sid": sid,
-            "data": self.lal_app.get_sample_by_id(sid),
+            "data": self.classifier.get_sample_by_id(sid),
             "labelled": labelled_count,
             "total": total_count,
             "skipped": skipped_count,
@@ -59,9 +64,12 @@ class LALHandler(object):
             self.logger.error(message)
             raise ValueError(message)
 
-        self.lal_app.add_annotation(data)
+        self.classifier.add_annotation(data)
 
-        self.lal_app.annotations_ds.write_with_schema(self.lal_app.annotations_df)
-        self.logger.info("Wrote Annotations Dataframe of shape:  %s" % str(self.lal_app.annotations_df.shape))
+        self.classifier.annotations_ds.write_with_schema(self.classifier.annotations_df)
+        self.logger.info("Wrote Annotations Dataframe of shape:  %s" % str(self.classifier.annotations_df.shape))
 
         return self.get_sample()
+
+    def is_stopping_criteria_met(self):
+        return len(self.remaining) < 0

@@ -6,6 +6,13 @@ from lal.base_classifier import BaseClassifier
 
 
 class ImageClassifier(BaseClassifier):
+    logger = logging.getLogger(__name__)
+
+    def __init__(self):
+        super(ImageClassifier, self).__init__()
+        self.folder = dataiku.Folder(self.config["folder"])
+        self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
+
     def add_annotation(self, annotaion):
         sid = annotaion.get('sid')
         cat = annotaion.get('category')
@@ -19,13 +26,6 @@ class ImageClassifier(BaseClassifier):
             'session': 0,
             'annotator': self.current_user,
         }, ignore_index=True)
-
-    logger = logging.getLogger(__name__)
-
-    def __init__(self):
-        super(ImageClassifier, self).__init__()
-
-        self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
 
     @property
     def annotations_required_schema(self):

@@ -15,7 +15,7 @@ class ImageBboxClassifier(BaseClassifier):
         # TODO: move to base class
         self.queries_ds = dataiku.Dataset(self.config['queries_ds'])
         self.queries_df = self.queries_ds.get_dataframe()
-
+        self.folder = dataiku.Folder(self.config["folder"])
         self.control_ds = dataiku.Dataset(self.config["annotations_control"])
         self.control_df = self.prepare_annotation_dataset(self.control_ds)
 

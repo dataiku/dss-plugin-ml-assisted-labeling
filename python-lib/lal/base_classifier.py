@@ -19,8 +19,6 @@ class BaseClassifier(object):
         self.annotations_ds = dataiku.Dataset(self.config["annotations_ds"])
         self.annotations_df = self.prepare_annotation_dataset(self.annotations_ds)
 
-        self.folder = dataiku.Folder(self.config["folder"])
-
     def read_config(self):
         config = get_webapp_config()
         self.logger.info("Webapp config: %s" % repr(config))
