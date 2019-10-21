@@ -42,7 +42,7 @@ class ImageClassifier(BaseClassifier):
             data = b64encode(s.read())
             
         self.logger.info("Read: {0}, {1}".format(len(data), type(data)))
-        return data
+        return data.decode()
 
     def get_all_sample_ids(self):
         return set(self.folder.list_paths_in_partition())
