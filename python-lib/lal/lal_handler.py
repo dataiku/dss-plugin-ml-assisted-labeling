@@ -54,8 +54,6 @@ class LALHandler(object):
             "skipped": skipped_count,
             "byCategory": by_category
         }
-        self.logger.info("Returning "+self.classifier.get_sample_by_id(sid))
-
         return result
 
     def classify(self, data):
