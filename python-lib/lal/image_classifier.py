@@ -40,7 +40,7 @@ class ImageClassifier(BaseClassifier):
         self.logger.info('Reading image from: ' + str(sid))
         with self.folder.get_download_stream(sid) as s:
             data = b64encode(s.read())
-        self.logger.info('Read: ' + str(len(data)))
+        self.logger.info('Read: {0}, {1}'.format(str(len(data))), type(data))
         return data.encode()
 
     def get_all_sample_ids(self):
