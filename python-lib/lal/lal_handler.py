@@ -21,15 +21,14 @@ class LALHandler(object):
         self.remaining = self.get_remaining_queries()
 
     def get_remaining_queries(self):
-        # try:
-        #     self.logger.info("Trying to sort queries by uncertainty")
-        #     queries = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()['path'].sort_values('uncertainty')
-        #     remaining = queries.loc[queries.apply(lambda x: x not in self.labelled)].values.tolist()
-        #     # We use pop to get samples from this list so we need to reverse the order
-        #     return remaining[::-1]
-        # except:
-        # self.logger.info("Not taking into account uncertainty, serving random queries")
-        return self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids()
+        try:
+            self.logger.info("Trying to sort queries by uncertainty")
+            queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
+            queries_df = queries_df.sort_values('uncertainty', ascending=False)['id']
+            return set(queries_df.tolist()) - self.classifier.get_all_sample_ids()
+        except:
+            self.logger.info("Not taking into account uncertainty, serving random queries")
+            return self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids()
 
     def get_sample(self):
         self.logger.info("Getting sample")
