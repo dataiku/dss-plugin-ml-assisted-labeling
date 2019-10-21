@@ -45,8 +45,7 @@ class LALHandler(object):
         labelled_count = len(self.classifier.get_labeled_sample_ids())
         skipped_count = total_count - labelled_count - len(self.remaining) - 1
         by_category = self.classifier.annotations_df['class'].value_counts().to_dict()
-
-        return {
+        result = {
             "is_done": False,
             "sid": sid,
             "data": self.classifier.get_sample_by_id(sid),
@@ -55,6 +54,9 @@ class LALHandler(object):
             "skipped": skipped_count,
             "byCategory": by_category
         }
+        self.logger.info("Returning "+json.dumps(result))
+
+        return result
 
     def classify(self, data):
         self.logger.info("Classifying: %s" % json.dumps(data))
