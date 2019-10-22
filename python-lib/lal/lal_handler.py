@@ -26,7 +26,7 @@ class LALHandler(object):
             queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
             queries_df = queries_df.sort_values('uncertainty', ascending=False)['id']
             print(queries_df.head())
-            print('remaining')
+            print('remaining',queries_df[~queries_df['id'].isin(self.classifier.get_labeled_sample_ids())]['id'])
             remaining = queries_df[~queries_df['id'].isin(self.classifier.get_labeled_sample_ids())]['id'].unique().tolist()
             return remaining
         except:
