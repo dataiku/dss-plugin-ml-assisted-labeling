@@ -1,8 +1,8 @@
-import logging
-
 import dataiku
-from dataiku.customwebapp import *
 import json
+import logging
+from dataiku.customwebapp import *
+
 
 class LALHandler(object):
     logger = logging.getLogger(__name__)
@@ -15,20 +15,15 @@ class LALHandler(object):
         super(LALHandler, self).__init__()
         self.config = get_webapp_config()
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
+        self.queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
 
         self.classifier = classifier
-
-        self.remaining = self.get_remaining_queries()
 
     def get_remaining_queries(self):
         try:
             self.logger.info("Trying to sort queries by uncertainty")
-            queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
-            queries_df = queries_df.sort_values('uncertainty', ascending=False)['id']
-            print(queries_df.head())
-            print('remaining')
-            print(queries_df[~queries_df['id'].isin(self.classifier.get_labeled_sample_ids())])
-            remaining = queries_df[~queries_df['id'].isin(self.classifier.get_labeled_sample_ids())]['id'].unique().tolist()
+            queries_df = self.queries_df.sort_values('uncertainty', ascending=False)['id']
+            remaining = queries_df[~queries_df.isin(self.classifier.get_labeled_sample_ids())].unique().tolist()
             return remaining
         except:
             self.logger.info("Not taking into account uncertainty, serving random queries")
@@ -36,18 +31,19 @@ class LALHandler(object):
 
     def get_sample(self):
         self.logger.info("Getting sample")
+        remaining = self.get_remaining_queries()
         if self.is_stopping_criteria_met():
             return {
                 "is_done": True
             }
-        if len(self.remaining) > 0:
-            sid = self.remaining.pop()
+        if len(remaining) > 0:
+            sid = remaining.pop()
         else:
             sid = None
         total_count = len(self.classifier.get_all_sample_ids())
-        # -1 because the current is not counted :
         labelled_count = len(self.classifier.get_labeled_sample_ids())
-        skipped_count = total_count - labelled_count - len(self.remaining) - 1
+        # -1 because the current is not counted :
+        skipped_count = total_count - labelled_count - len(remaining) - 1
         by_category = self.classifier.annotations_df['class'].value_counts().to_dict()
         result = {
             "is_done": False,
@@ -75,4 +71,4 @@ class LALHandler(object):
         return self.get_sample()
 
     def is_stopping_criteria_met(self):
-        return len(self.remaining) < 0
+        return len(self.get_remaining_queries()) < 0
