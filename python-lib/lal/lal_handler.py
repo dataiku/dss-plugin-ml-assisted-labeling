@@ -2,7 +2,7 @@ import logging
 
 import dataiku
 from dataiku.customwebapp import *
-
+import json
 
 class LALHandler(object):
     logger = logging.getLogger(__name__)
@@ -21,15 +21,18 @@ class LALHandler(object):
         self.remaining = self.get_remaining_queries()
 
     def get_remaining_queries(self):
-        # try:
-        #     self.logger.info("Trying to sort queries by uncertainty")
-        #     queries = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()['path'].sort_values('uncertainty')
-        #     remaining = queries.loc[queries.apply(lambda x: x not in self.labelled)].values.tolist()
-        #     # We use pop to get samples from this list so we need to reverse the order
-        #     return remaining[::-1]
-        # except:
-        # self.logger.info("Not taking into account uncertainty, serving random queries")
-        return self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids()
+        try:
+            self.logger.info("Trying to sort queries by uncertainty")
+            queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
+            queries_df = queries_df.sort_values('uncertainty', ascending=False)['id']
+            print(queries_df.head())
+            print('remaining')
+            print(queries_df[~queries_df['id'].isin(self.classifier.get_labeled_sample_ids())])
+            remaining = queries_df[~queries_df['id'].isin(self.classifier.get_labeled_sample_ids())]['id'].unique().tolist()
+            return remaining
+        except:
+            self.logger.info("Not taking into account uncertainty, serving random queries")
+            return self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids()
 
     def get_sample(self):
         self.logger.info("Getting sample")
@@ -46,8 +49,7 @@ class LALHandler(object):
         labelled_count = len(self.classifier.get_labeled_sample_ids())
         skipped_count = total_count - labelled_count - len(self.remaining) - 1
         by_category = self.classifier.annotations_df['class'].value_counts().to_dict()
-
-        return {
+        result = {
             "is_done": False,
             "sid": sid,
             "data": self.classifier.get_sample_by_id(sid),
@@ -56,6 +58,7 @@ class LALHandler(object):
             "skipped": skipped_count,
             "byCategory": by_category
         }
+        return result
 
     def classify(self, data):
         self.logger.info("Classifying: %s" % json.dumps(data))
