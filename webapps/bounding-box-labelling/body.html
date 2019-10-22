@@ -1,0 +1,21 @@
+<script src="/plugins/image-labeling/resource/dku-helper.js"></script>
+<script src="/plugins/image-labeling/resource/bbox_annotator.js"></script>
+
+
+<div id="fatal-error" style="display: none"></div>
+<div id="app" style="display: none">
+    <div id="bbox_annotator" style="margin: auto; max-width:500px"></div>
+    <div id="skip-buttons">
+        <button id="reset_button" class="btn btn-default skip-button">Reset</button>
+        <button id="validate_button" class="btn btn-default skip-button">Validate</button>
+    </div>
+    <div id="comment">
+        <textarea  class="comment-area" placeholder="Comment..."></textarea>
+    </div>
+    <div id="progress">
+        Remaining queries: <span id="remaining">?</span> 
+    </div>
+    <div>
+        <textarea id="annotation_data" name="annotation" rows="10" cols="80" style="font-family:monospace;" readonly></textarea>
+    </div>
+</div>
