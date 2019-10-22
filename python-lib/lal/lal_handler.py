@@ -27,7 +27,7 @@ class LALHandler(object):
             queries_df = queries_df.sort_values('uncertainty', ascending=False)['id']
             print(queries_df.head())
             remaining = queries_df[~queries_df['id'].isin(self.classifier.get_labeled_sample_ids())]['id'].unique().tolist()
-            print('remaining', remaining)
+            print('remaining')
             return remaining
         except:
             self.logger.info("Not taking into account uncertainty, serving random queries")
