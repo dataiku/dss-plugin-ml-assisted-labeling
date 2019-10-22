@@ -22,7 +22,7 @@ class LALHandler(object):
     def get_remaining_queries(self):
         try:
             self.logger.info("Trying to sort queries by uncertainty")
-            queries_df = self.queries_df.sort_values('uncertainty', ascending=False)['id']
+            queries_df = self.queries_df.sort_values('uncertainty')['id']
             remaining = queries_df[~queries_df.isin(self.classifier.get_labeled_sample_ids())].unique().tolist()
             return remaining
         except:
