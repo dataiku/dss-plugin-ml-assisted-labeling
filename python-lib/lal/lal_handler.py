@@ -25,7 +25,7 @@ class LALHandler(object):
             self.logger.info("Trying to sort queries by uncertainty")
             queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
             queries_df = queries_df.sort_values('uncertainty', ascending=False)['id']
-
+            print(queries_df.head())
             return queries_df[~queries_df['id'].isin(self.classifier.get_labeled_sample_ids())]['id'].unique().tolist()
         except:
             self.logger.info("Not taking into account uncertainty, serving random queries")
