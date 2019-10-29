@@ -181,6 +181,7 @@ function classify(category) {
 function updateProgress(resp) {
     $('.category-button').removeClass("selected");
     $("#unlabeled").hide();
+    $("#skip").show();
     if (!resp.labelled) {
         $("#back").hide();
     } else {
