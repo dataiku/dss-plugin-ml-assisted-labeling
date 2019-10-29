@@ -1,6 +1,7 @@
-import dataiku
 import json
 import logging
+
+import dataiku
 from dataiku.customwebapp import *
 
 
@@ -29,17 +30,18 @@ class LALHandler(object):
             self.logger.info("Not taking into account uncertainty, serving random queries")
             return self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids()
 
-    def get_sample(self):
+    def get_sample(self, sid=None):
         self.logger.info("Getting sample")
         remaining = self.get_remaining_queries()
         if self.is_stopping_criteria_met():
             return {
                 "is_done": True
             }
-        if len(remaining) > 0:
-            sid = remaining.pop()
-        else:
-            sid = None
+        if not sid:
+            if len(remaining) > 0:
+                sid = remaining.pop()
+            else:
+                sid = None
         total_count = len(self.classifier.get_all_sample_ids())
         labelled_count = len(self.classifier.get_labeled_sample_ids())
         # -1 because the current is not counted :
@@ -72,3 +74,21 @@ class LALHandler(object):
 
     def is_stopping_criteria_met(self):
         return len(self.get_remaining_queries()) < 0
+
+    def back(self, data):
+        self.logger.info("BACK, {}".format(data))
+        current_id = data['current']
+
+        user_df = self.classifier.annotations_df[self.classifier.annotations_df['annotator'] == self.current_user]
+        if current_id in user_df['id'].values:
+            current_date = user_df[user_df.id == current_id]['date'].values[0]
+            self.logger.info("Current date: {}".format(current_date))
+            user_df = user_df[user_df.date < current_date]
+        logging.info("User_DF: {}".format(user_df.shape[0]))
+        previous = user_df.sort_values('date', ascending=False).head(1).to_dict('records')[0]
+        return {
+            "is_done": user_df.shape[0] <= 1,
+            "sid": previous['id'],
+            "data": self.classifier.get_sample_by_id(previous['id']),
+            "class": previous['class']
+        }

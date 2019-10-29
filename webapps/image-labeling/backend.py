@@ -15,6 +15,12 @@ def skip_sample():
     return jsonify(lal_handler.get_sample())
 
 
+@app.route('/back', methods=['POST'])
+def back():
+    req_data = request.get_json()
+    return jsonify(lal_handler.back(req_data))
+
+
 @app.route('/classify', methods=['POST'])
 def classify():
     req_data = request.get_json()

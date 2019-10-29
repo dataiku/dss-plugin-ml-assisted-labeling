@@ -1,10 +1,9 @@
 import logging
 from abc import abstractmethod
 
+import dataiku
 import numpy as np
 import pandas as pd
-
-import dataiku
 from dataiku.core import schema_handling
 from dataiku.customwebapp import *
 
@@ -18,6 +17,8 @@ class BaseClassifier(object):
 
         self.annotations_ds = dataiku.Dataset(self.config["annotations_ds"])
         self.annotations_df = self.prepare_annotation_dataset(self.annotations_ds)
+
+
 
     def read_config(self):
         config = get_webapp_config()

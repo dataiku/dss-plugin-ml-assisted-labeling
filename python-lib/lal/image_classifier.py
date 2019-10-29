@@ -1,7 +1,8 @@
-import dataiku
-from datetime import datetime
 import logging
 from base64 import b64encode
+from datetime import datetime
+
+import dataiku
 
 from lal.base_classifier import BaseClassifier
 
@@ -20,6 +21,7 @@ class ImageClassifier(BaseClassifier):
         cat = annotaion.get('category')
         # comment = annotaion.get('comment')
         comment = annotaion.get('points')
+        self.annotations_df = self.annotations_df[self.annotations_df.id != sid]
 
         self.annotations_df = self.annotations_df.append({
             'date': datetime.now(),
@@ -59,4 +61,4 @@ class ImageClassifier(BaseClassifier):
             return set(self.folder.list_paths_in_partition())
 
     def get_labeled_sample_ids(self):
-        return set(self.annotations_df.loc[self.annotations_df['annotator'] == self.current_user]['id'])
+        return set(self.annotations_df[self.annotations_df['annotator'] == self.current_user]['id'])

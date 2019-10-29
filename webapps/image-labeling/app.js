@@ -77,6 +77,8 @@ function drawApp(categories) {
         console.warn(e);
     }
     $('#skip').click(skip);
+    $('#back').click(back);
+    $('#unlabeled').click(next);
     next();
 }
 
@@ -125,6 +127,25 @@ function skip() {
         .catch(displayFatalError);
 }
 
+function back() {
+    webappBackend.post('back', {"current": currentSID})
+        .then((resp) => {
+            $('.category-button').removeClass("selected");
+            $("#unlabeled").show();
+            $("#skip").hide();
+            console.log("back!");
+            currentSID = resp.sid;
+            if (resp.is_done) {
+                $("#back").hide();
+            }
+            drawItem(resp.data);
+            $("#cat_" + resp.class).addClass("selected");
+            $('#app').show();
+
+        })
+        .catch(displayFatalError);
+}
+
 function drawItem(imgData) {
     //TODO: use a better condition
     if (!imgData) {
@@ -147,11 +168,18 @@ function classify(category) {
 }
 
 function updateProgress(resp) {
+    $('.category-button').removeClass("selected");
+    $("#unlabeled").hide();
+    if (!resp.labelled) {
+        $("#back").hide();
+    } else {
+        $("#back").show();
+    }
     currentSID = resp.sid;
     $('#total').text(resp.total);
     $('#labelled').text(resp.labelled);
     $('#skipped').text(resp.skipped);
-    $.each(resp.byCategory, (name, count) => setCategoryCount(name, count, resp.total))
+    $.each(resp.byCategory, (name, count) => setCategoryCount(name, count, resp.total));
     drawItem(resp.data);
     $('#app').show();
 }
