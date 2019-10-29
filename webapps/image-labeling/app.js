@@ -89,7 +89,7 @@ function drawCategory(category) {
     var buttonHtml;
     if (category.description) {
         // button with description tooltip
-        buttonHtml = `<button id="cat_${category.name}" class="btn btn-default category-button" data-toggle="tooltip" data-placement="bottom" title="${category.description}"><div class="ratio"></div>${category.name}&nbsp;<i class="icon-info-sign"></i></button>`
+        buttonHtml = `<button id="cat_${category.name}" class="btn btn-default category-button" data-toggle="tooltip" data-placement="bottom" title="${category.name}"><div class="ratio"></div>${category.description}&nbsp;<i class="icon-info-sign"></i></button>`
     } else {
         // simple button
         buttonHtml = `<button id="cat_${category.name}" class="btn btn-default category-button">${category.name}<div class="ratio"></div></button>`
