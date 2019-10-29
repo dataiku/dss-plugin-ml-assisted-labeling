@@ -44,7 +44,7 @@ class LALHandler(object):
         total_count = len(self.classifier.get_all_sample_ids())
         labelled_count = len(self.classifier.get_labeled_sample_ids())
         # -1 because the current is not counted :
-        skipped_count = total_count - labelled_count - len(self.remaining) - 1
+        skipped_count = total_count - labelled_count - len(self.remaining)
         by_category = self.classifier.annotations_df['class'].value_counts().to_dict()
         result = {
             "is_done": False,
