@@ -17,8 +17,8 @@ class LALHandler(object):
         self.config = get_webapp_config()
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
         self.queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
-
         self.classifier = classifier
+        self.remaining = self.get_remaining_queries()
 
     def get_remaining_queries(self):
         try:
@@ -32,20 +32,19 @@ class LALHandler(object):
 
     def get_sample(self, sid=None):
         self.logger.info("Getting sample")
-        remaining = self.get_remaining_queries()
         if self.is_stopping_criteria_met():
             return {
                 "is_done": True
             }
         if not sid:
-            if len(remaining) > 0:
-                sid = remaining.pop()
+            if len(self.remaining) > 0:
+                sid = self.remaining[-1]
             else:
                 sid = None
         total_count = len(self.classifier.get_all_sample_ids())
         labelled_count = len(self.classifier.get_labeled_sample_ids())
         # -1 because the current is not counted :
-        skipped_count = total_count - labelled_count - len(remaining) - 1
+        skipped_count = total_count - labelled_count - len(self.remaining) - 1
         by_category = self.classifier.annotations_df['class'].value_counts().to_dict()
         result = {
             "is_done": False,
@@ -66,7 +65,7 @@ class LALHandler(object):
             raise ValueError(message)
 
         self.classifier.add_annotation(data)
-
+        self.remaining.remove(data['sid'])
         self.classifier.annotations_ds.write_with_schema(self.classifier.annotations_df)
         self.logger.info("Wrote Annotations Dataframe of shape:  %s" % str(self.classifier.annotations_df.shape))
 
@@ -92,3 +91,7 @@ class LALHandler(object):
             "data": self.classifier.get_sample_by_id(previous['id']),
             "class": previous['class']
         }
+
+    def skip(self, data):
+        self.remaining.remove(data['sid'])
+        return self.get_sample()

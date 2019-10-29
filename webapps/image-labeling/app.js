@@ -133,7 +133,7 @@ function next() {
 }
 
 function skip() {
-    webappBackend.get('skip')
+    webappBackend.post('skip', {"sid": currentSID})
         .then(updateProgress)
         .catch(displayFatalError);
 }

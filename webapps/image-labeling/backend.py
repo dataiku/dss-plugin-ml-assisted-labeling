@@ -5,14 +5,16 @@ from lal.lal_handler import LALHandler
 
 lal_handler = LALHandler(ImageClassifier())
 
+
 @app.route('/sample')
 def get_sample():
     return jsonify(lal_handler.get_sample())
 
 
-@app.route('/skip')
+@app.route('/skip', methods=['POST'])
 def skip_sample():
-    return jsonify(lal_handler.get_sample())
+    req_data = request.get_json()
+    return jsonify(lal_handler.skip(req_data))
 
 
 @app.route('/back', methods=['POST'])
