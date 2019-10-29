@@ -87,14 +87,25 @@ function displayFatalError(err) {
     $('#fatal-error').text(err.message ? err.message : err).show();
 }
 
+function stringHash(str) {
+    var hash = 0, i, chr;
+    if (str.length === 0) return hash;
+    for (i = 0; i < str.length; i++) {
+        chr = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
+
 function drawCategory(category) {
     var buttonHtml;
     if (category.description) {
         // button with description tooltip
-        buttonHtml = `<button id="cat_${category.name}" class="btn btn-default category-button"><div class="ratio"></div>${category.description}&nbsp;<i class="icon-info-sign"></i></button>`
+        buttonHtml = `<button id="cat_${stringHash(category.name)}" class="btn btn-default category-button"><div class="ratio"></div>${category.description}&nbsp;<i class="icon-info-sign"></i></button>`
     } else {
         // simple button
-        buttonHtml = `<button id="cat_${category.name}" class="btn btn-default category-button">${category.name}<div class="ratio"></div></button>`
+        buttonHtml = `<button id="cat_${stringHash(category.name)}" class="btn btn-default category-button">${category.name}<div class="ratio"></div></button>`
     }
     const button = $(buttonHtml)
     $('#category-buttons').append(button);
@@ -139,7 +150,7 @@ function back() {
                 $("#back").hide();
             }
             drawItem(resp.data);
-            $("#cat_" + resp.class).addClass("selected");
+            $("#cat_" + stringHash(resp.class)).addClass("selected");
             $('#app').show();
 
         })
