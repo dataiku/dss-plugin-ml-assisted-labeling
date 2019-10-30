@@ -35,6 +35,7 @@ class LALHandler(object):
             return {
                 "is_done": True
             }
+        self.logger.info("get_sample, remaining: {}".format(len(self.remaining)))
         if not sid:
             if len(self.remaining) > 0:
                 sid = self.remaining[-1]
