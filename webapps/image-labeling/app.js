@@ -1,14 +1,21 @@
+/**
+ * A variable in the global namespace called 'dataiku'.
+ * @typedef {Object} dataiku
+ * @property {function} getWebAppConfig
+ * @property {function} checkWebAppParameters
+ * @property {string} categories
+ * @property {string} to
+ *
+ */
+
 let categories = (dataiku.getWebAppConfig().categories || []).map(it => ({name: it.from, description: it.to}));
 let currentSID;
+let ctx;
+let points;
 
-
-var mousePressed = false;
-var lastX, lastY;
-var ctx;
-var points;
 
 function initCanvas(elementId, image_data) {
-    canvas = document.getElementById(elementId);
+    const canvas = document.getElementById(elementId);
     ctx = canvas.getContext("2d");
     // Clear the canvas
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -16,52 +23,14 @@ function initCanvas(elementId, image_data) {
     points = [];
 
     // Draw the image
-    var image = new Image();
+    const image = new Image();
     image.onload = function () {
         canvas.width = image.width;
         canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
     };
     image.src = image_data;
-
-    elementId = '#' + elementId;
-
-    $(elementId).mousedown(function (e) {
-        mousePressed = true;
-        draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
-        points.push([e.pageX - $(this).offset().left, e.pageY - $(this).offset().top])
-    });
-
-    $(elementId).mousemove(function (e) {
-        if (mousePressed) {
-            draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true);
-            points.push([e.pageX - $(this).offset().left, e.pageY - $(this).offset().top])
-        }
-    });
-
-    $(elementId).mouseup(function (e) {
-        mousePressed = false;
-    });
-    $(elementId).mouseleave(function (e) {
-        mousePressed = false;
-    });
 }
-
-function draw(x, y, isDown) {
-    if (isDown) {
-        ctx.beginPath();
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 1;
-        ctx.lineJoin = "round";
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(x, y);
-        ctx.closePath();
-        ctx.stroke();
-    }
-    lastX = x;
-    lastY = y;
-}
-
 
 function drawApp(categories) {
     try {
@@ -76,9 +45,9 @@ function drawApp(categories) {
     } catch (e) {
         console.warn(e);
     }
-    $('#skip').click(skip);
-    $('#back').click(back);
-    $('#unlabeled').click(next);
+    $('#skip').on("click", skip);
+    $('#back').on("click", back);
+    $('#unlabeled').on("click", next);
     next();
 }
 
@@ -88,7 +57,7 @@ function displayFatalError(err) {
 }
 
 function stringHash(str) {
-    var hash = 0, i, chr;
+    let hash = 0, i, chr;
     if (str.length === 0) return hash;
     for (i = 0; i < str.length; i++) {
         chr = str.charCodeAt(i);
@@ -99,7 +68,7 @@ function stringHash(str) {
 }
 
 function drawCategory(category) {
-    var buttonHtml;
+    let buttonHtml;
     if (category.description) {
         // button with description tooltip
         buttonHtml = `<button id="cat_${stringHash(category.name)}" class="btn btn-default category-button"><div class="ratio"></div>${category.description}&nbsp;<i class="icon-info-sign"></i></button>`
@@ -107,7 +76,7 @@ function drawCategory(category) {
         // simple button
         buttonHtml = `<button id="cat_${stringHash(category.name)}" class="btn btn-default category-button">${category.name}<div class="ratio"></div></button>`
     }
-    const button = $(buttonHtml)
+    const button = $(buttonHtml);
     $('#category-buttons').append(button);
 }
 
@@ -115,10 +84,10 @@ function drawCategories(categories) {
     $('#category-buttons').empty();
     categories.forEach(drawCategory);
     $('#category-buttons button').each((idx, button) => {
-        $(button).click(() => {
+        $(button).on("click", () => {
             classify(categories[idx].name);
             next()
-        })
+        });
     });
 }
 
@@ -169,10 +138,10 @@ function drawItem(imgData) {
 }
 
 function classify(category) {
-    const comment = $('#comment').val()
+    const comment = $('#comment').val();
     webappBackend.post('classify', {
         sid: currentSID,
-        comment: $('#comment').val(),
+        comment: comment,
         category: category,
         points: String(points)
     }, updateProgress);
