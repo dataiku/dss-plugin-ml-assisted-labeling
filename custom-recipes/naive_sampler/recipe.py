@@ -30,7 +30,6 @@ else:
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
 strategy_mapper = {
-    'random': random.random_sampling,
     'density': density.density_sampling
 }
 

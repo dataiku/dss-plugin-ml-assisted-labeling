@@ -77,6 +77,7 @@
             "label" : "Query strategy",
             "type" : "SELECT",
             "selectChoices" : [
+                { "value" : "random", "label" : "Random sampling"},
                 { "value" : "uncertainty", "label" : "Uncertainty sampling"},
                 { "value" : "margin", "label" : "Margin sampling"},
                 { "value" : "entropy", "label" : "Entropy based sampling"}

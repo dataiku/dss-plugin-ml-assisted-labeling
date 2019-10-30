@@ -61,7 +61,6 @@
             "label" : "Query strategy",
             "type" : "SELECT",
             "selectChoices" : [
-                { "value" : "random", "label" : "Random sampling"},
                 { "value" : "density", "label" : "Density-based sampling"}
             ]
         }
