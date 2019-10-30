@@ -1,4 +1,3 @@
-import json
 import logging
 
 import dataiku
@@ -16,7 +15,7 @@ class LALHandler(object):
         super(LALHandler, self).__init__()
         self.config = get_webapp_config()
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
-        self.queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
+        self._queries_df = None
         self.classifier = classifier
         self.remaining = self.get_remaining_queries()
 
@@ -28,7 +27,7 @@ class LALHandler(object):
             return remaining
         except:
             self.logger.info("Not taking into account uncertainty, serving random queries")
-            return self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids()
+            return list(self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids())
 
     def get_sample(self, sid=None):
         self.logger.info("Getting sample")
@@ -95,3 +94,14 @@ class LALHandler(object):
     def skip(self, data):
         self.remaining.remove(data['sid'])
         return self.get_sample()
+
+    @property
+    def queries_df(self):
+        if self._queries_df:
+            return self._queries_df
+        try:
+            self._queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
+        except:
+            self._queries_df = None
+
+        return self._queries_df
