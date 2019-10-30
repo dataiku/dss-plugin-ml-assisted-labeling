@@ -7,5 +7,6 @@ flask>=0.12,<0.13
 h5py==2.7.1
 pillow==5.1.0
 scipy>=1.1,<1.2
+git+https://github.com/dataiku/cardinAL.git
 snorkel
 alipy
