@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
-import os
 
-import pandas as pd, numpy as np
-import keras
+import pandas as pd
 
 import dataiku
+from cardinal import uncertainty
 from dataiku.customrecipe import *
-from dataiku import pandasutils as pdu
-
-from cardinal import uncertainty, dss_utils
-
 
 config = get_recipe_config()
 
-unlabeled_df = dataiku.Dataset(get_input_names_for_role('unlabeled_samples')[0]).get_dataframe()
+folder = dataiku.Folder(get_input_names_for_role('unlabeled_samples')[0])
+unlabeled_df = pd.DataFrame(folder.list_paths_in_partition(), columns=["id"])
 
 model = dataiku.Model(get_input_names_for_role('saved_model')[0])
 clf = model.get_predictor()._clf

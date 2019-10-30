@@ -21,11 +21,12 @@
         },
          {
             "name": "unlabeled_samples",
-            "label": "Unlabeled samples dataset",
-            "description": "Dataset containing samples that we want to rank",
+            "label": "Unlabeled images managed folder",
+            "description": "Managed folder containing samples that we want to rank",
             "arity": "UNARY",
             "required": true,
-            "acceptsDataset": true
+            "acceptsManagedFolder": true,
+            "acceptsDataset": false
         }
     ],
 
