@@ -1,0 +1,46 @@
+{
+    // Meta data for display purposes
+    "meta" : {
+        "label" : "Argsort",
+        "description" : "Add a column indicating the index necessary to sort another one",
+        "icon" : "icon-sort-by-attributes"
+    },
+
+    "kind" : "PYTHON",
+    
+    "inputRoles" : [
+         {
+            "name": "input_dataset",
+            "label": "Input dataset",
+            "description": "",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset": true
+        }
+    ],
+
+    "outputRoles" : [
+        {
+            "name": "output_dataset",
+            "label": "Output dataset",
+            "description": "",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset": true
+        }
+    ],
+    
+    params = [
+        {
+            "name": "argsort_column",
+            "type": "COLUMN",
+            "columnRole": "input_dataset",
+            "label": "Column",
+            "description": "",
+            "mandatory": true
+        }
+    ],
+
+    "resourceKeys" : []
+
+}
