@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "label": "Image labeling VUE",
+    "description": "Manually classify images from a folder for use in supervised learning",
+    "icon": "icon-picture"
+  },
+  "baseType": "STANDARD",
+  "modular": "true",
+  "hasBackend": "true",
+  "standardWebAppLibraries": [
+    "jquery",
+    "dataiku",
+    "bootstrap",
+    "font_awesome"
+  ],
+  "params": [
+    {
+      "type": "FOLDER",
+      "name": "folder",
+      "label": "Images",
+      "description": "Folder containing the images to label",
+      "mandatory": true,
+      "canSelectForeign": true
+    },
+    {
+      "type": "DATASET",
+      "name": "annotations_ds",
+      "label": "Labels",
+      "description": "Dataset to save the labels into",
+      "mandatory": false,
+      "canSelectForeign": false,
+      "canCreateDataset": true
+    },
+    {
+      "type": "DATASET",
+      "name": "queries_ds",
+      "label": "Queries",
+      "description": "123Dataset containing queries to label ranked by importance",
+      "mandatory": false,
+      "canSelectForeign": false,
+      "canCreateDataset": false
+    },
+    {
+      "name": "categories",
+      "type": "KEY_VALUE_LIST",
+      "label": "Categories",
+      "description": "Category name → optional description",
+      "mandatory": true
+    }
+  ]
+}

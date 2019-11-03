@@ -1,29 +1,33 @@
+import hashlib
+import json
 import logging
-from base64 import b64encode
 from datetime import datetime
 
 import dataiku
 from lal.base_classifier import BaseClassifier
 
 
-class ImageClassifier(BaseClassifier):
+class TabularClassifier(BaseClassifier):
     @property
     def type(self):
-        return "image"
+        return 'tabular'
 
     logger = logging.getLogger(__name__)
 
     def __init__(self):
-        super(ImageClassifier, self).__init__()
-        self.folder = dataiku.Folder(self.config["folder"])
+        super(TabularClassifier, self).__init__()
+        self.unlabeled_df = dataiku.Dataset(self.config["unlabeled"]).get_dataframe()
+        self.hash_to_index = {}
+        for index, row in self.unlabeled_df.iterrows():
+            self.hash_to_index[hashlib.md5(row.to_csv().encode('utf-8')).hexdigest()] = index
+
         self.queries_ds = dataiku.Dataset(self.config["queries_ds"])
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
 
     def add_annotation(self, annotaion):
         sample_id = annotaion.get('id')
         cat = annotaion.get('class')
-        # comment = annotaion.get('comment')
-        comment = annotaion.get('points')
+        comment = annotaion.get('comment')
         self.annotations_df = self.annotations_df[self.annotations_df.id != sample_id]
 
         self.annotations_df = self.annotations_df.append({
@@ -46,19 +50,10 @@ class ImageClassifier(BaseClassifier):
             {"name": "session", "type": "int"},
             {"name": "annotator", "type": "string"}]
 
-    def read_config(self):
-        config = super().read_config()
-        if "folder" not in config:
-            raise ValueError("Image folder not specified. Go to settings tab.")
-        return config
-
-    def get_sample_by_id(self, sid):
-        self.logger.info('Reading image from: ' + str(sid))
-        with self.folder.get_download_stream(sid) as s:
-            data = b64encode(s.read())
-
-        self.logger.info("Read: {0}, {1}".format(len(data), type(data)))
-        return data.decode('utf-8')
+    def get_sample_by_id(self, sample_id):
+        self.logger.info('Reading row from: ' + str(sample_id))
+        res = self.unlabeled_df.loc[self.hash_to_index[sample_id]].to_json()
+        return json.loads(res)
 
     def get_all_sample_ids(self):
         self.logger.info("Reading queries_ds")
@@ -67,7 +62,7 @@ class ImageClassifier(BaseClassifier):
             return set(self.queries_ds.get_dataframe()['id'].tolist())
         except:
             self.logger.info("Couldn't read queries_ds")
-            return set(self.folder.list_paths_in_partition())
+            return set(self.hash_to_index.keys())
 
     def get_labeled_sample_ids(self):
         return set(self.annotations_df[self.annotations_df['annotator'] == self.current_user]['id'])

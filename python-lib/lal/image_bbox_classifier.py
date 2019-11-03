@@ -23,7 +23,7 @@ class ImageBboxClassifier(BaseClassifier):
 
     def add_annotation(self, annotaion):
         path = annotaion.get('sid')
-        cat = annotaion.get('category')
+        cat = annotaion.get('class')
         bbox = annotaion.get('bbox')
         comment = annotaion.get('comment')
 
