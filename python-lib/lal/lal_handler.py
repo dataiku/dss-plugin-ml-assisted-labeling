@@ -1,10 +1,10 @@
 import logging
+from collections import namedtuple
 
 import numpy as np
 
 import dataiku
 from dataiku.customwebapp import *
-
 
 class LALHandler(object):
     logger = logging.getLogger(__name__)

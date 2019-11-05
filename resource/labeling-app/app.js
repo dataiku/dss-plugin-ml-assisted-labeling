@@ -4,7 +4,7 @@ import {TabularSample} from "./components/tabular-sample.js";
 import {ControlButtons} from "./components/control-buttons.js";
 import {DKUApi} from "./dku-api.js";
 
-new Vue({
+export default new Vue({
     el: '#app',
     components: {
         'category-selector': CategorySelector,
