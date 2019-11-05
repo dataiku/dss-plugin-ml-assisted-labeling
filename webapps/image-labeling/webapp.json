@@ -24,7 +24,7 @@
     },
     {
       "type": "DATASET",
-      "name": "annotations_ds",
+      "name": "labels_ds",
       "label": "Labels",
       "description": "Dataset to save the labels into",
       "mandatory": false,

@@ -21,14 +21,14 @@ class BaseClassifier(object):
         super(BaseClassifier, self).__init__()
         self.config = self.read_config()
 
-        self.annotations_ds = dataiku.Dataset(self.config["annotations_ds"])
-        self.annotations_df = self.prepare_annotation_dataset(self.annotations_ds)
+        self.labels_ds = dataiku.Dataset(self.config["labels_ds"])
+        self.labels_df = self.prepare_label_dataset(self.labels_ds)
 
     def read_config(self):
         config = get_webapp_config()
         self.logger.info("Webapp config: %s" % repr(config))
 
-        if "annotations_ds" not in config:
+        if "labels_ds" not in config:
             raise ValueError("Labels dataset not specified. Go to settings tab.")
 
         return config
@@ -47,30 +47,30 @@ class BaseClassifier(object):
 
     @property
     @abstractmethod
-    def annotations_required_schema(self):
+    def labels_required_schema(self):
         pass
 
     @property
-    def __annotations_required_columns(self):
-        return {c['name'] for c in self.annotations_required_schema}
+    def __labels_required_columns(self):
+        return {c['name'] for c in self.labels_required_schema}
 
-    def prepare_annotation_dataset(self, dataset):
+    def prepare_label_dataset(self, dataset):
 
         try:
             dataset_schema = dataset.read_schema()
             dataset_schema_columns = {c['name'] for c in dataset_schema}
 
-            if not self.__annotations_required_columns.issubset(dataset_schema_columns):
+            if not self.__labels_required_columns.issubset(dataset_schema_columns):
                 raise ValueError(
                     "The target dataset should have columns: {}. The provided dataset has columns: {}. "
                     "Please edit the schema in the dataset settings.".format(
-                        ', '.join(self.__annotations_required_columns), ', '.join(dataset_schema_columns)))
+                        ', '.join(self.__labels_required_columns), ', '.join(dataset_schema_columns)))
 
             current_df = dataset.get_dataframe()
         except:
             self.logger.info("{} probably empty".format(dataset.name))
-            current_df = pd.DataFrame(columns=self.__annotations_required_columns, index=[])
-            for col in self.annotations_required_schema:
+            current_df = pd.DataFrame(columns=self.__labels_required_columns, index=[])
+            for col in self.labels_required_schema:
                 n = col["name"]
                 t = col["type"]
                 t = schema_handling.DKU_PANDAS_TYPES_MAP.get(t, np.object_)
@@ -78,5 +78,5 @@ class BaseClassifier(object):
         return current_df
 
     @abstractmethod
-    def add_annotation(self, annotaion):
+    def add_label(self, annotaion):
         pass

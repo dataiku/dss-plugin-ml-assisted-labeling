@@ -24,13 +24,13 @@ class TabularClassifier(BaseClassifier):
         self.queries_ds = dataiku.Dataset(self.config["queries_ds"])
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
 
-    def add_annotation(self, annotaion):
+    def add_label(self, annotaion):
         sample_id = annotaion.get('id')
         cat = annotaion.get('class')
         comment = annotaion.get('comment')
-        self.annotations_df = self.annotations_df[self.annotations_df.id != sample_id]
+        self.labels_df = self.labels_df[self.labels_df.id != sample_id]
 
-        self.annotations_df = self.annotations_df.append({
+        self.labels_df = self.labels_df.append({
             'date': datetime.now(),
             'id': sample_id,
             'class': cat,
@@ -40,7 +40,7 @@ class TabularClassifier(BaseClassifier):
         }, ignore_index=True)
 
     @property
-    def annotations_required_schema(self):
+    def labels_required_schema(self):
         # TODO: Named tuple?
         return [
             {"name": "date", "type": "date"},
@@ -65,4 +65,4 @@ class TabularClassifier(BaseClassifier):
             return set(self.hash_to_index.keys())
 
     def get_labeled_sample_ids(self):
-        return set(self.annotations_df[self.annotations_df['annotator'] == self.current_user]['id'])
+        return set(self.labels_df[self.labels_df['annotator'] == self.current_user]['id'])

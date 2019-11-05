@@ -30,9 +30,9 @@ export default new Vue({
                     <tabular-sample v-if="sample.type === 'tabular'" :sample="sample.data"/>
                     <image-sample v-if="sample.type === 'image'" :sample="sample.data"/>
                 </div>
-                <control-buttons :canSkip="!sample.annotation && !sample.is_done" :isFirst="sample.is_first"
-                                 :isLabeled="!!sample.annotation"/>
-                <category-selector v-if="config" :categories="config.categories" :annotation="sample.annotation || {}"/>
+                <control-buttons :canSkip="!sample.label && !sample.is_done" :isFirst="sample.is_first"
+                                 :isLabeled="!!sample.label"/>
+                <category-selector v-if="config" :categories="config.categories" :label="sample.label || {}"/>
             </div>
             <div v-if="sample.is_done">
                 <h3>All samples are labeled</h3>

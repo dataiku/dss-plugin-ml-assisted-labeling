@@ -16,12 +16,12 @@ class ImageBboxClassifier(BaseClassifier):
         self.queries_ds = dataiku.Dataset(self.config['queries_ds'])
         self.queries_df = self.queries_ds.get_dataframe()
         self.folder = dataiku.Folder(self.config["folder"])
-        self.control_ds = dataiku.Dataset(self.config["annotations_control"])
-        self.control_df = self.prepare_annotation_dataset(self.control_ds)
+        self.control_ds = dataiku.Dataset(self.config["labels_control"])
+        self.control_df = self.prepare_label_dataset(self.control_ds)
 
         self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
 
-    def add_annotation(self, annotaion):
+    def add_label(self, annotaion):
         path = annotaion.get('sid')
         cat = annotaion.get('class')
         bbox = annotaion.get('bbox')
@@ -30,7 +30,7 @@ class ImageBboxClassifier(BaseClassifier):
         bbox = json.loads(bbox)
 
         for bb in bbox:
-            self.annotations_df = self.annotations_df.append({
+            self.labels_df = self.labels_df.append({
                 'path': path,
                 'class': bb['label'],
                 'comment': comment,
@@ -48,7 +48,7 @@ class ImageBboxClassifier(BaseClassifier):
         return set(user_queries_df.path)
 
     def get_labeled_sample_ids(self):
-        return set(self.annotations_df[self.annotations_df['annotator'] == self.current_user].path)
+        return set(self.labels_df[self.labels_df['annotator'] == self.current_user].path)
 
     def get_sample_by_id(self, sid):
         self.logger.info('Reading image from: ' + str(sid))
@@ -60,7 +60,7 @@ class ImageBboxClassifier(BaseClassifier):
         return {"img": data, "bbox": bboxes}
 
     @property
-    def annotations_required_schema(self):
+    def labels_required_schema(self):
         return [
             {"name": "path", "type": "string"},
             {"name": "annotator", "type": "string"},

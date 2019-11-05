@@ -56,7 +56,7 @@ class LALHandler(object):
         total_count = len(self.classifier.get_all_sample_ids())
         labelled_count = len(self.classifier.get_labeled_sample_ids())
         # -1 because the current is not counted :
-        by_category = self.classifier.annotations_df['class'].value_counts().to_dict()
+        by_category = self.classifier.labels_df['class'].value_counts().to_dict()
         stats = {
             "labelled": labelled_count,
             "total": total_count,
@@ -71,11 +71,11 @@ class LALHandler(object):
             self.logger.error(message)
             raise ValueError(message)
 
-        self.classifier.add_annotation(data)
+        self.classifier.add_label(data)
         if data['id'] in self.remaining:
             self.remaining.remove(data['id'])
-        self.classifier.annotations_ds.write_with_schema(self.classifier.annotations_df)
-        self.logger.info("Wrote Annotations Dataframe of shape:  %s" % str(self.classifier.annotations_df.shape))
+        self.classifier.labels_ds.write_with_schema(self.classifier.labels_df)
+        self.logger.info("Wrote labels Dataframe of shape:  %s" % str(self.classifier.labels_df.shape))
 
         return self.get_sample()
 
@@ -86,7 +86,7 @@ class LALHandler(object):
         self.logger.info("BACK, {}".format(data))
         current_id = data['current']
 
-        user_df = self.classifier.annotations_df[self.classifier.annotations_df['annotator'] == self.current_user]
+        user_df = self.classifier.labels_df[self.classifier.labels_df['annotator'] == self.current_user]
         if current_id in user_df['id'].values:
             current_date = user_df[user_df.id == current_id]['date'].values[0]
             self.logger.info("Current date: {}".format(current_date))
@@ -96,7 +96,7 @@ class LALHandler(object):
             user_df.sort_values('date', ascending=False).head(1).replace({np.nan: None}).to_dict(orient='records')[0]
 
         result = {
-            "annotation": {
+            "label": {
                 "class": previous['class'],
                 "comment": previous['comment'],
             },

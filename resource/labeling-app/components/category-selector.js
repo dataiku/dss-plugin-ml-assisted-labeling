@@ -1,7 +1,7 @@
 import {DKUApi} from "../dku-api.js";
 
 let CategorySelector = {
-    props:['categories','annotation'],
+    props:['categories','label'],
     data: () => ({
         ready: true,
     }),
@@ -19,9 +19,9 @@ let CategorySelector = {
             if (this.ready) {
                 this.ready = false;
 
-                this.annotation.id = this.$root.sample.id;
-                this.annotation.class = c;
-                DKUApi.classify(this.annotation).then(sample => {
+                this.label.id = this.$root.sample.id;
+                this.label.class = c;
+                DKUApi.classify(this.label).then(sample => {
                     this.ready = true;
                     this.$root.sample = sample;
                 })
@@ -30,11 +30,11 @@ let CategorySelector = {
         }
     },
     // language=HTML
-    template: `<div class="category-selector" v-bind:class="{ inactive: !ready }" v-if="annotation">
+    template: `<div class="category-selector" v-bind:class="{ inactive: !ready }" v-if="label">
     <div class="category-selector--categories">
         <div class="button" v-for="(cat, i) in categories"
              v-on:click="classify(cat.from)"
-             v-bind:class="{ selected: annotation.class === cat.from }"
+             v-bind:class="{ selected: label.class === cat.from }"
 
         >
             <span>{{cat.to || cat.from}}</span>
@@ -42,7 +42,7 @@ let CategorySelector = {
         </div>
     </div>
     <textarea name="" id="" cols="60" rows="3" placeholder="Comments..." :disabled="!ready"
-              v-model="annotation.comment"></textarea>
+              v-model="label.comment"></textarea>
 </div>`,
     mounted: function () {
         window.addEventListener("keydown", (event) => {
