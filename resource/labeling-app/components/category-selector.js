@@ -20,7 +20,7 @@ let CategorySelector = {
                 this.ready = false;
 
                 this.label.id = this.$root.sample.id;
-                this.label.class = c;
+                this.label.class = [c];
                 DKUApi.classify(this.label).then(sample => {
                     this.ready = true;
                     this.$root.sample = sample;
@@ -34,7 +34,7 @@ let CategorySelector = {
     <div class="category-selector--categories">
         <div class="button" v-for="(cat, i) in categories"
              v-on:click="classify(cat.from)"
-             v-bind:class="{ selected: label.class === cat.from }"
+             v-bind:class="{ selected: label.class && label.class.includes(cat.from) }"
 
         >
             <span>{{cat.to || cat.from}}</span>

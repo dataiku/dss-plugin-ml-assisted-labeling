@@ -1,47 +1,130 @@
 import logging
-from collections import namedtuple
+from time import time
+from typing import TypeVar
 
 import numpy as np
+import pandas as pd
 
 import dataiku
+from dataiku.core import schema_handling
 from dataiku.customwebapp import *
+from lal.base_classifier import BaseClassifier
+
+C = TypeVar('C', bound=BaseClassifier)
+
 
 class LALHandler(object):
     logger = logging.getLogger(__name__)
+    labels_required_schema = [
+        {"name": "date", "type": "date"},
+        {"name": "id", "type": "string"},
+        {"name": "label", "type": "string"},
+        {"name": "comment", "type": "string"},
+        {"name": "session", "type": "int"},
+        {"name": "annotator", "type": "string"}
+    ]
 
-    def __init__(self, classifier):
+    def __init__(self, classifier, is_multiuser=True):
         """
-
-        :type classifier: lal.base_classifier.BaseClassifier
+        :type classifier: C
         """
         super(LALHandler, self).__init__()
         self.config = get_webapp_config()
-        self.skipped = set()
-        self.current_user = dataiku.api_client().get_auth_info()['authIdentifier']
-        self._queries_df = None
+        self.is_multiuser = is_multiuser
         self.classifier = classifier
+        self._skipped = {}
+        self._labels = self.read_labels_ids()
+        self.all_queries_ids = self.read_queries_ids()
+
+        self.labels_ds = dataiku.Dataset(self.config["labels_ds"])
+        self.labels_df = self.prepare_label_dataset(self.labels_ds)
+        # self._queries_df = None
+
+    @property
+    def skipped(self):
+        if self.is_multiuser:
+            return self._skipped.setdefault(self.current_user, set())
+        else:
+            return self._skipped.setdefault(None, set())
+
+    @property
+    def labels(self):
+        if self.is_multiuser:
+            return self._labels.setdefault(self.current_user, {})
+        else:
+            return self._labels.setdefault(None, {})
+
+    @property
+    def labeled_ids(self):
+        return self.labels.keys()
+
+    @property
+    def current_user(self):
+        return dataiku.api_client().get_auth_info()['authIdentifier']
 
     @property
     def remaining(self):
-        try:
-            self.logger.info("Trying to sort queries by uncertainty")
-            queries_df = self.queries_df.sort_values('uncertainty')['id']
-            remaining = queries_df[~queries_df.isin(self.classifier.get_labeled_sample_ids())].unique().tolist()
-            return remaining
-        except:
-            self.logger.info("Not taking into account uncertainty, serving random queries")
-            return list(self.classifier.get_all_sample_ids() - self.classifier.get_labeled_sample_ids() - self.skipped)
+        if self.all_queries_ids is None:
+            self.logger.info("Serving random queries")
+            return list(self.classifier.get_all_sample_ids() - set(self.labeled_ids) - self.skipped)
+        else:
+            self.logger.info("Serving ordered queries")
+            return filter(lambda x: x not in set(self.labeled_ids) and x not in self.skipped,
+                          self.all_queries_ids)
+
+    def calculate_stats(self):
+        total_count = len(self.classifier.get_all_sample_ids())
+        stats = {
+            "labelled": len(self.labeled_ids),
+            "total": total_count,
+            "skipped": len(self.skipped)
+        }
+        return stats
+
+    def classify(self, data):
+        self.logger.info("Classifying: %s" % json.dumps(data))
+        if 'id' not in data:
+            message = "Classification data doesn't containg sample ID"
+            self.logger.error(message)
+            raise ValueError(message)
+
+        self.labels_df = self.labels_df[self.labels_df.id != data.get('id')]
+
+        self.labels_df = self.labels_df.append({
+            'date': time(),
+            'id': data.get('id'),
+            'label': json.dumps(data.get('class')),
+            'comment': data.get('comment'),
+            'session': 0,
+            'annotator': self.current_user,
+        }, ignore_index=True)
+
+        self.labels[data['id']] = {
+            "date": time(),
+            "label": {"class": data.get('class'), "comment": data.get('comment')},
+            "session": 0
+        }
+
+        self.labels_ds.write_with_schema(self.labels_df)
+        self.logger.info("Wrote labels Dataframe of shape:  %s" % str(self.labels_df.shape))
+
+        return self.get_sample()
+
+    def is_stopping_criteria_met(self):
+        return len(self.remaining) <= 0
 
     def get_sample(self, sample_id=None):
-        self.logger.info("Getting sample")
+        self.logger.info("Getting sample, sample_id: {0}".format(sample_id))
         stats = self.calculate_stats()
         if self.is_stopping_criteria_met():
-            return {**{
-                "is_done": True
-            }, **self.calculate_stats()}
+            return {
+                **{"is_done": True},
+                **stats
+            }
         if not sample_id:
-            if len(self.remaining) > 0:
-                sample_id = self.remaining[-1]
+            remaining = self.remaining
+            if len(remaining) > 0:
+                sample_id = remaining[-1]
             else:
                 sample_id = None
         result = {
@@ -52,58 +135,24 @@ class LALHandler(object):
         }
         return {**result, **stats}
 
-    def calculate_stats(self):
-        total_count = len(self.classifier.get_all_sample_ids())
-        labelled_count = len(self.classifier.get_labeled_sample_ids())
-        # -1 because the current is not counted :
-        by_category = self.classifier.labels_df['class'].value_counts().to_dict()
-        stats = {
-            "labelled": labelled_count,
-            "total": total_count,
-            "skipped": len(self.skipped),
-            "byCategory": by_category}
-        return stats
-
-    def classify(self, data):
-        self.logger.info("Classifying: %s" % json.dumps(data))
-        if 'id' not in data:
-            message = "Classification data doesn't containg sample ID"
-            self.logger.error(message)
-            raise ValueError(message)
-
-        self.classifier.add_label(data)
-        if data['id'] in self.remaining:
-            self.remaining.remove(data['id'])
-        self.classifier.labels_ds.write_with_schema(self.classifier.labels_df)
-        self.logger.info("Wrote labels Dataframe of shape:  %s" % str(self.classifier.labels_df.shape))
-
-        return self.get_sample()
-
-    def is_stopping_criteria_met(self):
-        return len(self.remaining) <= 0
-
     def back(self, data):
-        self.logger.info("BACK, {}".format(data))
         current_id = data['current']
+        label_date = None
+        if current_id in self.labels:
+            label_date = self.labels.get(current_id)['date']
 
-        user_df = self.classifier.labels_df[self.classifier.labels_df['annotator'] == self.current_user]
-        if current_id in user_df['id'].values:
-            current_date = user_df[user_df.id == current_id]['date'].values[0]
-            self.logger.info("Current date: {}".format(current_date))
-            user_df = user_df[user_df.date < current_date]
-        logging.info("User_DF: {}".format(user_df.shape[0]))
-        previous = \
-            user_df.sort_values('date', ascending=False).head(1).replace({np.nan: None}).to_dict(orient='records')[0]
+        sorted_labels = sorted(self.labels.items(), key=lambda x: x[1]['date'], reverse=True)
+        if label_date is not None:
+            sorted_labels = list(filter(lambda x: x[1]['date'] < label_date, sorted_labels))
+
+        previous = sorted_labels[0]
 
         result = {
-            "label": {
-                "class": previous['class'],
-                "comment": previous['comment'],
-            },
+            "label": previous[1]['label'],
             "type": self.classifier.type,
-            "is_first": user_df.shape[0] <= 1,
-            "id": previous['id'],
-            "data": self.classifier.get_sample_by_id(previous['id']),
+            "is_first": len(sorted_labels) == 1,
+            "id": previous[0],
+            "data": self.classifier.get_sample_by_id(previous[0]),
 
         }
         stats = self.calculate_stats()
@@ -113,13 +162,53 @@ class LALHandler(object):
         self.skipped.add(data['id'])
         return self.get_sample()
 
-    @property
-    def queries_df(self):
-        if self._queries_df:
-            return self._queries_df
-        try:
-            self._queries_df = dataiku.Dataset(self.config["queries_ds"]).get_dataframe()
-        except:
-            self._queries_df = None
+    def read_queries_ids(self):
+        self.logger.info("Trying to read and sort queries from {0}".format(self.config["queries_ds"]))
+        queries_ds = dataiku.Dataset(self.config["queries_ds"])
+        if len(queries_ds.read_schema(raise_if_empty=False)):
+            return queries_ds.get_dataframe().sort_values('uncertainty')['id'].tolist()
+        else:
+            self.logger.info("Queries dataset is not initialized")
+            return None
 
-        return self._queries_df
+    def read_labels_ids(self):
+        res = {}
+        labels_ds = dataiku.Dataset(self.config["labels_ds"])
+        try:
+            labels_df = labels_ds.get_dataframe()
+            labels = labels_df.where((pd.notnull(labels_df)), None).astype('object').to_dict('records')
+            for l in labels:
+                res.setdefault(l.get('annotator'), {})[l['id']] = {"date": l.get('date'),
+                                                                   "label": {"class": json.loads(l.get('label')),
+                                                                             "comment": l.get("comment")},
+                                                                   "session": l.get('session')}
+        except Exception as e:
+            logging.info("Couldn't read labels dataframe: {0}".format(e))
+        return res
+
+    def prepare_label_dataset(self, dataset):
+
+        try:
+            dataset_schema = dataset.read_schema()
+            dataset_schema_columns = {c['name'] for c in dataset_schema}
+
+            if not self.__labels_required_columns.issubset(dataset_schema_columns):
+                raise ValueError(
+                    "The target dataset should have columns: {}. The provided dataset has columns: {}. "
+                    "Please edit the schema in the dataset settings.".format(
+                        ', '.join(self.__labels_required_columns), ', '.join(dataset_schema_columns)))
+
+            current_df = dataset.get_dataframe()
+        except:
+            self.logger.info("{} probably empty".format(dataset.name))
+            current_df = pd.DataFrame(columns=self.__labels_required_columns, index=[])
+            for col in self.labels_required_schema:
+                n = col["name"]
+                t = col["type"]
+                t = schema_handling.DKU_PANDAS_TYPES_MAP.get(t, np.object_)
+                current_df[n] = current_df[n].astype(t)
+        return current_df
+
+    @property
+    def __labels_required_columns(self):
+        return {c['name'] for c in self.labels_required_schema}
