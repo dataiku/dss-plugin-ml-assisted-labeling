@@ -33,12 +33,11 @@ class LALHandler(object):
         self.is_multiuser = is_multiuser
         self.classifier = classifier
         self._skipped = {}
-        self._labels = self.read_labels_ids()
         self.all_queries_ids = self.read_queries_ids()
 
         self.labels_ds = dataiku.Dataset(self.config["labels_ds"])
         self.labels_df = self.prepare_label_dataset(self.labels_ds)
-        # self._queries_df = None
+        print(1)
 
     @property
     def skipped(self):
@@ -49,14 +48,7 @@ class LALHandler(object):
 
     @property
     def labels(self):
-        if self.is_multiuser:
-            return self._labels.setdefault(self.current_user, {})
-        else:
-            return self._labels.setdefault(None, {})
-
-    @property
-    def labeled_ids(self):
-        return self.labels.keys()
+        return self.labels_df[self.labels_df.annotator == self.current_user]
 
     @property
     def current_user(self):
@@ -66,16 +58,16 @@ class LALHandler(object):
     def remaining(self):
         if self.all_queries_ids is None:
             self.logger.info("Serving random queries")
-            return list(self.classifier.get_all_sample_ids() - set(self.labeled_ids) - self.skipped)
+            return list(self.classifier.get_all_sample_ids() - set(self.labels.id.values) - self.skipped)
         else:
             self.logger.info("Serving ordered queries")
-            return filter(lambda x: x not in set(self.labeled_ids) and x not in self.skipped,
+            return filter(lambda x: x not in set(self.labels.id.values) and x not in self.skipped,
                           self.all_queries_ids)
 
     def calculate_stats(self):
         total_count = len(self.classifier.get_all_sample_ids())
         stats = {
-            "labelled": len(self.labeled_ids),
+            "labelled": len(self.labels),
             "total": total_count,
             "skipped": len(self.skipped)
         }
@@ -98,12 +90,6 @@ class LALHandler(object):
             'session': 0,
             'annotator': self.current_user,
         }, ignore_index=True)
-
-        self.labels[data['id']] = {
-            "date": time(),
-            "label": {"class": data.get('class'), "comment": data.get('comment')},
-            "session": 0
-        }
 
         self.labels_ds.write_with_schema(self.labels_df)
         self.logger.info("Wrote labels Dataframe of shape:  %s" % str(self.labels_df.shape))
@@ -138,21 +124,22 @@ class LALHandler(object):
     def back(self, data):
         current_id = data['current']
         label_date = None
-        if current_id in self.labels:
-            label_date = self.labels.get(current_id)['date']
+        if current_id in self.labels.id.values:
+            label_date = self.labels[self.labels.id == current_id].date.values[0]
 
-        sorted_labels = sorted(self.labels.items(), key=lambda x: x[1]['date'], reverse=True)
+        sorted_labels = self.labels.sort_values('date', ascending=False)
+
         if label_date is not None:
-            sorted_labels = list(filter(lambda x: x[1]['date'] < label_date, sorted_labels))
+            sorted_labels = sorted_labels[sorted_labels.date < label_date]
 
-        previous = sorted_labels[0]
+        previous = sorted_labels.where((pd.notnull(sorted_labels)), None).astype('object').to_dict(orient='records')[0]
 
         result = {
-            "label": previous[1]['label'],
+            "label": {"class": json.loads(previous['label']), "comment": previous['comment']},
             "type": self.classifier.type,
             "is_first": len(sorted_labels) == 1,
-            "id": previous[0],
-            "data": self.classifier.get_sample_by_id(previous[0]),
+            "id": previous['id'],
+            "data": self.classifier.get_sample_by_id(previous['id']),
 
         }
         stats = self.calculate_stats()
@@ -170,21 +157,6 @@ class LALHandler(object):
         else:
             self.logger.info("Queries dataset is not initialized")
             return None
-
-    def read_labels_ids(self):
-        res = {}
-        labels_ds = dataiku.Dataset(self.config["labels_ds"])
-        try:
-            labels_df = labels_ds.get_dataframe()
-            labels = labels_df.where((pd.notnull(labels_df)), None).astype('object').to_dict('records')
-            for l in labels:
-                res.setdefault(l.get('annotator'), {})[l['id']] = {"date": l.get('date'),
-                                                                   "label": {"class": json.loads(l.get('label')),
-                                                                             "comment": l.get("comment")},
-                                                                   "session": l.get('session')}
-        except Exception as e:
-            logging.info("Couldn't read labels dataframe: {0}".format(e))
-        return res
 
     def prepare_label_dataset(self, dataset):
 
