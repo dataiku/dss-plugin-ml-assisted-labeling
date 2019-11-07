@@ -37,7 +37,6 @@ class LALHandler(object):
 
         self.labels_ds = dataiku.Dataset(self.config["labels_ds"])
         self.labels_df = self.prepare_label_dataset(self.labels_ds)
-        print(1)
 
     @property
     def skipped(self):
