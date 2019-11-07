@@ -60,8 +60,7 @@ class LALHandler(object):
             return list(self.classifier.get_all_sample_ids() - set(self.labels.id.values) - self.skipped)
         else:
             self.logger.info("Serving ordered queries")
-            return filter(lambda x: x not in set(self.labels.id.values) and x not in self.skipped,
-                          self.all_queries_ids)
+            return [i for i in self.all_queries_ids if (i not in set(self.labels.id.values) and i not in self.skipped)]
 
     def calculate_stats(self):
         total_count = len(self.classifier.get_all_sample_ids())
