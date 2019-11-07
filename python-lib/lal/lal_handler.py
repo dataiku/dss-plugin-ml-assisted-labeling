@@ -152,10 +152,10 @@ class LALHandler(object):
     def read_queries_ids(self):
         self.logger.info("Trying to read and sort queries from {0}".format(self.config["queries_ds"]))
         queries_ds = dataiku.Dataset(self.config["queries_ds"])
-        if len(queries_ds.read_schema(raise_if_empty=False)):
+        try:
             return queries_ds.get_dataframe().sort_values('uncertainty')['id'].tolist()
-        else:
-            self.logger.info("Queries dataset is not initialized")
+        except Exception as e:
+            self.logger.info("Queries dataset is not initialized: {0}".format(e))
             return None
 
     def prepare_label_dataset(self, dataset):
