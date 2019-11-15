@@ -90,8 +90,8 @@
 }
 
 .tabular-sample {
-    max-height: 450px;
-    overflow: scroll;
+    max-height: 750px;
+    overflow-y: scroll;
 }
 
 .tabular-sample > table {

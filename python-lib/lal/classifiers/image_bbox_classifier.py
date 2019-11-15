@@ -4,7 +4,7 @@ import logging
 from base64 import b64encode
 
 import dataiku
-from lal.base_classifier import BaseClassifier
+from lal.classifiers.base_classifier import BaseClassifier
 
 
 class ImageBboxClassifier(BaseClassifier):
@@ -42,7 +42,7 @@ class ImageBboxClassifier(BaseClassifier):
                 'y2': bb['top']
             }, ignore_index=True)
 
-    def get_all_sample_ids(self):
+    def get_all_item_ids_list(self):
         user_queries_df = self.queries_df[self.queries_df['annotator'] == self.current_user]
         self.logger.info("All user sample ids count: {}".format(len(user_queries_df)))
         return set(user_queries_df.path)
@@ -50,7 +50,7 @@ class ImageBboxClassifier(BaseClassifier):
     def get_labeled_sample_ids(self):
         return set(self.labels_df[self.labels_df['annotator'] == self.current_user].path)
 
-    def get_sample_by_id(self, sid):
+    def get_item_by_id(self, sid):
         self.logger.info('Reading image from: ' + str(sid))
         with self.folder.get_download_stream(sid) as s:
             data = b64encode(s.read())

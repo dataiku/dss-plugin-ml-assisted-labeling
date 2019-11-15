@@ -4,24 +4,38 @@ export let ControlButtons = {
     props: ['isFirst', 'canSkip', 'isLabeled'],
     methods: {
         back: function () {
-            DKUApi.back(this.$root.sample.id).then((sample) => {
-                this.$root.sample = sample;
+            if (!this.$root.canLabel) {
+                return;
+            }
+            DKUApi.back(this.$root.item.id).then((data) => {
+                this.$root.item = data.item;
+                this.$root.label = data.label;
+                this.$root.isFirst = data.isFirst;
+
+
             });
         },
         unlabeled: function () {
-            DKUApi.sample().then((sample) => {
-                this.$root.sample = sample;
-            });
+            this.$root.assignNextItem();
         },
         skip: function () {
-            DKUApi.skip(this.$root.sample.id).then((sample) => {
-                this.$root.sample = sample;
+            if (!this.$root.canLabel) {
+                return;
+            }
+            const skipLabel = {
+                "dataId": this.$root.item.id,
+                "labelId": this.$root.item.labelId,
+                "comment": this.$root.label.comment
+            };
+
+            DKUApi.skip(skipLabel).then((response) => {
+                this.$root.updateStatsAndProceedToNextItem(response);
             });
         }
     },
     template: `<div class="control-buttons">
-    <div class="button" v-if="!isFirst" @click="back()">Back</div>
-    <div class="button" v-if="canSkip" @click="skip()">Skip</div>
-    <div class="button" v-if="isLabeled" @click="unlabeled()">Next unlabeled</div>
+    <button v-if="!isFirst" @click="back()">Back</button>
+    <button v-if="canSkip" @click="skip()">Skip</button>
+    <button v-if="isLabeled" @click="unlabeled()">Next unlabeled</button>
 </div>`
 };

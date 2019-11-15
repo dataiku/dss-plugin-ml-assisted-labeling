@@ -15,8 +15,24 @@
   ],
   "params": [
     {
+      "name": "label_col_name",
+      "type": "STRING",
+      "label": "Label column name",
+      "defaultValue": "label",
+      "description": "Name of the label column in the labels dataset",
+      "mandatory": true
+    },
+    {
+      "type": "DATASET",
+      "name": "metadata_ds",
+      "label": "Labeling metadata dataset",
+      "mandatory": true,
+      "canSelectForeign": true,
+      "canCreateDataset": true
+    },
+    {
       "type": "FOLDER",
-      "name": "folder",
+      "name": "unlabeled",
       "label": "Images",
       "description": "Folder containing the images to label",
       "mandatory": true,

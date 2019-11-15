@@ -14,40 +14,55 @@
     "font_awesome"
   ],
   "params": [
-
-        {
-            "type": "DATASET",
-            "name": "unlabeled",
-            "label":"Unlabeled data",
-            "description": "Dataset containing data to label",
-            "mandatory": true,
-            "canSelectForeign": true,
-            "canCreateDataset": true
-        },
-        {
-            "type": "DATASET",
-            "name": "labels_ds",
-            "label":"Labels",
-            "description": "Dataset to save the labels into",
-            "mandatory": false,
-            "canSelectForeign": false,
-            "canCreateDataset": true
-        },
-        {
-            "type": "DATASET",
-            "name": "queries_ds",
-            "label":"Queries",
-            "description": "Dataset containing queries to label ranked by importance",
-            "mandatory": false,
-            "canSelectForeign": false,
-            "canCreateDataset": false
-        },
-        {
-            "name": "categories",
-            "type": "KEY_VALUE_LIST",
-            "label": "Categories",
-            "description": "Category name → optional description",
-            "mandatory": true
-        }
-    ]
+    {
+      "name": "label_col_name",
+      "type": "STRING",
+      "label": "Label column name",
+      "defaultValue": "label",
+      "description": "Name of the label column in the labels dataset",
+      "mandatory": true
+    },
+    {
+      "type": "DATASET",
+      "name": "metadata_ds",
+      "label": "Labeling metadata dataset",
+      "mandatory": true,
+      "canSelectForeign": true,
+      "canCreateDataset": true
+    },
+    {
+      "type": "DATASET",
+      "name": "unlabeled",
+      "label": "Unlabeled data",
+      "description": "Dataset containing data to label",
+      "mandatory": true,
+      "canSelectForeign": true,
+      "canCreateDataset": true
+    },
+    {
+      "type": "DATASET",
+      "name": "labels_ds",
+      "label": "Labels",
+      "description": "Dataset to save the labels into",
+      "mandatory": false,
+      "canSelectForeign": false,
+      "canCreateDataset": true
+    },
+    {
+      "type": "DATASET",
+      "name": "queries_ds",
+      "label": "Queries",
+      "description": "Dataset containing queries to label ranked by importance",
+      "mandatory": false,
+      "canSelectForeign": false,
+      "canCreateDataset": false
+    },
+    {
+      "name": "categories",
+      "type": "KEY_VALUE_LIST",
+      "label": "Categories",
+      "description": "Category name → optional description",
+      "mandatory": true
+    }
+  ]
 }

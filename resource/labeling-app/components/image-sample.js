@@ -1,8 +1,8 @@
 let ImageSample = {
-    props: ['sample'],
+    props: ['item'],
     computed: {
         imgSrc: function () {
-            return 'data:image/png;base64, ' + this.sample;
+            return 'data:image/png;base64, ' + this.item.enriched;
         }
     },
     // language=HTML

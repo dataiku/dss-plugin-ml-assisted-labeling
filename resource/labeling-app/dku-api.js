@@ -9,9 +9,9 @@ axios.interceptors.response.use(function (response) {
 
 let DKUApi = {
 
-    sample: () => axios.get('sample'),
-    back: (id) => axios.post('back', {'current': id}),
-    skip: (id) => axios.post('skip', {id}),
-    classify: data => axios.post('classify', data)
+    batch: () => axios.get('batch'),
+    back: (id) => axios.post('back', {id}),
+    skip: (data) => axios.post('skip', data),
+    label: data => axios.post('label', data)
 };
 export {DKUApi}
