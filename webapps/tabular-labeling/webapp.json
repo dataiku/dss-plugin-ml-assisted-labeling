@@ -1,7 +1,7 @@
 {
   "meta": {
     "label": "Tabular data labeling",
-    "description": "Manually classify images from a folder for use in supervised learning",
+    "description": "Manually classify rows from a tabular dataset for use in supervised learning",
     "icon": "icon-picture"
   },
   "modular": "true",
