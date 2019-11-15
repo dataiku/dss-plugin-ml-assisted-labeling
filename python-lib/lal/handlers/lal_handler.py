@@ -41,10 +41,11 @@ class LALHandler(object):
 
     def get_meta_by_status(self, status=None):
         return self.meta_df[
-            (self.meta_df.status == status) & (self.meta_df.annotator == self.current_user)]
+            (status is None or self.meta_df.status == status) & (self.meta_df.annotator == self.current_user)]
 
     def get_remaining(self):
         seen_ids = set(self.get_meta_by_status().data_id.values)
+        logging.info("get_remaining: Seen ids: {0}".format(seen_ids))
         return [i for i in self.classifier.get_all_item_ids_list() if i not in seen_ids]
 
     def calculate_stats(self):
