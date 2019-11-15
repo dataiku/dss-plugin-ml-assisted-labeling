@@ -1226,7 +1226,8 @@
       // we need to return a function that returns the
       // merged result of both functions... no need to
       // check if parentVal is a function here because
-      // it has to be a function to pass previous merges.
+      // it has to be a function to pass
+      // previous merges.
       return function mergedDataFn () {
         return mergeData(
           typeof childVal === 'function' ? childVal.call(this, this) : childVal,
