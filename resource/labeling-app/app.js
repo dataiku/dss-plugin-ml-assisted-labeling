@@ -1,5 +1,6 @@
 import {CategorySelector} from "./components/category-selector.js";
 import {ImageSample} from "./components/image-sample.js";
+import {SoundSample} from "./components/sound-sample.js";
 import {TabularSample} from "./components/tabular-sample.js";
 import {ControlButtons} from "./components/control-buttons.js";
 import {DKUApi} from "./dku-api.js";
@@ -9,6 +10,7 @@ export default new Vue({
     components: {
         'category-selector': CategorySelector,
         'image-sample': ImageSample,
+        'sound-sample': SoundSample,
         'tabular-sample': TabularSample,
         'control-buttons': ControlButtons,
     },
@@ -78,6 +80,7 @@ export default new Vue({
                 <div class="sample-container">
                     <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
                     <image-sample v-if="type === 'image'" :item="item.data"/>
+                    <sound-sample v-if="type === 'sound'" :item="item.data"/>
                 </div>
                 <control-buttons :canSkip="!isDone"
                                  :isFirst="isFirst || !(stats.labeled + stats.skipped)"

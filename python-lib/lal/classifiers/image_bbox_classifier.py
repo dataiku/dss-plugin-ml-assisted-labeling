@@ -12,7 +12,6 @@ class ImageBboxClassifier(BaseClassifier):
 
     def __init__(self):
         super(ImageBboxClassifier, self).__init__()
-        # TODO: move to base class
         self.queries_ds = dataiku.Dataset(self.config['queries_ds'])
         self.queries_df = self.queries_ds.get_dataframe()
         self.folder = dataiku.Folder(self.config["folder"])

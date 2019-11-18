@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "label": "Query sampler",
+    "description": "Sample queries following a given strategy",
+    "icon": "icon-filter",
+    "supportLevel": "NOT_SUPPORTED"
+  },
+  "kind": "PYTHON",
+  "inputRoles": [
+    {
+      "name": "saved_model",
+      "label": "Saved model with predict_proba",
+      "description": "Model used to get category prediction scores",
+      "arity": "UNARY",
+      "required": true,
+      "acceptsDataset": false,
+      "acceptsSavedModel": true
+    },
+    {
+      "name": "unlabeled_samples",
+      "label": "Unlabeled data",
+      "description": "Managed folder or dataset containing samples that we want to rank",
+      "arity": "UNARY",
+      "required": true,
+      "acceptsManagedFolder": true,
+      "acceptsDataset": true
+    }
+  ],
+  "outputRoles": [
+    {
+      "name": "queries",
+      "label": "Queries dataset",
+      "description": "Dataset in which the queries are stored",
+      "arity": "UNARY",
+      "required": true,
+      "acceptsDataset": true
+    }
+  ],
+  "params": [
+    {
+      "name": "strategy",
+      "label": "Query strategy",
+      "type": "SELECT",
+      "selectChoices": [
+        {
+          "value": "uncertainty",
+          "label": "Uncertainty sampling"
+        },
+        {
+          "value": "margin",
+          "label": "Margin sampling"
+        },
+        {
+          "value": "entropy",
+          "label": "Entropy based sampling"
+        }
+      ]
+    }
+  ],
+  "resourceKeys": []
+}

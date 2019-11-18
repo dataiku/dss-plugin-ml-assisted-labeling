@@ -18,12 +18,8 @@ let CategorySelector = {
     data: () => ({}),
     methods: {
         shortcutPressed: function (key) {
-            if (key <= this.categories.length) {
-                if (key === 0 && this.categories.length === 10) {
-                    this.doLabel(this.categories[10].from)
-                } else {
-                    this.doLabel(this.categories[key - 1].from)
-                }
+            if (key < 10 && key <= this.categories.length) {
+                this.doLabel(this.categories[key].from)
             }
         },
         doLabel: function (c) {
@@ -49,7 +45,7 @@ let CategorySelector = {
 
                 >
                     <span>{{cat.to || cat.from}}</span>
-                    <div class="keybind">{{i+1}}</div>
+                    <div v-if="i<=9" class="keybind">{{i}}</div>
                 </div>
             </div>
             <textarea name="" id="" cols="60" rows="3" placeholder="Comments..." :disabled="!enabled"

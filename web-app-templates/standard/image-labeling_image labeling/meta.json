@@ -1,7 +1,0 @@
-// This file is the descriptor for the Standard Web App Template image-labeling_image labeling
-{
-    "libraries": [],
-    "label": "Short description of image-labeling_image labeling",
-    "backendEnabled": true,
-    "autoStartBackend": false
-}

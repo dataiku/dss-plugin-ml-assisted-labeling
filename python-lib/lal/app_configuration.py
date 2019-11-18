@@ -49,8 +49,8 @@ def prepare_dataset(required_schema, dataset):
                 "The target dataset should have columns: {}. The provided dataset has columns: {}. "
                 "Please edit the schema in the dataset settings.".format(
                     ', '.join(required_cols), ', '.join(dataset.cols)))
-    except:
-        logging.info("{} probably empty".format(dataset.name))
+    except Exception as e:
+        logging.info("{0} probably empty: {1}".format(dataset.name, e))
         current_df = pd.DataFrame(columns=required_cols, index=[])
         for col in required_schema:
             n = col["name"]
