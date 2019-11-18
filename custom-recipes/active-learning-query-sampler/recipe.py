@@ -31,7 +31,6 @@ strategy_mapper = {
 func = strategy_mapper[config['strategy']]
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
 unlabeled_df = unlabeled_df.loc[index]
-# TODO: margin is not an uncertainty score. We should either convert it or rename this column
 unlabeled_df['uncertainty'] = uncertainty
 
 queries = dataiku.Dataset(get_output_names_for_role('queries')[0])

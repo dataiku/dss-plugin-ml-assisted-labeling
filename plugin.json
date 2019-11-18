@@ -1,14 +1,16 @@
 {
-    "id" : "active-learning",
-    "version" : "0.0.1",
-
-    "meta" : {
-        "label" : "Plugin active-learning",
-        "description" : "Provides web apps and query sampling strategy to create an active learning pipeline",
-        "author" : "Dataiku (Andrey Avtomonov, Alexandre Abraham)",
-        "icon" : "icon-refresh",
-        "licenseInfo" : "Apache Software License",
-        "url" : "https://www.dataiku.com/dss/plugins/info/active-learning.html",
-        "tags" : ["active learning"]
-    }
+  "id": "active-learning",
+  "version": "0.0.1",
+  "meta": {
+    "label": "Plugin active-learning",
+    "description": "Provides web apps and query sampling strategy to create an active learning pipeline",
+    "author": "Dataiku (Andrey Avtomonov, Alexandre Abraham)",
+    "icon": "icon-refresh",
+    "licenseInfo": "Apache Software License",
+    "url": "https://www.dataiku.com/dss/plugins/info/active-learning.html",
+    "tags": [
+      "active learning"
+    ],
+    "supportLevel": "NOT_SUPPORTED"
+  }
 }

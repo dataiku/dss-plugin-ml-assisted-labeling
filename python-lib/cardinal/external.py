@@ -8,7 +8,6 @@ def knn_density_sampling(X: np.ndarray,
     idx_all = np.arange(X.shape[0])
     idx_unlabeled = list(set(idx_all) - set(idx_labeled))
 
-    # TODO: we could allow customization of number of nearest neigbours
     sampler = QueryInstanceGraphDensity(X, None, idx_all, metric=metric)
 
     idx_next = sampler.select(idx_labeled, idx_unlabeled, batch_size=n_instances)
