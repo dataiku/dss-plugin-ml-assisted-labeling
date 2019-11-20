@@ -1,6 +1,6 @@
 {
     "id" : "active-learning",
-    "version" : "0.0.1",
+    "version" : "1.0.0",
 
     "meta" : {
         "label" : "Plugin active-learning",
@@ -9,6 +9,6 @@
         "icon" : "icon-refresh",
         "licenseInfo" : "Apache Software License",
         "url" : "https://www.dataiku.com",
-        "tags" : ["active learning"]
+        "tags" : ["Machine Learning", "Images"]
     }
 }
