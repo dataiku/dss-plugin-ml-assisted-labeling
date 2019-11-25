@@ -8,6 +8,27 @@
     padding: 20px;
 }
 
+.errors {
+    text-align: left;
+    position: relative;
+}
+
+.errors--close {
+    position: absolute;
+    right: 0;
+    cursor: pointer;
+}
+
+.errors-container {
+    padding-top: 20px;
+}
+
+.error-name {
+    font-weight: 600;
+    font-size: 20px;
+    padding-left: 0;
+}
+
 .sample-container {
     margin-bottom: 10px;
 }

@@ -1,6 +1,8 @@
 import logging
+import traceback
 
 from flask import request, jsonify
+from werkzeug.exceptions import HTTPException
 
 import dataiku
 
@@ -14,6 +16,13 @@ def define_endpoints(app, classifier_cls):
 
         from lal.handlers.dataiku_lal_handler import DataikuLALHandler
         return DataikuLALHandler(classifier_cls, user=auth_info["authIdentifier"])
+
+    @app.errorhandler(Exception)
+    def handle_error(e):
+        code = 500
+        if isinstance(e, HTTPException):
+            code = e.code
+        return jsonify(error=str(e), trace=traceback.format_exc()), code
 
     @app.route('/batch')
     def get_sample():

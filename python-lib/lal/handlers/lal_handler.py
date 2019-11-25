@@ -2,7 +2,7 @@ import hashlib
 import json
 import logging
 from abc import abstractmethod
-from time import time
+from datetime import datetime
 from typing import TypeVar
 
 import pandas as pd
@@ -71,7 +71,7 @@ class LALHandler(object):
         serialized_label = self.classifier.serialize_label(data.get('label'))
         label = {**raw_data, **{self.lbl_col: serialized_label, self.lbl_id_col: lbl_id}}
         meta = {
-            'date': time(),
+            'date': datetime.now(),
             'data_id': data_id,
             'status': META_STATUS_LABELED,
             self.lbl_col: serialized_label,
@@ -109,7 +109,6 @@ class LALHandler(object):
         remaining = self.get_remaining()
         ids_batch = remaining[-BATCH_SIZE:]
         ids_batch.reverse()
-
         return {
             "type": self.classifier.type,
             "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
@@ -152,7 +151,7 @@ class LALHandler(object):
         label_id = data.get('labelId')
         lbl_id = self.create_label_id(data_id)
         meta = {
-            'date': time(),
+            'date': datetime.now(),
             'data_id': data_id,
             'status': META_STATUS_SKIPPED,
             self.lbl_col: None,

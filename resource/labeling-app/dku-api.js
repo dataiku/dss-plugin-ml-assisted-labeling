@@ -1,17 +1,17 @@
 axios.defaults.baseURL = dataiku.getWebAppBackendUrl('');
-axios.interceptors.response.use(function (response) {
+axios.interceptors.response.use((response) => {
     return response.data;
-}, function (error) {
-    console.error(error);
+}, (error) => {
+    APIErrors.push(error.response);
     return Promise.reject(error);
 });
 
+export let APIErrors = [];
 
-let DKUApi = {
+export let DKUApi = {
 
     batch: () => axios.get('batch'),
     back: (id) => axios.post('back', {id}),
     skip: (data) => axios.post('skip', data),
     label: data => axios.post('label', data)
 };
-export {DKUApi}

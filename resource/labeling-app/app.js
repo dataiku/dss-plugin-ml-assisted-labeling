@@ -4,6 +4,8 @@ import {SoundSample} from "./components/sound-sample.js";
 import {TabularSample} from "./components/tabular-sample.js";
 import {ControlButtons} from "./components/control-buttons.js";
 import {DKUApi} from "./dku-api.js";
+import {APIErrors} from "./dku-api.js";
+import {ErrorsComponent} from "./components/errors.js";
 
 export default new Vue({
     el: '#app',
@@ -13,6 +15,7 @@ export default new Vue({
         'sound-sample': SoundSample,
         'tabular-sample': TabularSample,
         'control-buttons': ControlButtons,
+        'errors': ErrorsComponent,
     },
     data: {
         config: null,
@@ -23,6 +26,7 @@ export default new Vue({
         isFirst: false,
         type: null,
         label: null,
+        apiErrors: APIErrors
     },
     methods: {
         updateStatsAndProceedToNextItem: function (response) {
@@ -75,28 +79,31 @@ export default new Vue({
     },
     // language=HTML
     template: `
-        <div class="main" v-if="item">
-            <div v-if="!isDone">
-                <div class="sample-container">
-                    <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
-                    <image-sample v-if="type === 'image'" :item="item.data"/>
-                    <sound-sample v-if="type === 'sound'" :item="item.data"/>
+        <div class="main">
+            <errors></errors>
+            <div v-if="item">
+                <div v-if="!isDone">
+                    <div class="sample-container">
+                        <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
+                        <image-sample v-if="type === 'image'" :item="item.data"/>
+                        <sound-sample v-if="type === 'sound'" :item="item.data"/>
+                    </div>
+                    <control-buttons :canSkip="!isDone"
+                                     :isFirst="isFirst || !(stats.labeled + stats.skipped)"
+                                     :isLabeled="!!item.labelId"/>
+                    <category-selector v-if="config" v-on:label="updateStatsAndProceedToNextItem"
+                                       :categories="config.categories"
+                                       v-bind:enabled.sync="canLabel"
+                                       :label="label || {}"/>
                 </div>
-                <control-buttons :canSkip="!isDone"
-                                 :isFirst="isFirst || !(stats.labeled + stats.skipped)"
-                                 :isLabeled="!!item.labelId"/>
-                <category-selector v-if="config" v-on:label="updateStatsAndProceedToNextItem"
-                                   :categories="config.categories"
-                                   v-bind:enabled.sync="canLabel"
-                                   :label="label || {}"/>
-            </div>
-            <div v-if="isDone">
-                <h3>All samples are labeled</h3>
-            </div>
-            <div class="stat-container">
-                <span class="stat">Labeled: {{stats.labeled}}</span>
-                <span class="stat">Skipped: {{stats.skipped}}</span>
-                <span class="stat">Total: {{stats.total}}</span>
+                <div v-if="isDone">
+                    <h3>All samples are labeled</h3>
+                </div>
+                <div class="stat-container">
+                    <span class="stat">Labeled: {{stats.labeled}}</span>
+                    <span class="stat">Skipped: {{stats.skipped}}</span>
+                    <span class="stat">Total: {{stats.total}}</span>
+                </div>
             </div>
         </div>`
 });
