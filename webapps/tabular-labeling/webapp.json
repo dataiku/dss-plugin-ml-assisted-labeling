@@ -4,7 +4,7 @@
     "description": "Manually classify rows from a tabular dataset for use in supervised learning",
     "icon": "icon-picture"
   },
-  "modular": "true",
+  "enableJavascriptModules": "true",
   "baseType": "STANDARD",
   "hasBackend": "true",
   "standardWebAppLibraries": [

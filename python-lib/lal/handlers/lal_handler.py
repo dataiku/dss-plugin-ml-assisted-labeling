@@ -21,7 +21,7 @@ C = TypeVar('C', bound=BaseClassifier)
 class LALHandler(object):
     logger = logging.getLogger(__name__)
 
-    def __init__(self, classifier, label_col_name, meta_df, labels_df, user):
+    def __init__(self, classifier, label_col_name, meta_df, labels_df, user, do_users_share_labels=True):
         """
         :type classifier: C
         """
@@ -32,16 +32,16 @@ class LALHandler(object):
         self.meta_df = meta_df
         self.labels_df = labels_df
         self.current_user = user
-
-    @property
-    def skipped_data_ids(self):
-        skipped_df = self.meta_df[
-            (self.meta_df.status == META_STATUS_SKIPPED) & (self.meta_df.annotator == self.current_user)]
-        return set(skipped_df['data_id'].values)
+        self.do_users_share_labels = do_users_share_labels
 
     def get_meta_by_status(self, status=None):
-        return self.meta_df[
-            (status is None or self.meta_df.status == status) & (self.meta_df.annotator == self.current_user)]
+        if self.do_users_share_labels:
+            return self.meta_df if status is None else self.meta_df[self.meta_df.status == status]
+        else:
+            if status is None:
+                return self.meta_df[self.meta_df.annotator == self.current_user]
+            return self.meta_df[
+                (self.meta_df.status == status) & (self.meta_df.annotator == self.current_user)]
 
     def get_remaining(self):
         seen_ids = set(self.get_meta_by_status().data_id.values)

@@ -15,13 +15,13 @@ class DataikuLALHandler(LALHandler):
     labels_ds = dataiku.Dataset(config["labels_ds"])
     labels_df = labels_ds.get_dataframe()
 
-    def __init__(self, classifier):
+    def __init__(self, classifier, user):
         super().__init__(
             classifier=classifier,
             label_col_name=config['label_col_name'],
             meta_df=DataikuLALHandler.meta_df,
             labels_df=DataikuLALHandler.labels_df,
-            user=dataiku.api_client().get_auth_info()['authIdentifier']
+            user=user
         )
 
     # Saving should probably be optimized (currently it takes >90% of the response time)

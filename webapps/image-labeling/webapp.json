@@ -5,7 +5,7 @@
     "icon": "icon-picture"
   },
   "baseType": "STANDARD",
-  "modular": "true",
+  "enableJavascriptModules": "true",
   "hasBackend": "true",
   "standardWebAppLibraries": [
     "jquery",
