@@ -1,5 +1,7 @@
 import {DKUApi} from "../dku-api.js";
 
+const possibleKeys = new Set('abcdefghijklmnopqrstuvwxyz1234567890'.split(''));
+
 let CategorySelector = {
     props: {
         categories: {
@@ -15,12 +17,13 @@ let CategorySelector = {
             default: true
         }
     },
-    data: () => ({}),
+    data: () => ({
+        keyToCatMapping: {},
+        catToKeyMapping: {}
+    }),
     methods: {
         shortcutPressed: function (key) {
-            if (key < 10 && key <= this.categories.length) {
-                this.doLabel(this.categories[key].from)
-            }
+            this.doLabel(this.keyToCatMapping[key])
         },
         doLabel: function (c) {
             if (this.enabled) {
@@ -31,9 +34,8 @@ let CategorySelector = {
                 DKUApi.label(this.label).then(labelingResponse => {
                     this.$emit('label', labelingResponse);
                 })
-
             }
-        }
+        },
     },
     // language=HTML
     template: `
@@ -45,18 +47,38 @@ let CategorySelector = {
 
                 >
                     <span>{{cat.to || cat.from}}</span>
-                    <div v-if="i<=9" class="keybind">{{i}}</div>
+                    <div v-if="catToKeyMapping.hasOwnProperty(cat.from)" class="keybind">{{catToKeyMapping[cat.from]}}
+                    </div>
                 </div>
             </div>
             <textarea name="" id="" cols="60" rows="3" placeholder="Comments..." :disabled="!enabled"
                       v-model="label.comment"></textarea>
         </div>`,
     mounted: function () {
+        const unmappedCats = [];
+        this.categories.forEach(cat => {
+            let firstLetter = (cat.to || cat.from).trim().slice(0, 1).toLowerCase();
+            if (!this.keyToCatMapping.hasOwnProperty(firstLetter)) {
+                this.keyToCatMapping[firstLetter] = cat.from;
+                this.catToKeyMapping[cat.from] = firstLetter;
+                possibleKeys.delete(firstLetter);
+            } else {
+                unmappedCats.push(cat);
+            }
+        });
+        while (unmappedCats.length && possibleKeys.size) {
+            const cat = unmappedCats.pop();
+            let key = possibleKeys.values().next().value;
+            this.keyToCatMapping[key] = cat.from;
+            this.catToKeyMapping[cat.from] = key;
+            possibleKeys.delete(key);
+        }
         window.addEventListener("keydown", (event) => {
-            if (event.code.startsWith("Digit")) {
-                this.shortcutPressed(parseInt(event.key));
+            if (this.keyToCatMapping.hasOwnProperty(event.key)) {
+                this.shortcutPressed(event.key);
             }
         }, true);
+        this.$forceUpdate();
     },
     // language=CSS
 };
