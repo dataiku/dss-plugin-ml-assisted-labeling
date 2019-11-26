@@ -1,14 +1,14 @@
 {
-    "id" : "active-learning",
+    "id" : "labeling-and-active-learning",
     "version" : "1.0.0",
 
     "meta" : {
-        "label" : "Plugin active-learning",
-        "description" : "Provides web apps and query sampling strategy to create an active learning pipeline",
+        "label" : "Labeling and Active Learning",
+        "description" : "Collection of web applications allowing to classify unlabeled images and row data. Provides active learning recipes to smartly select the samples to label and reduce costs.",
         "author" : "Dataiku (Andrey Avtomonov, Alexandre Abraham)",
-        "icon" : "icon-refresh",
+        "icon" : "icon-tags",
         "licenseInfo" : "Apache Software License",
         "url" : "https://www.dataiku.com",
-        "tags" : ["Machine Learning", "Images"]
+        "tags" : ["Machine Learning", "Images", "Labeling"]
     }
 }
