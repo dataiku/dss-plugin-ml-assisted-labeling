@@ -53,7 +53,8 @@ class LALHandler(object):
         stats = {
             "labeled": len(self.get_meta_by_status(META_STATUS_LABELED)),
             "total": total_count,
-            "skipped": len(self.get_meta_by_status(META_STATUS_SKIPPED))
+            "skipped": len(self.get_meta_by_status(META_STATUS_SKIPPED)),
+            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].value_counts().to_dict()
         }
         return stats
 

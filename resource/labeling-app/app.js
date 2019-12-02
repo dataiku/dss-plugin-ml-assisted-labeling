@@ -93,6 +93,7 @@ export default new Vue({
                                      :isLabeled="!!item.labelId"/>
                     <category-selector v-if="config" v-on:label="updateStatsAndProceedToNextItem"
                                        :categories="config.categories"
+                                       :stats="stats"
                                        v-bind:enabled.sync="canLabel"
                                        :label="label || {}"/>
                 </div>

@@ -4,6 +4,10 @@ const possibleKeys = new Set('abcdefghijklmnopqrstuvwxyz1234567890'.split(''));
 
 let CategorySelector = {
     props: {
+        stats: {
+            type: Object,
+            required: true,
+        },
         categories: {
             type: Array,
             required: true,
@@ -22,6 +26,10 @@ let CategorySelector = {
         catToKeyMapping: {}
     }),
     methods: {
+        getProgress(key) {
+            return Math.round((this.stats.perLabel[key] || 0) / this.stats.labeled * 100 );
+        },
+
         shortcutPressed: function (key) {
             this.doLabel(this.keyToCatMapping[key])
         },
@@ -48,6 +56,9 @@ let CategorySelector = {
                 >
                     <span>{{cat.to || cat.from}}</span>
                     <div v-if="catToKeyMapping.hasOwnProperty(cat.from)" class="keybind">{{catToKeyMapping[cat.from]}}
+                    </div>
+                    <div class="progress-background">
+                        <div class="progress" :style="{ width: getProgress(cat.from) + '%' }"></div>
                     </div>
                 </div>
             </div>

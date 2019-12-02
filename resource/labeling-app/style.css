@@ -8,6 +8,21 @@
     padding: 20px;
 }
 
+.progress-background {
+    height: 5px;
+    width: 100%;
+    border-radius: 0;
+    background-color: #d3d3d3;
+    margin-top: 5px;
+    /*position: absolute;*/
+    /*bottom: 0;*/
+}
+
+.progress{
+    background-color: #277194a1;
+    height: 100%;
+    border-radius: 0;
+}
 .errors {
     text-align: left;
     position: relative;
@@ -20,7 +35,7 @@
 }
 
 .errors-container {
-    padding-top: 20px;
+    /*padding-top: 20px;*/
 }
 
 .error-name {
@@ -59,15 +74,19 @@
 
 
 .category-selector .button {
-    padding-bottom: 5px;
+    padding-top: 5px;
+    /*padding-bottom: 15px;*/
 }
 
 .button {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
     white-space: nowrap;
     min-width: 60px;
     border: 1px solid grey;
     margin: 5px;
-    padding: 10px;
+    /*padding: 10px;*/
     cursor: pointer;
     text-align: center;
     display: flex;
