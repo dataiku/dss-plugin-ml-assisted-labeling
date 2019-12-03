@@ -12,3 +12,4 @@
 #
 # QBC is standby until we find a nice way to propose it in DSS
 # (Not through a dedicated custom recipe)
+pass

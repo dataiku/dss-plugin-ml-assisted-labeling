@@ -26,8 +26,8 @@ def uncertainty_sampling(classifier: BaseEstimator, X: np.ndarray,
         n_instances: Number of samples to be queried.
 
     Returns:
-        The indices of the instances from X chosen to be labelled;
-        the instances from X chosen to be labelled.
+        The indices of the instances from X chosen to be labeled;
+        the instances from X chosen to be labeled.
     """
     classwise_uncertainty = _get_probability_classes(classifier, X)
         
@@ -48,8 +48,8 @@ def margin_sampling(classifier: BaseEstimator, X: np.ndarray,
         n_instances: Number of samples to be queried.
 
     Returns:
-        The indices of the instances from X chosen to be labelled;
-        the instances from X chosen to be labelled.
+        The indices of the instances from X chosen to be labeled;
+        the instances from X chosen to be labeled.
     """
     classwise_uncertainty = _get_probability_classes(classifier, X)
         
@@ -71,8 +71,8 @@ def entropy_sampling(classifier: BaseEstimator, X: np.ndarray,
         n_instances: Number of samples to be queried.
 
     Returns:
-        The indices of the instances from X chosen to be labelled;
-        the instances from X chosen to be labelled.
+        The indices of the instances from X chosen to be labeled;
+        the instances from X chosen to be labeled.
     """
     classwise_uncertainty = _get_probability_classes(classifier, X)
     

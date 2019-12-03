@@ -1,7 +1,7 @@
 {
   "meta": {
-    "label": "Image labeling",
-    "description": "Manually classify images from a folder for use in supervised learning",
+    "label": "Sound labeling",
+    "description": "Manually classify sounds from a folder for use in supervised learning",
     "icon": "icon-picture"
   },
   "baseType": "STANDARD",
@@ -33,8 +33,8 @@
     {
       "type": "FOLDER",
       "name": "unlabeled",
-      "label": "Images",
-      "description": "Folder containing the images to label",
+      "label": "Sounds",
+      "description": "Folder containing the sounds to label",
       "mandatory": true,
       "canSelectForeign": true
     },

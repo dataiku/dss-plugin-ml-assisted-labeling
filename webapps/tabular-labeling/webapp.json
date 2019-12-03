@@ -1,11 +1,11 @@
 {
   "meta": {
-    "label": "Image labeling",
-    "description": "Manually classify images from a folder for use in supervised learning",
+    "label": "Tabular data labeling",
+    "description": "Manually classify rows from a tabular dataset for use in supervised learning",
     "icon": "icon-picture"
   },
-  "baseType": "STANDARD",
   "enableJavascriptModules": "true",
+  "baseType": "STANDARD",
   "hasBackend": "true",
   "standardWebAppLibraries": [
     "jquery",
@@ -31,12 +31,13 @@
       "canCreateDataset": true
     },
     {
-      "type": "FOLDER",
+      "type": "DATASET",
       "name": "unlabeled",
-      "label": "Images",
-      "description": "Folder containing the images to label",
+      "label": "Unlabeled data",
+      "description": "Dataset containing data to label",
       "mandatory": true,
-      "canSelectForeign": true
+      "canSelectForeign": true,
+      "canCreateDataset": true
     },
     {
       "type": "DATASET",
