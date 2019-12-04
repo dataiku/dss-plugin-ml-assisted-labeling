@@ -7,7 +7,7 @@ let ImageSample = {
     },
     // language=HTML
     template: `
-        <div>
+        <div class="image-sample">
             <img :src="imgSrc">
         </div>`
 };

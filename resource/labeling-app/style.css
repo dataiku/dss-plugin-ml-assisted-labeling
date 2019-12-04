@@ -160,3 +160,7 @@ button .keybind{
     padding-left: 50px;
     text-align: right;
 }
+
+.image-sample img{
+    min-height: 300px;
+}
