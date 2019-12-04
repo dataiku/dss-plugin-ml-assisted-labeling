@@ -55,15 +55,15 @@ let CategorySelector = {
 
                 >
                     <span>{{cat.to || cat.from}}</span>
-                    <div v-if="catToKeyMapping.hasOwnProperty(cat.from)" class="keybind">{{catToKeyMapping[cat.from]}}
-                    </div>
+                    <code v-if="catToKeyMapping.hasOwnProperty(cat.from)" class="keybind">{{catToKeyMapping[cat.from]}}
+                    </code>
                     <div class="progress-background">
                         <div class="progress" :style="{ width: getProgress(cat.from) + '%' }"></div>
                     </div>
                 </div>
             </div>
             <textarea name="" id="" cols="60" rows="3" placeholder="Comments..." :disabled="!enabled"
-                      v-model="label.comment"></textarea>
+                      v-model="label.comment" v-on:keyup.stop></textarea>
         </div>`,
     mounted: function () {
         const unmappedCats = [];
@@ -84,11 +84,11 @@ let CategorySelector = {
             this.catToKeyMapping[cat.from] = key;
             possibleKeys.delete(key);
         }
-        window.addEventListener("keydown", (event) => {
+        window.addEventListener("keyup", (event) => {
             if (this.keyToCatMapping.hasOwnProperty(event.key)) {
                 this.shortcutPressed(event.key);
             }
-        }, true);
+        }, false);
         this.$forceUpdate();
     },
     // language=CSS
