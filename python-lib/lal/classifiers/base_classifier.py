@@ -52,7 +52,7 @@ class BaseClassifier(object):
         return df.loc[self.id_to_index[data_id]].to_dict()
 
     def serialize_label(self, label):
-        return label[0]
+        return str(label[0])
 
     def deserialize_label(self, label):
         return [label]
