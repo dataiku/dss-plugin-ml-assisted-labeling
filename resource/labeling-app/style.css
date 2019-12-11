@@ -18,11 +18,12 @@
     /*bottom: 0;*/
 }
 
-.progress{
+.progress {
     background-color: #277194a1;
     height: 100%;
     border-radius: 0;
 }
+
 .errors {
     text-align: left;
     position: relative;
@@ -109,13 +110,15 @@
 .button.selected {
     background-color: rgba(144, 238, 144, 0.49);
 }
-button .keybind{
+
+button .keybind {
     margin: 10px auto auto;
     width: fit-content;
     padding: 7px;
 }
+
 .keybind {
-    font-family: arial,sans-serif;
+    font-family: arial, sans-serif;
     margin-top: 5px;
     color: grey;
     font-size: 9px;
@@ -134,7 +137,12 @@ button .keybind{
     display: flex;
     justify-content: center;
 }
-.tabular-sample td{
+
+.tabular-sample tr td:nth-child(1) {
+    white-space: nowrap;
+}
+
+.tabular-sample tr td:nth-child(2) {
     word-break: break-word;
 }
 
@@ -164,6 +172,6 @@ button .keybind{
     text-align: right;
 }
 
-.image-sample img{
+.image-sample img {
     min-height: 300px;
 }
