@@ -134,6 +134,9 @@ button .keybind{
     display: flex;
     justify-content: center;
 }
+.tabular-sample td{
+    word-break: break-word;
+}
 
 .tabular-sample {
     max-height: 750px;
