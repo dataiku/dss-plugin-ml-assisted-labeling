@@ -22,13 +22,14 @@ class BaseClassifier(object):
 
     @property
     def df_to_label(self):
-        if len(self.queries_df):
+        if self.queries_df is None or self.queries_df.empty:
+            logging.info("Taking initial dataframe to label")
+            df_to_label = self.initial_df
+        else:
             logging.info("Taking queries dataframe to label")
             df_to_label = self.queries_df.sort_values('uncertainty', ascending=True)
             df_to_label = df_to_label.drop('uncertainty', axis=1)
-        else:
-            logging.info("Taking initial dataframe to label")
-            df_to_label = self.initial_df
+
 
         return df_to_label
 

@@ -33,8 +33,9 @@ def prepare_datasets(unlabeled_schema=None):
 
     prepare_dataset(labels_schema, dataiku.Dataset(config['labels_ds']))
 
-    queries_schema = unlabeled_schema + [{"name": "uncertainty", "type": "float"}]
-    prepare_dataset(queries_schema, dataiku.Dataset(config['queries_ds']))
+    if 'queries_ds' in config:
+        queries_schema = unlabeled_schema + [{"name": "uncertainty", "type": "float"}]
+        prepare_dataset(queries_schema, dataiku.Dataset(config['queries_ds']))
 
     prepare_dataset(metadata_required_schema, dataiku.Dataset(config['metadata_ds']))
 

@@ -12,5 +12,7 @@ labels_schema = [
 prepare_datasets(labels_schema)
 
 unlabeled_mf = dataiku.Folder(config["unlabeled"])
-queries_df = dataiku.Dataset(config["queries_ds"]).get_dataframe()
+
+queries_df = dataiku.Dataset(config["queries_ds"]).get_dataframe() if "queries_ds" in config else None
+
 define_endpoints(app, ImageClassifier(unlabeled_mf, queries_df, config))
