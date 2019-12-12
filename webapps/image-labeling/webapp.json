@@ -15,28 +15,38 @@
   ],
   "params": [
     {
-      "name": "label_col_name",
-      "type": "STRING",
-      "label": "Label column name",
-      "defaultValue": "label",
-      "description": "Name of the label column in the labels dataset",
-      "mandatory": true
-    },
-    {
-      "type": "DATASET",
-      "name": "metadata_ds",
-      "label": "Labeling metadata dataset",
-      "mandatory": true,
-      "canSelectForeign": true,
-      "canCreateDataset": true
+      "type": "SEPARATOR", 
+      "name": "Input", 
+      "label": "Input"
     },
     {
       "type": "FOLDER",
       "name": "unlabeled",
-      "label": "Images",
-      "description": "Folder containing the images to label",
+      "label": "Images to label",
+      "description": "Folder containing image files to label",
       "mandatory": true,
       "canSelectForeign": true
+    },
+    {
+      "name": "categories",
+      "type": "KEY_VALUE_LIST",
+      "label": "Categories",
+      "description": "Category name → optional description",
+      "mandatory": true
+    },
+    {
+      "type": "SEPARATOR", 
+      "name": "Output", 
+      "label": "Output"
+    },
+    {
+      "type": "DATASET",
+      "name": "metadata_ds",
+      "label": "Labeling status and metadata",
+      "description": "Contains additional information such as annotator and timestamps for each labeling",
+      "mandatory": true,
+      "canSelectForeign": true,
+      "canCreateDataset": true
     },
     {
       "type": "DATASET",
@@ -48,6 +58,19 @@
       "canCreateDataset": true
     },
     {
+      "name": "label_col_name",
+      "type": "STRING",
+      "label": "Labels target column name",
+      "defaultValue": "label",
+      "description": "Name of the label column in the Labels dataset",
+      "mandatory": true
+    },
+    {
+      "type": "SEPARATOR", 
+      "name": "Active learning specific", 
+      "label": "Active learning specific"
+    },
+    {
       "type": "DATASET",
       "name": "queries_ds",
       "label": "Queries",
@@ -55,13 +78,6 @@
       "mandatory": false,
       "canSelectForeign": false,
       "canCreateDataset": false
-    },
-    {
-      "name": "categories",
-      "type": "KEY_VALUE_LIST",
-      "label": "Categories",
-      "description": "Category name → optional description",
-      "mandatory": true
     }
   ]
 }
