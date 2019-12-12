@@ -2,8 +2,7 @@ import numpy as np
 import dataiku
 import os
 import matplotlib
-matplotlib.use('agg')
-from matplotlib.pyplot import imread
+from PIL import Image
 
 
 class ImgLoader:
@@ -18,6 +17,6 @@ class ImgLoader:
         folder_path = dataiku.Folder(self.folder).get_path()
         imgs = []
         for x in X:
-            img = np.ravel(imread(os.path.join(folder_path, x.lstrip('/'))))
+            img = np.ravel(Image.open(os.path.join(folder_path, x.lstrip('/'))))
             imgs.append(img)
         return np.asarray(imgs)
