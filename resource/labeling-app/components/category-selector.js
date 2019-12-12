@@ -27,6 +27,9 @@ let CategorySelector = {
     }),
     methods: {
         getProgress(key) {
+            if (!this.stats.labeled) {
+                return 0;
+            }
             return Math.round((this.stats.perLabel[key] || 0) / this.stats.labeled * 100 );
         },
 

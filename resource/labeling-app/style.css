@@ -76,7 +76,15 @@
 
 .category-selector .button {
     padding-top: 5px;
-    /*padding-bottom: 15px;*/
+}
+
+.category-selector .button > span {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+audio {
+    outline: none;
 }
 
 .button {
