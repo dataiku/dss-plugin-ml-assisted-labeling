@@ -41,7 +41,7 @@
     {
       "type": "DATASET",
       "name": "labels_ds",
-      "label": "Labels",
+      "label": "Labels dataset",
       "description": "Dataset to save the labels into",
       "mandatory": false,
       "canSelectForeign": false,
@@ -54,7 +54,7 @@
       "description": "Dataset containing queries to label ranked by importance",
       "mandatory": false,
       "canSelectForeign": false,
-      "canCreateDataset": false
+      "canCreateDataset": true
     },
     {
       "name": "categories",
