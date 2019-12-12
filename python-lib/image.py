@@ -17,6 +17,9 @@ class ImgLoader:
         folder_path = dataiku.Folder(self.folder).get_path()
         imgs = []
         for x in X:
+            if x == '':
+                imgs.append(np.asarray([]))
+                continue
             img = np.ravel(Image.open(os.path.join(folder_path, x.lstrip('/'))))
             imgs.append(img)
         return np.asarray(imgs)
