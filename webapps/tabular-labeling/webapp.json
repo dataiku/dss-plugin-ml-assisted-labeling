@@ -2,7 +2,7 @@
   "meta": {
     "label": "Tabular data labeling",
     "description": "Manually classify rows from a tabular dataset for use in supervised learning",
-    "icon": "icon-picture"
+    "icon": "icon-table"
   },
   "enableJavascriptModules": "true",
   "baseType": "STANDARD",
