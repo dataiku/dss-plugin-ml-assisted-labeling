@@ -74,7 +74,7 @@
       "type": "DATASET",
       "name": "queries_ds",
       "label": "Queries",
-      "description": "Dataset containing queries to label ranked by importance",
+      "description": "Dataset containing queries to label along with their confidence score",
       "mandatory": false,
       "canSelectForeign": false,
       "canCreateDataset": false
