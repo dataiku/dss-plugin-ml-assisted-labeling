@@ -29,7 +29,8 @@ class ImgLoader:
                 if os.path.exists(x_in_path):
                     img = np.ravel(Image.open(x_in_path))
                     imgs.append(img)
-                    continue
+                    break
+            else:
                 raise FileNotFoundError(
                     errno.ENOENT, os.strerror(errno.ENOENT), x)
         return np.asarray(imgs)
