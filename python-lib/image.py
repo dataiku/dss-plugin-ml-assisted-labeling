@@ -15,7 +15,7 @@ class ImgLoader:
         return self
     
     def transform(self, X):
-        folder_paths = [dataiku.Folderfolder).get_path() for folder in self.folders]
+        folder_paths = [dataiku.Folder(folder).get_path() for folder in self.folders]
         imgs = []
         for x in X:
             if x == '':
