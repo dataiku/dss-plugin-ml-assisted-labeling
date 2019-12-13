@@ -38,4 +38,6 @@ queries.write_with_schema(unlabeled_df)
 
 # Increase session ID
 session_var = "labelling-and-active-learning_session"
-dataiku.get_custom_variables()[session_var] = dataiku.get_custom_variables().get(session_var, 0) + 1
+v = dataiku.api_client().get_project(model.project_key).get_variables()
+v['standard'][session_var] = v['standard'].get(session_var, 0) + 1
+dataiku.api_client().get_project(model.project_key).set_variables(v)
