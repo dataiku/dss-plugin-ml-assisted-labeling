@@ -30,7 +30,7 @@ strategy_mapper = {
 }
 
 queries_df = queries_ds.get_dataframe()
-current_session = 0 if queries_df.session.empty else queries_df.session.max() + 1
+current_session = 1 if queries_df.session.empty else queries_df.session[0] + 1
 
 func = strategy_mapper[config['strategy']]
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
