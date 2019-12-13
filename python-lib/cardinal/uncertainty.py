@@ -1,33 +1,31 @@
 from sklearn.exceptions import NotFittedError
-from sklearn.base import BaseEstimator
 from scipy.stats import entropy
+from sklearn.base import BaseEstimator
 import numpy as np
-from keras.models import Model
 
 
 def _get_probability_classes(classifier, X):
-    try:
-        if isinstance(classifier, Model):  # Keras models have no predict_proba
-            classwise_uncertainty = classifier.predict(X)
-        else:  # sklearn model
-            classwise_uncertainty = classifier.predict_proba(X)
-    except NotFittedError:
-        raise
+    if classifier == 'precomputed':
+        return X
+    elif classifier.__class__.__module__.split('.')[0] == 'keras':  # Keras models have no predict_proba
+        classwise_uncertainty = classifier.predict(X)
+    else:  # sklearn compatible model
+        classwise_uncertainty = classifier.predict_proba(X)
     return classwise_uncertainty
 
 
-def uncertainty_sampling(classifier: BaseEstimator, X: np.ndarray,
-                         n_instances: int = 1) -> np.ndarray:
-    """
-    Uncertainty sampling query strategy. Selects the least sure instances for labelling.
+def confidence_sampling(classifier: BaseEstimator, X: np.ndarray,
+                        n_instances: int = 1) -> np.ndarray:
+    """Lowest confidence sampling query strategy. Selects the least sure instances for labelling.
+
     Args:
         classifier: The classifier for which the labels are to be queried.
         X: The pool of samples to query from.
         n_instances: Number of samples to be queried.
 
     Returns:
-        The indices of the instances from X chosen to be labeled;
-        the instances from X chosen to be labeled.
+        The indices of the instances from X chosen to be labelled;
+        the instances from X chosen to be labelled.
     """
     classwise_uncertainty = _get_probability_classes(classifier, X)
         
@@ -39,31 +37,34 @@ def uncertainty_sampling(classifier: BaseEstimator, X: np.ndarray,
 
 def margin_sampling(classifier: BaseEstimator, X: np.ndarray,
                     n_instances: int = 1) -> np.ndarray:
-    """
-    Margin sampling query strategy. Selects the instances where the difference between
-    the first most likely and second most likely classes are the smallest.
+    """Margin sampling query strategy, selects the samples with lowest difference between top 2 probabilities.
+
+    This strategy takes the probabilities of top two classes and uses their
+    difference as a score for selection.
+
     Args:
         classifier: The classifier for which the labels are to be queried.
         X: The pool of samples to query from.
         n_instances: Number of samples to be queried.
 
     Returns:
-        The indices of the instances from X chosen to be labeled;
-        the instances from X chosen to be labeled.
+        The indices of the instances from X chosen to be labelled;
+        the instances from X chosen to be labelled.
     """
     classwise_uncertainty = _get_probability_classes(classifier, X)
-        
-    part = np.partition(-classwise_uncertainty, 1, axis=1)
-    margin = - part[:, 0] + part[:, 1]
-    index = np.argsort(margin)[:n_instances]
+
+    part = np.partition(classwise_uncertainty, -2, axis=1)
+    margin = 1 - (part[:, -1] - part[:, -2])
+    index = np.flip(np.argsort(margin))[:n_instances]
     
     return index, margin[index]
 
 def entropy_sampling(classifier: BaseEstimator, X: np.ndarray,
                      n_instances: int = 1) -> np.ndarray:
-    """
-    Entropy sampling query strategy. Selects the instances where the class probabilities
-    have the largest entropy.
+    """Entropy sampling query strategy, uses entropy of all probabilities as score.
+
+    This strategy selects the samples with the highest entropy in their prediction
+    probabilities.
     
     Args:
         classifier: The classifier for which the labels are to be queried.
@@ -71,8 +72,8 @@ def entropy_sampling(classifier: BaseEstimator, X: np.ndarray,
         n_instances: Number of samples to be queried.
 
     Returns:
-        The indices of the instances from X chosen to be labeled;
-        the instances from X chosen to be labeled.
+        The indices of the instances from X chosen to be labelled;
+        the instances from X chosen to be labelled.
     """
     classwise_uncertainty = _get_probability_classes(classifier, X)
     
@@ -80,4 +81,3 @@ def entropy_sampling(classifier: BaseEstimator, X: np.ndarray,
     index = np.flip(np.argsort(entropies))[:n_instances]
     
     return index, entropies[index]
-

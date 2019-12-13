@@ -24,7 +24,7 @@ clf = model.get_predictor()._clf
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
 strategy_mapper = {
-    'uncertainty': uncertainty.uncertainty_sampling,
+    'confidence': uncertainty.uncertainty_sampling,
     'margin': uncertainty.margin_sampling,
     'entropy': uncertainty.entropy_sampling
 }
@@ -34,8 +34,8 @@ current_session = 0 if queries_df.session.empty else queries_df.session.max() + 
 
 func = strategy_mapper[config['strategy']]
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
-unlabeled_df = unlabeled_df.loc[index]
-unlabeled_df['uncertainty'] = uncertainty
-unlabeled_df['session'] = current_session
+queries_df = unlabeled_df.loc[index]
+queries_df['uncertainty'] = uncertainty
+queries_df['session'] = current_session
 
-queries_ds.write_with_schema(unlabeled_df)
+queries_ds.write_with_schema(queries_df)
