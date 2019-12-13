@@ -8,8 +8,9 @@ import errno
 
 class ImgLoader:
 
-    def __init__(self, *folders):
+    def __init__(self, *folders, verbose=0):
         self.folders = folders
+        self.verbose = verbose
 
     def fit(self, X, y=None, **kwargs):
         return self
@@ -23,8 +24,10 @@ class ImgLoader:
                 continue
             for folder_path in folder_paths:
                 x_in_path = os.path.join(folder_path, x.lstrip('/'))
+                if self.verbose > 0:
+                    print("Trying to find {}".format(x_in_path))
                 if os.path.exists(x_in_path):
-                    img = np.ravel(Image.open(os.path.join(folder_path, x.lstrip('/'))))
+                    img = np.ravel(Image.open(x_in_path))
                     imgs.append(img)
                     continue
                 raise FileNotFoundError(
