@@ -11,7 +11,8 @@ trigger_config = get_trigger_config()
 t = Trigger()
 
 annotations_count = trigger_config['annotations_count']
-annotations_df = dataiku.Dataset(trigger_config['dataset']).get_dataframe()
+annotations = dataiku.Dataset(trigger_config['dataset'])
+annotations_df = annotations.get_dataframe()
 stop_annotations = trigger_config['stop_annotations']
 stop_annotations_count = trigger_config['stop_annotations_count']
 stop_model = trigger_config['stop_model']
@@ -21,9 +22,12 @@ stop_model_epsilon = trigger_config['stop_model_epsilon']
 
 trigger = False
 
-# Get the last session from a global variable
-max_session = annotations_df['session'].max()
-n_annotations = (annotations_df['session'] == max_session).sum()
+# Get session computed from AL recipe
+session_var = "labelling-and-active-learning_session"
+v = dataiku.api_client().get_project(annotations.project_key).get_variables()
+session = v['standard'].get(session_var, 0)
+
+n_annotations = (annotations_df['session'] == session).sum()
 trigger = (n_annotations >= annotations_count)
 
 if stop_annotations:
