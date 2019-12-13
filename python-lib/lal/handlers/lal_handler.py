@@ -78,7 +78,7 @@ class LALHandler(object):
             self.lbl_col: serialized_label,
             self.lbl_id_col: lbl_id,
             'comment': data.get('comment'),
-            'session': 0,
+            'session': self.classifier.get_session(),
             'annotator': self.current_user,
         }
         self.meta_df = self.meta_df[self.meta_df[self.lbl_id_col] != lbl_id]

@@ -24,7 +24,7 @@ clf = model.get_predictor()._clf
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
 strategy_mapper = {
-    'confidence': uncertainty.uncertainty_sampling,
+    'confidence': uncertainty.confidence_sampling,
     'margin': uncertainty.margin_sampling,
     'entropy': uncertainty.entropy_sampling
 }

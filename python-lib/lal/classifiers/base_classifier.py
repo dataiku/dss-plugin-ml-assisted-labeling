@@ -1,4 +1,3 @@
-import json
 import logging
 from abc import abstractmethod
 
@@ -28,10 +27,14 @@ class BaseClassifier(object):
         else:
             logging.info("Taking queries dataframe to label")
             df_to_label = self.queries_df.sort_values('uncertainty', ascending=True)
-            df_to_label = df_to_label.drop('uncertainty', axis=1)
-
+            df_to_label = df_to_label[self.initial_df.columns]
 
         return df_to_label
+
+    def get_session(self):
+        if self.queries_df is None or self.queries_df.empty:
+            return 0
+        return self.queries_df.session[0] # all session values are the same in queries, taking first
 
     def validate_config(self, config):
         self.logger.info("Webapp config: %s" % repr(config))
