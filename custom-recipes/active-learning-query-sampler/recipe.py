@@ -23,7 +23,7 @@ clf = model.get_predictor()._clf
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
 strategy_mapper = {
-    'uncertainty': uncertainty.uncertainty_sampling,
+    'confidence': uncertainty.confidence_sampling,
     'margin': uncertainty.margin_sampling,
     'entropy': uncertainty.entropy_sampling
 }
@@ -35,3 +35,7 @@ unlabeled_df['uncertainty'] = uncertainty
 
 queries = dataiku.Dataset(get_output_names_for_role('queries')[0])
 queries.write_with_schema(unlabeled_df)
+
+# Increase session ID
+session_var = "labelling-and-active-learning_session"
+dataiku.get_custom_variables()[session_var] = dataiku.get_custom_variables().get(session_var, 0) + 1

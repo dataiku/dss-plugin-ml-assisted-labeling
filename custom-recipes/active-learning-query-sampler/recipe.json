@@ -43,16 +43,16 @@
       "type": "SELECT",
       "selectChoices": [
         {
-          "value": "uncertainty",
-          "label": "Uncertainty sampling"
+          "value": "confidence",
+          "label": "Lowest confidence sampling"
         },
         {
           "value": "margin",
-          "label": "Margin sampling"
+          "label": "Highest margin sampling"
         },
         {
           "value": "entropy",
-          "label": "Entropy based sampling"
+          "label": "Highest entropy sampling"
         }
       ]
     }
