@@ -22,12 +22,9 @@ stop_model_epsilon = trigger_config['stop_model_epsilon']
 
 trigger = False
 
-# Get session computed from AL recipe
-session_var = "labelling-and-active-learning_session"
-v = dataiku.api_client().get_project(annotations.project_key).get_variables()
-session = v['standard'].get(session_var, 0)
-
-n_annotations = (annotations_df['session'] == session).sum()
+# Get session computed from annotations dataset
+max_session = annotations_df['session'].max()
+n_annotations = (annotations_df['session'] == max_session).sum()
 trigger = (n_annotations >= annotations_count)
 
 if stop_annotations:
