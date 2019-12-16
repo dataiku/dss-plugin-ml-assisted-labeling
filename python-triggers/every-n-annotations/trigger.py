@@ -19,13 +19,16 @@ stop_model = trigger_config['stop_model']
 stop_model_df = dataiku.Dataset(trigger_config['stop_model_dataset']).get_dataset()
 stop_model_column = trigger_config['stop_model_column']
 stop_model_epsilon = trigger_config['stop_model_epsilon']
+last_session_run = trigger_config['stop_model_epsilon']
 
 trigger = False
 
 # Get session computed from annotations dataset
 max_session = annotations_df['session'].max()
 n_annotations = (annotations_df['session'] == max_session).sum()
-trigger = (n_annotations >= annotations_count)
+trigger = (max_session > last_session_run and n_annotations >= annotations_count)
+if trigger:
+    trigger_config['last_session_run'] = max_session
 
 if stop_annotations:
     trigger = (trigger and (annotations_df.shape[0] < stop_annotations_count)) 

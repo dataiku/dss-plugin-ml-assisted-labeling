@@ -53,6 +53,13 @@
             "type": "DOUBLE",
             "defaultValue": 0.001,
             "visibilityCondition" : "model.stop_model"
+        },
+        {
+            "name": "last_session_run",
+            "label" : "last_session_run",
+            "type": "INT",
+            "defaultValue": -1,
+            "visibilityCondition" : "false"
         }
     ]
 }
