@@ -57,8 +57,7 @@ def margin_sampling(classifier, X, n_instances=1):
     
     return index, margin[index]
 
-def entropy_sampling(classifier: BaseEstimator, X: np.ndarray,
-                     n_instances: int = 1) -> np.ndarray:
+def entropy_sampling(classifier, X, n_instances=1):
     """Entropy sampling query strategy, uses entropy of all probabilities as score.
 
     This strategy selects the samples with the highest entropy in their prediction
