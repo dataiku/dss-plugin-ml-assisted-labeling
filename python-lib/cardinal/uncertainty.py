@@ -14,8 +14,7 @@ def _get_probability_classes(classifier, X):
     return classwise_uncertainty
 
 
-def confidence_sampling(classifier: BaseEstimator, X: np.ndarray,
-                        n_instances: int = 1) -> np.ndarray:
+def confidence_sampling(classifier, X, n_instances=1):
     """Lowest confidence sampling query strategy. Selects the least sure instances for labelling.
 
     Args:
