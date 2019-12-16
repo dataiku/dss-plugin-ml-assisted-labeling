@@ -1,65 +1,26 @@
 {
     "meta" : {
-        "label" : "Trigger every n annotations",
-        "description" : "Triggers an active learning iteration every n annotations",
+        "label" : "Trigger every n labeling",
+        "description" : "Triggers an active learning iteration every n labeling",
         "icon" : "icon-puzzle-piece"
     },
 
     "params": [
         {
-            "name": "annotations_count",
-            "label":"Annotation count",
+            "name": "i_labeling_count",
+            "label":"Labeling count",
             "type": "INT",
             "defaultValue" : 100
         },
         {
-            "name": "dataset",
-            "label": "Annotations dataset",
+            "name": "ds_metadata",
+            "label": "Metadata dataset",
             "type": "DATASET"
         },
         {
-            "name": "stop_annotations",
-            "label" : "Stop after a given annotation count",
-            "type": "BOOLEAN"
-        },
-        {
-            "name": "stop_annotations_count",
-            "label" : "Max annotation count",
-            "type": "INT",
-            "defaultValue": 1000,
-            "visibilityCondition" : "model.stop_annotations"
-        },
-        {
-            "name": "stop_model",
-            "label" : "Stop when model is not improving",
-            "type": "BOOLEAN"
-        },
-        {
-            "name": "stop_model_dataset",
-            "label" : "Model scoring dataset",
-            "type": "DATASET",
-            "visibilityCondition" : "model.stop_model"
-        },
-        {
-            "name": "stop_model_column",
-            "label" : "Model metric column",
-            "type": "DATASET_COLUMN",
-            "datasetParamName": "stop_model_dataset",
-            "visibilityCondition" : "model.stop_model"
-        },
-        {
-            "name": "stop_model_epsilon",
-            "label" : "Epsilon threhsold",
-            "type": "DOUBLE",
-            "defaultValue": 0.001,
-            "visibilityCondition" : "model.stop_model"
-        },
-        {
-            "name": "last_session_run",
-            "label" : "last_session_run",
-            "type": "INT",
-            "defaultValue": -1,
-            "visibilityCondition" : "false"
+            "name": "ds_queries",
+            "label": "queries dataset",
+            "type": "DATASET"
         }
     ]
 }
