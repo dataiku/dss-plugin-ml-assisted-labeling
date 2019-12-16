@@ -3,10 +3,7 @@ import numpy as np
 from typing import Callable, Union
 
 
-def density_sampling(X: np.ndarray,
-                     idx_labeled: np.ndarray = None,
-                     n_instances: int = 1,
-                     metric: Union[str, Callable] = 'euclidean') -> np.ndarray:
+def density_sampling(X, idx_labeled=None, n_instances=1, metric='euclidean'):
     """
     Random sampling query strategy. Selects instances randomly
     
