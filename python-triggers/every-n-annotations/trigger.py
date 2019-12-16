@@ -1,6 +1,7 @@
 # This file is the actual code for the custom Python trigger every-n-annotations
 
 import os, json
+import dataiku
 
 from dataiku.customtrigger import *
 from dataiku.scenario import Trigger
