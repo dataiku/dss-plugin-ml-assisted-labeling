@@ -34,8 +34,7 @@ def confidence_sampling(classifier, X, n_instances=1):
     
     return index, uncertainty[index]
 
-def margin_sampling(classifier: BaseEstimator, X: np.ndarray,
-                    n_instances: int = 1) -> np.ndarray:
+def margin_sampling(classifier, X, n_instances=1):
     """Margin sampling query strategy, selects the samples with lowest difference between top 2 probabilities.
 
     This strategy takes the probabilities of top two classes and uses their
