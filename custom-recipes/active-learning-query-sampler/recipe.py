@@ -25,10 +25,11 @@ try:
 except Exception as e:
     import pickle
     raise pickle.PickleError('Failed to load the saved model. It is most probably caused by '
-                             'discrepencies between the code env used to train the model and the one '
-                             'used in the plugin.'.replace(' ', '\xa0') + 'If not done already, please create an environment '
+                             'discrepencies between the code env '.replace(' ', '\xa0') +
+                             'used to train the model and the one used in the plugin.'
+                             'If not done already, please create an environment '.replace(' ', '\xa0') +
                              'for your lab running on python 3.6 and using sklearn 0.20 and keras 2.1.5 '
-                             '— depending on your model.<br /><br />Original error is {}'.format(e))
+                             '— depending on your model.'.replace(' ', '\xa0') + 'Original error is {}'.format(e).replace(' ', '\xa0'))
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
 strategy_mapper = {
