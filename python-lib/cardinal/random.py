@@ -1,9 +1,7 @@
 import numpy as np
 
 
-def random_sampling(X: np.ndarray,
-                    idx_labeled: np.ndarray = None,
-                    n_instances: int = 1) -> np.ndarray:
+def random_sampling(X, idx_labeled=None, n_instances=1):
     """
     Random sampling query strategy. Selects instances randomly
     

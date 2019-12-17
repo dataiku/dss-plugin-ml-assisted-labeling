@@ -1,4 +1,3 @@
-from sklearn.exceptions import NotFittedError
 from scipy.stats import entropy
 from sklearn.base import BaseEstimator
 import numpy as np
@@ -14,8 +13,7 @@ def _get_probability_classes(classifier, X):
     return classwise_uncertainty
 
 
-def confidence_sampling(classifier: BaseEstimator, X: np.ndarray,
-                        n_instances: int = 1) -> np.ndarray:
+def confidence_sampling(classifier, X, n_instances=1):
     """Lowest confidence sampling query strategy. Selects the least sure instances for labelling.
 
     Args:
@@ -35,8 +33,7 @@ def confidence_sampling(classifier: BaseEstimator, X: np.ndarray,
     
     return index, uncertainty[index]
 
-def margin_sampling(classifier: BaseEstimator, X: np.ndarray,
-                    n_instances: int = 1) -> np.ndarray:
+def margin_sampling(classifier, X, n_instances=1):
     """Margin sampling query strategy, selects the samples with lowest difference between top 2 probabilities.
 
     This strategy takes the probabilities of top two classes and uses their
@@ -59,8 +56,7 @@ def margin_sampling(classifier: BaseEstimator, X: np.ndarray,
     
     return index, margin[index]
 
-def entropy_sampling(classifier: BaseEstimator, X: np.ndarray,
-                     n_instances: int = 1) -> np.ndarray:
+def entropy_sampling(classifier, X, n_instances=1):
     """Entropy sampling query strategy, uses entropy of all probabilities as score.
 
     This strategy selects the samples with the highest entropy in their prediction
