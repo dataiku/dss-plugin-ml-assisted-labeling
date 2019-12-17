@@ -20,7 +20,11 @@ except Exception as e:
 model = dataiku.Model(get_input_names_for_role('saved_model')[0])
 queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flow=True)
 
-clf = model.get_predictor()._clf
+try:    
+    clf = model.get_predictor()._clf
+except Exception as e:
+    raise ValueError('Failed to load the saved model. Please check that the doctor and plugin code env are identical. '
+                     'Original error is {}'.format(e))
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
 strategy_mapper = {
