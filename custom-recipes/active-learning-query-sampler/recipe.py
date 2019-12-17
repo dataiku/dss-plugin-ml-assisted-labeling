@@ -33,8 +33,12 @@ strategy_mapper = {
     'entropy': uncertainty.entropy_sampling
 }
 
-queries_df = queries_ds.get_dataframe()
-current_session = 1 if queries_df.session.empty else queries_df.session[0] + 1
+current_session = 1
+try:
+    queries_df = queries_ds.get_dataframe()
+    current_session = 1 if queries_df.session.empty else queries_df.session[0] + 1
+except Exception as e:
+    logging.info("Could not determine session. Default to 1. Original error is: {0}".format(e))
 
 func = strategy_mapper[config['strategy']]
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
