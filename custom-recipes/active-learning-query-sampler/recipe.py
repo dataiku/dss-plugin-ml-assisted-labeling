@@ -23,7 +23,14 @@ queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flo
 try:    
     clf = model.get_predictor()._clf
 except Exception as e:
-    raise ValueError('Failed to load the saved model. Please check that the doctor and plugin code env are identical. '
+    import pickle
+    raise pickle.PickleError('<br /><br />Failed to load the saved model. It is most probably caused by '
+                             'discrepencies between the code env used to train the model and the one '
+                             'used in the plugin. If not done already, please create an environment '
+                             
+                             
+                             
+                             Please check that the doctor and plugin code env are identical. '
                      'Original error is {}'.format(e))
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
