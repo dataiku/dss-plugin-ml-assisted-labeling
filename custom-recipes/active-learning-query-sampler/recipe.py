@@ -24,9 +24,9 @@ try:
     clf = model.get_predictor()._clf
 except Exception as e:
     import pickle
-    raise pickle.PickleError('Failed\xa0to\xa0load\xa0the\xa0saved\xa0model. It is most probably caused by '
+    raise pickle.PickleError('Failed to load the saved model. It is most probably caused by '
                              'discrepencies between the code env used to train the model and the one '
-                             'used in the plugin. If not done already, please create an environment '
+                             'used in the plugin.'.replace(' ', '\xa0') + 'If not done already, please create an environment '
                              'for your lab running on python 3.6 and using sklearn 0.20 and keras 2.1.5 '
                              '— depending on your model.<br /><br />Original error is {}'.format(e))
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
