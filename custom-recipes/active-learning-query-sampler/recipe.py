@@ -27,11 +27,8 @@ except Exception as e:
     raise pickle.PickleError('<br /><br />Failed to load the saved model. It is most probably caused by '
                              'discrepencies between the code env used to train the model and the one '
                              'used in the plugin. If not done already, please create an environment '
-                             
-                             
-                             
-                             Please check that the doctor and plugin code env are identical. '
-                     'Original error is {}'.format(e))
+                             'for your lab running on python 3.6 and using sklearn 0.20 and keras 2.1.5 '
+                             '— depending on your model.<br /><br />Original error is {}'.format(e))
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
 strategy_mapper = {
