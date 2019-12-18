@@ -23,8 +23,7 @@ def prettify_error(s):
     """
     return '\xa0' * 130 + ' \n' + s[:90].replace(' ', '\xa0') + s[90:]
 
-
-
+# DSS entities loading
 logging.info("Reading unlabeled samples from {0}".format(unlabeled_samples_container))
 try:
     unlabeled_df = pd.DataFrame(dataiku.Dataset(unlabeled_samples_container).get_dataframe())
@@ -33,7 +32,6 @@ except Exception as e:
     logging.info("Unlabeled input is a folder: {0}".format(e))
     unlabeled_samples = dataiku.Folder(unlabeled_samples_container)
     unlabeled_df = pd.DataFrame(unlabeled_samples.list_paths_in_partition(), columns=["path"])
-
 
 logging.info("Trying to load model from {0}".format(saved_model_id))
 try:    
