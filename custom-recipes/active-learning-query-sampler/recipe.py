@@ -39,8 +39,9 @@ except Exception as e:
     unlabeled_df = pd.DataFrame(unlabeled_samples.list_paths_in_partition(), columns=["path"])
 
 logging.info("Trying to load model from {0}".format(saved_model_id))
-try:    
-    clf = dataiku.Model(saved_model_id).get_predictor()._clf
+try:
+    model = dataiku.Model(saved_model_id)
+    clf = model.get_predictor()._clf
 except Exception as e:
     raise PickleError(
         prettify_error('Failed to load the saved model. The visual Machine Learning '
@@ -57,7 +58,7 @@ except Exception as e:
 
 # Active learning
 func = strategy_mapper[config['strategy']]
-X = clf.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
+X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
 
 # Outputs
