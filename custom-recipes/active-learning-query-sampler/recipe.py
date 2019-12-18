@@ -1,13 +1,32 @@
 import logging
-
 import pandas as pd
+from pickle import PickleError
 
 import dataiku
-from cardinal import uncertainty
 from dataiku.customrecipe import *
 
+from cardinal import uncertainty
+
+
+# Load configuration
 config = get_recipe_config()
 unlabeled_samples_container = get_input_names_for_role('unlabeled_samples')[0]
+model = dataiku.Model(get_input_names_for_role('saved_model')[0])
+queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flow=True)
+
+# Helper functions
+# Replace spaces in the first 90 characters of a string by nbsp. This forces a newline in dss
+
+def prettify_error(s):
+    """Adds a blank and replaces regular spaces by non-breaking in the first 90 characters
+    
+    This function adds a big blank space and forces the first words to be a big block of
+    unbreakable words. This enforces a newline in the DSS display and makes the error prettier.
+    """
+    return '\xa0' * 130 + ' \n' + s[:90].replace(' ', '\xa0') + s[90:]
+
+
+
 logging.info("Reading unlabeled samples from {0}".format(unlabeled_samples_container))
 try:
     unlabeled_df = pd.DataFrame(dataiku.Dataset(unlabeled_samples_container).get_dataframe())
@@ -17,26 +36,19 @@ except Exception as e:
     unlabeled_samples = dataiku.Folder(unlabeled_samples_container)
     unlabeled_df = pd.DataFrame(unlabeled_samples.list_paths_in_partition(), columns=["path"])
 
-model = dataiku.Model(get_input_names_for_role('saved_model')[0])
-queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flow=True)
 
-def prettify_error(s):
-    # Replace spaces in the first 90 characters of a string by nbsp. This forces a newline in dss
-    return s[:90].replace(' ', '\xa0') + s[90:]
 
 try:    
     clf = model.get_predictor()._clf
 except Exception as e:
-    import pickle
+
     raise pickle.PickleError(
-        '\xa0' * 130 + ' \n' +
         prettify_error('Failed to load the saved model. It is most probably caused by '
                        'discrepencies between the code env used to train the model and '
                        'the one used in the plugin. If not done already, please create '
                        'and then select a compatible code env for your model '
                        'running on python 3.6 and using '
                        'sklearn 0.20 and/or keras 2.1.5 — depending on your model. ') +
-        '\xa0' * 130 + ' \n' +
         prettify_error('Original error is {}'.format(e)))
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
