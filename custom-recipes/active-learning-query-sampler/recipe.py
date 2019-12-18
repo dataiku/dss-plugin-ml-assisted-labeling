@@ -13,6 +13,12 @@ config = get_recipe_config()
 unlabeled_samples_container = get_input_names_for_role('unlabeled_samples')[0]
 saved_model_id = get_input_names_for_role('saved_model')[0]
 queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flow=True)
+strategy_mapper = {
+    'confidence': uncertainty.confidence_sampling,
+    'margin': uncertainty.margin_sampling,
+    'entropy': uncertainty.entropy_sampling
+}
+
 
 # Helper functions
 def prettify_error(s):
@@ -46,8 +52,7 @@ except Exception as e:
                        'sklearn 0.20 and/or keras 2.1.5 — depending on your model. ') +
         prettify_error('Original error is {}'.format(e)))
 
-
-
+# Find the current session from the previous iteration of queries
 current_session = 1
 try:
     queries_df = queries_ds.get_dataframe()
@@ -55,21 +60,13 @@ try:
 except Exception as e:
     logging.info("Could not determine session. Default to 1. Original error is: {0}".format(e))
 
-    
-    
-X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
-
-strategy_mapper = {
-    'confidence': uncertainty.confidence_sampling,
-    'margin': uncertainty.margin_sampling,
-    'entropy': uncertainty.entropy_sampling
-}
-    
-    
+# Active learning
 func = strategy_mapper[config['strategy']]
+X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
+
+# Outputs
 queries_df = unlabeled_df.loc[index]
 queries_df['uncertainty'] = uncertainty
 queries_df['session'] = current_session
-
 queries_ds.write_with_schema(queries_df)
