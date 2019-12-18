@@ -42,7 +42,7 @@ logging.info("Trying to load model from {0}".format(saved_model_id))
 try:    
     clf = Model(saved_model_id).get_predictor()._clf
 except Exception as e:
-    raise pickle.PickleError(
+    raise PickleError(
         prettify_error('Failed to load the saved model. It is most probably caused by '
                        'discrepencies between the code env used to train the model and '
                        'the one used in the plugin. If not done already, please create '
