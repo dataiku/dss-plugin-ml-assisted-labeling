@@ -4,7 +4,7 @@
 
     "meta" : {
         "label" : "Labeling and Active Learning",
-        "description" : "Collection of web applications allowing to classify unlabeled images and row data. Provides active learning recipes to smartly select the samples to label and reduce costs.",
+        "description" : "Label your data (tabular or images) efficiently by leveraging webapps and active learning recipes.",
         "author" : "Dataiku (Andrey Avtomonov, Alexandre Abraham)",
         "icon" : "icon-tags",
         "licenseInfo" : "Apache Software License",
