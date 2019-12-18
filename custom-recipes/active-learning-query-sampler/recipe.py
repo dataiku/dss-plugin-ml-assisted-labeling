@@ -29,13 +29,14 @@ try:
 except Exception as e:
     import pickle
     raise pickle.PickleError(
-        '\xa0' * 130 + ' ' +
+        '\xa0' * 130 + ' \n' +
         prettify_error('Failed to load the saved model. It is most probably caused by '
                        'discrepencies between the code env used to train the model and '
                        'the one used in the plugin. If not done already, please create '
-                       'an environment for your lab running on python 3.6 and using '
-                       'sklearn 0.20 and keras 2.1.5 — depending on your model. ') +
-        '\xa0' * 130 + ' ' +
+                       'and then select a compatible code env for your model '
+                       'running on python 3.6 and using '
+                       'sklearn 0.20 and/or keras 2.1.5 — depending on your model. ') +
+        '\xa0' * 130 + ' \n' +
         prettify_error('Original error is {}'.format(e)))
 X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
