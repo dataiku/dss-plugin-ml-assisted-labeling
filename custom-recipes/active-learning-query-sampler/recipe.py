@@ -19,7 +19,6 @@ strategy_mapper = {
     'entropy': uncertainty.entropy_sampling
 }
 
-
 # Helper functions
 def prettify_error(s):
     """Adds a blank and replaces regular spaces by non-breaking in the first 90 characters
