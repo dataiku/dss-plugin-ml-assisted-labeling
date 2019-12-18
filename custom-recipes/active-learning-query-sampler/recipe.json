@@ -1,7 +1,7 @@
 {
   "meta": {
     "label": "Query sampler",
-    "description": "Sample queries following a given strategy",
+    "description": "To determine which samples need to be labeled next -often referred to as queries- we can leverage the classifier we have already trained. The more uncertain the model is on how to classify a sample, the more improvement its label can bring to the model .\n There are various ways to define the model uncertainty and therefore different strategies you can choose from.",
     "icon": "icon-filter",
     "supportLevel": "NOT_SUPPORTED"
   },
@@ -9,8 +9,8 @@
   "inputRoles": [
     {
       "name": "saved_model",
-      "label": "Saved model with predict_proba",
-      "description": "Model used to get category prediction scores",
+      "label": "Classifier Model",
+      "description": "",
       "arity": "UNARY",
       "required": true,
       "acceptsDataset": false,
@@ -18,8 +18,8 @@
     },
     {
       "name": "unlabeled_samples",
-      "label": "Unlabeled data",
-      "description": "Managed folder or dataset containing samples that we want to rank",
+      "label": "Unlabeled Data",
+      "description": "",
       "arity": "UNARY",
       "required": true,
       "acceptsManagedFolder": true,
@@ -29,8 +29,8 @@
   "outputRoles": [
     {
       "name": "queries",
-      "label": "Queries dataset",
-      "description": "Dataset in which the queries are stored",
+      "label": "Data to be labeled",
+      "description": "Dataset containing the unlabelled data with an associated uncertainty score",
       "arity": "UNARY",
       "required": true,
       "acceptsDataset": true
