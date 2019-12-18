@@ -57,7 +57,7 @@ except Exception as e:
 
 # Active learning
 func = strategy_mapper[config['strategy']]
-X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
+X = clf.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
 
 # Outputs
