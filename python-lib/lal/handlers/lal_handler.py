@@ -95,7 +95,7 @@ class LALHandler(object):
         }
 
     def create_label_id(self, data_id):
-        return hashlib.md5(''.join([data_id, self.current_user]).encode('utf-8')).hexdigest()
+        return hashlib.md5(''.join([str(data_id), self.current_user]).encode('utf-8')).hexdigest()
 
     def is_stopping_criteria_met(self):
         return len(self.get_remaining()) < 0

@@ -34,7 +34,7 @@ class BaseClassifier(object):
     def get_session(self):
         if self.queries_df is None or self.queries_df.empty:
             return 0
-        return self.queries_df.session[0] # all session values are the same in queries, taking first
+        return self.queries_df.session[0]  # all session values are the same in queries, taking first
 
     def validate_config(self, config):
         self.logger.info("Webapp config: %s" % repr(config))

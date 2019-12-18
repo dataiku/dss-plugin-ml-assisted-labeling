@@ -15,7 +15,7 @@ class TabularClassifier(BaseClassifier):
         return self.__initial_df
 
     def raw_row_to_id(self, raw):
-        return hashlib.md5(raw.to_csv().encode('utf-8')).hexdigest()
+        return str(hash(tuple(raw)))
 
     @property
     def type(self):
