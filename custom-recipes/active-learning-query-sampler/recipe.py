@@ -3,6 +3,7 @@ import pandas as pd
 from pickle import PickleError
 
 import dataiku
+from dataiku import Model
 from dataiku.customrecipe import *
 
 from cardinal import uncertainty
