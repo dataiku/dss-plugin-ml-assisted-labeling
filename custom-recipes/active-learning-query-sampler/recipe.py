@@ -3,7 +3,6 @@ import pandas as pd
 from pickle import PickleError
 
 import dataiku
-from dataiku import Model
 from dataiku.customrecipe import *
 
 from cardinal import uncertainty
@@ -41,7 +40,7 @@ except Exception as e:
 
 logging.info("Trying to load model from {0}".format(saved_model_id))
 try:    
-    clf = Model(saved_model_id).get_predictor()._clf
+    clf = dataiku.Model(saved_model_id).get_predictor()._clf
 except Exception as e:
     raise PickleError(
         prettify_error('Failed to load the saved model. The visual Machine Learning '
