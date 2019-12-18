@@ -15,8 +15,6 @@ saved_model_id = get_input_names_for_role('saved_model')[0]
 queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flow=True)
 
 # Helper functions
-# Replace spaces in the first 90 characters of a string by nbsp. This forces a newline in dss
-
 def prettify_error(s):
     """Adds a blank and replaces regular spaces by non-breaking in the first 90 characters
     
@@ -49,13 +47,8 @@ except Exception as e:
                        'running on python 3.6 and using '
                        'sklearn 0.20 and/or keras 2.1.5 — depending on your model. ') +
         prettify_error('Original error is {}'.format(e)))
-X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 
-strategy_mapper = {
-    'confidence': uncertainty.confidence_sampling,
-    'margin': uncertainty.margin_sampling,
-    'entropy': uncertainty.entropy_sampling
-}
+
 
 current_session = 1
 try:
@@ -64,6 +57,17 @@ try:
 except Exception as e:
     logging.info("Could not determine session. Default to 1. Original error is: {0}".format(e))
 
+    
+    
+X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
+
+strategy_mapper = {
+    'confidence': uncertainty.confidence_sampling,
+    'margin': uncertainty.margin_sampling,
+    'entropy': uncertainty.entropy_sampling
+}
+    
+    
 func = strategy_mapper[config['strategy']]
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
 queries_df = unlabeled_df.loc[index]
