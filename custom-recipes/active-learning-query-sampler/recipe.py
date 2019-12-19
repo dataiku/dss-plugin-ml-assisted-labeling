@@ -6,6 +6,7 @@ import dataiku
 from dataiku.customrecipe import *
 
 from cardinal import uncertainty
+from model_metadata import get_model_handler
 
 
 # Load configuration
