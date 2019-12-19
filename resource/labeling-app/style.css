@@ -121,7 +121,7 @@ audio {
 
 button .keybind {
     margin: 10px auto auto;
-    width: fit-content;
+    width: max-content;
     padding: 7px;
 }
 
