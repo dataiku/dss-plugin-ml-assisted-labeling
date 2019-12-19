@@ -14,12 +14,12 @@
     "font_awesome"
   ],
   "params": [
-  {
+    {
       "type": "SEPARATOR",
       "name": "Input",
       "label": "Input"
     },
-     {
+    {
       "type": "DATASET",
       "name": "unlabeled",
       "label": "Unlabeled data",
@@ -42,19 +42,20 @@
     },
     {
       "type": "DATASET",
-      "name": "metadata_ds",
-      "label": "Labeling status and metadata",
-            "description": "Contains additional information such as annotator and timestamps for each labeling",
-      "mandatory": true,
-      "canSelectForeign": true,
-      "canCreateDataset": true
-    },{
-      "type": "DATASET",
       "name": "labels_ds",
       "label": "Labels dataset",
       "description": "Dataset to save the labels into",
       "mandatory": false,
       "canSelectForeign": false,
+      "canCreateDataset": true
+    },
+    {
+      "type": "DATASET",
+      "name": "metadata_ds",
+      "label": "Labeling metadata dataset",
+      "description": "Contains additional information such as annotator and timestamps for each labeling",
+      "mandatory": true,
+      "canSelectForeign": true,
       "canCreateDataset": true
     },
     {
