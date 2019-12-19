@@ -1,7 +1,7 @@
 {
   "meta": {
     "label": "Query sampler",
-    "description": "To determine which samples need to be labeled next -often referred to as queries- we can leverage the classifier we have already trained. The more uncertain the model is on how to classify a sample, the more improvement its label can bring to the model .\n There are various ways to define the model uncertainty and therefore different strategies you can choose from.",
+    "description": "To determine which samples need to be labeled next -often referred to as queries- we can leverage the classifier we have already trained. The more uncertain the model is on how to classify a sample, the more improvement its label can bring to the model . There are various ways to define the model uncertainty and therefore different strategies you can choose from.",
     "icon": "icon-filter",
     "supportLevel": "NOT_SUPPORTED"
   },
