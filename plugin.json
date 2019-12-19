@@ -4,7 +4,7 @@
 
     "meta" : {
         "label" : "Labeling and Active Learning",
-        "description" : "Label your data (tabular or images) efficiently by leveraging webapps and active learning recipes.",
+        "description" : "Label your data efficiently by leveraging webapps and active learning recipes.",
         "author" : "Dataiku (Andrey Avtomonov, Alexandre Abraham)",
         "icon" : "icon-tags",
         "licenseInfo" : "Apache Software License",
