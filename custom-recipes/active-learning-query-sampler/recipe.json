@@ -44,15 +44,15 @@
       "selectChoices": [
         {
           "value": "confidence",
-          "label": "Lowest confidence sampling"
+          "label": "Smallest confidence sampling"
         },
         {
           "value": "margin",
-          "label": "Highest margin sampling"
+          "label": "Smallest margin sampling"
         },
         {
           "value": "entropy",
-          "label": "Highest entropy sampling"
+          "label": "Greatest entropy sampling"
         }
       ]
     }
