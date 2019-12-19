@@ -13,7 +13,10 @@ from model_metadata import get_model_handler
 config = get_recipe_config()
 unlabeled_samples_container = get_input_names_for_role('unlabeled_samples')[0]
 saved_model_id = get_input_names_for_role('saved_model')[0]
+model = dataiku.Model(saved_model_id)
 queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flow=True)
+train_df = get_model_handler(model).get_train_df()
+
 strategy_mapper = {
     'confidence': uncertainty.confidence_sampling,
     'margin': uncertainty.margin_sampling,
@@ -41,7 +44,6 @@ except Exception as e:
 
 logging.info("Trying to load model from {0}".format(saved_model_id))
 try:
-    model = dataiku.Model(saved_model_id)
     clf = model.get_predictor()._clf
 except Exception as e:
     raise PickleError(
