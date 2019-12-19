@@ -54,7 +54,7 @@ From the Labeling and Active Learning plugin, after the Query Sampler recipe is 
   
   `Data to be labeled` - dataset containing the unlabelled data with an associated uncertainty score.
 
-There is only one setting to choose from, the Active Leearning strategy.
+There is only one setting to choose from, the Active Learning strategy.
 ![](resource/img-doc/active-learning-recipe.png)  
 
 ### Active Learning Scenario
