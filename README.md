@@ -53,6 +53,9 @@ Once the settings are set, it's important to allow the webapp access to the corr
 After the webapp is started, the annotation process can start.
 ![](resource/img-doc/webapp-ui.png)  
 
+Note: For implementation purpose, in order to distinguish labeled samples from unlabeled, the webapp may add a `label_id` column
+to your dataset. This feature should not be used in any model.
+
 ### Active Learning Recipe  
 
 When a sufficient number of samples has been labeled, a classifier from the DSS Visual Machine Learning interface can be trained to predict the labels, and be deployed in the project's flow. 
@@ -115,7 +118,13 @@ The following is then displayed:
 
 Last but not least, the following three steps constitutes the full Active Learning scenario:
 
-![](resource/img-doc/scenario-steps.png)  
+![](resource/img-doc/scenario-steps.png)
+
+#### Sessions
+
+During an active learning procedure, it is important to keep history of what happened during the experiment. For this reason, the query sampler recipe will add a `session_id` column to your data. Since the query sampler is run after re-training the model, the goal of this counter is to keep track of when a sample was labelled and maybe compute performance per session.
+
+This `session_id` is then reported in the metadata dataset. It corresponds to the session during which the sample was labeled.
 
 # License
 
