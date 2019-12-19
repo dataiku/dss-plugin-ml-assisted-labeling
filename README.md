@@ -21,17 +21,17 @@ All labeling webapps propose the same settings. For image labeling, those are:
 
 ![](resource/img-doc/webapp-settings.png)  
 
-`Images to label` - managed folder containing unlabeled images.
+- `Images to label` - managed folder containing unlabeled images.
 
-`Categories` - set of labels to be assigned to images.
+- `Categories` - set of labels to be assigned to images.
 
-`Labeling status and metadata` - dataset name for the labeling metadata.
+- `Labeling status and metadata` - dataset name for the labeling metadata.
 
-`Labels dataset` - dataset to save the labels into.
+- `Labels dataset` - dataset to save the labels into.
 
-`Label column name` - column name under which the manual labels will be stored.
+- `Label column name` - column name under which the manual labels will be stored.
 
-`Queries` (optional) - dataset containing the unlabeled data with an associated uncertainty score.
+- `Queries` (optional) - dataset containing the unlabeled data with an associated uncertainty score.
   
 Note that the latter `queries` dataset is optional as labeling can always be done without Active Learning. In this case the user will be offered to label samples in a random order. 
 
@@ -48,11 +48,11 @@ In order to later used the Active Learning plugin, it's required to use a **pyth
 
 From the Labeling and Active Learning plugin, after the Query Sampler recipe is selected, the proposed inputs are:
  
-  `Classifier Model` - deployed classifier model.
+ - `Classifier Model` - deployed classifier model.
   
-  `Unlabeled Data` - dataset containing the raw unlabeled data.
+ - `Unlabeled Data` - dataset containing the raw unlabeled data.
   
-  `Data to be labeled` - dataset containing the unlabeled data with an associated uncertainty score.
+ - `Data to be labeled` - dataset containing the unlabeled data with an associated uncertainty score.
 
 There is only one setting to choose from, the Active Learning strategy.
 ![](resource/img-doc/active-learning-recipe.png)  
