@@ -21,5 +21,7 @@ else:
     n_labeling = (metadata_df['session'] == next_session).sum()
     trigger = (n_labeling >= labeling_count)
 
+print(next_session, n_labeling, trigger, labeling_count)
+
 if trigger:
     t.fire()
