@@ -6,14 +6,14 @@ The Labeling and Active Lerning plugin let you label your data (tabular, images 
 
 This plugin offers a collection of visual webapps to label data (whether tabular, images or sound), a visual recipes to determine which samples need to be labeled next, as well as visual scenario trigger.
 - [Data Labeling (webapp)](#labeling-webapp)
-- [Score an unlabelled dataset (recipe)](#active-learning-recipe)
+- [Score an unlabeled dataset (recipe)](#active-learning-recipe)
 - [Set up a Active Learning scenario (scenario)](#active-learning-scenario)
 
 ## When to use this plugin  
-The webapp purpose is to ease the labeling process through an intuitive UI. Leveraging the Active Learning recipe and scenario, this can become 
+The webapp purpose is to ease the labeling through an intuitive UI. Leveraging the Active Learning recipe and scenario, this then becomes an iterative process. 
 
 ### Labeling Webapp
-First, select the webapp that best suits the data to be labelled.
+First, select the webapp that best suits the data to be labeled.
 
 ![](resource/img-doc/webapp-selection.png)
 
@@ -21,21 +21,21 @@ All labeling webapps propose the same settings. For image labeling, those are:
 
 ![](resource/img-doc/webapp-settings.png)  
 
-  `Images to label` - managed folder containing unlabeled images.
+`Images to label` - managed folder containing unlabeled images.
 
-  `Categories` - set of labels to be assigned to images.
+`Categories` - set of labels to be assigned to images.
 
-  `Labeling status and metadata` - dataset name for the labeling metadata.
+`Labeling status and metadata` - dataset name for the labeling metadata.
 
-  `Labels dataset` - dataset to save the labels into.
+`Labels dataset` - dataset to save the labels into.
 
-  `Label column name` - column name under which the manual labels will be stored.
-  
-  `Queries` (optional) -dataset containing the unlabelled data with an associated uncertainty score.
+`Label column name` - column name under which the manual labels will be stored.
+
+`Queries` (optional) - dataset containing the unlabeled data with an associated uncertainty score.
   
 Note that the latter `queries` dataset is optional as labeling can always be done without Active Learning. In this case the user will be offered to label samples in a random order. 
 
-Once the settings are set, it's important to allow the webapp access to the corresponding dataset:
+Once the settings are set, it's important to allow the webapp access to the corresponding datasets:
 ![](resource/img-doc/webapp-security.png)  
 
 After the webapp is started, the annotation process can start.
@@ -43,16 +43,16 @@ After the webapp is started, the annotation process can start.
 
 ### Active Learning Recipe  
 
-When a sufficient number of samples has been labelled, a classifier from the DSS Visual Machine Learning interface can be trained to predict the labels, and be deployed in the project's flow. 
+When a sufficient number of samples has been labeled, a classifier from the DSS Visual Machine Learning interface can be trained to predict the labels, and be deployed in the project's flow. 
 In order to later used the Active Learning plugin, it's required to use a **python3** environment to train the model. [Here's a link describing how to create a new code environment in DSS ](https://doc.dataiku.com/dss/latest/code-envs/operations-python.html#create-a-code-environment). Make sure that it's based on **python3**.  
 
 From the Labeling and Active Learning plugin, after the Query Sampler recipe is selected, the proposed inputs are:
  
   `Classifier Model` - deployed classifier model.
   
-  `Unlabeled Data` - dataset containing the raw unlabelled data.
+  `Unlabeled Data` - dataset containing the raw unlabeled data.
   
-  `Data to be labeled` - dataset containing the unlabelled data with an associated uncertainty score.
+  `Data to be labeled` - dataset containing the unlabeled data with an associated uncertainty score.
 
 There is only one setting to choose from, the Active Learning strategy.
 ![](resource/img-doc/active-learning-recipe.png)  
