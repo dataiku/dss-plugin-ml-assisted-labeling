@@ -7,7 +7,7 @@ information to the model if it is similar to an already labeled sample. Active l
 sample can bring to a model and select them to make the annotation process more efficient. As an example, see how active
 learning performs compare to random sample annotation on a task of predicting wine color:
 
-TODO: INSERT SCREENSHOT
+![](resource/img-doc/active-learning-perf.png)  
 
 ## Description  
 
