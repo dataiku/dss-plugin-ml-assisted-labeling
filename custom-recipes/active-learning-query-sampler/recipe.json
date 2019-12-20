@@ -24,15 +24,6 @@
       "required": true,
       "acceptsManagedFolder": true,
       "acceptsDataset": true
-    },
-    {
-      "name": "unlabeled_samples2",
-      "label": "Unlabeled Data",
-      "description": "",
-      "arity": "UNARY",
-      "required": true,
-      "acceptsManagedFolder": true,
-      "acceptsDataset": true
     }
   ],
   "outputRoles": [
