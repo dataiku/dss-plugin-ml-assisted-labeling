@@ -33,6 +33,7 @@ def prettify_error(s):
 
 # DSS entities loading
 logging.info("Reading unlabeled samples from {0}".format(unlabeled_samples_container))
+unlabeled_is_folder = False
 try:
     unlabeled_df = pd.DataFrame(dataiku.Dataset(unlabeled_samples_container).get_dataframe())
     logging.info("Unlabeled input is a dataset")
@@ -40,6 +41,7 @@ except Exception as e:
     logging.info("Unlabeled input is a folder: {0}".format(e))
     unlabeled_samples = dataiku.Folder(unlabeled_samples_container)
     unlabeled_df = pd.DataFrame(unlabeled_samples.list_paths_in_partition(), columns=["path"])
+    unlabeled_is_folder = True
 
 logging.info("Trying to load model from {0}".format(saved_model_id))
 try:
@@ -60,7 +62,30 @@ except Exception as e:
 
 # Active learning
 func = strategy_mapper[config['strategy']]
-X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
+try:
+    X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
+except JSONDecodeError as e:
+    if unlabeled_is_folder == False:
+        # This error has not yet been encountered, raise it
+        raise
+    raise LookupError(
+        prettify_error('Applying feature preprocessing on the content of input folder {} failed. '.format(unlabeled_samples_container) +
+                       'This error has been encountered when the folder specified as image source in the visual'
+                       'Machine Learning is not the same as the input of this recipe.') +
+        prettify_error('Original error is {}'.format(e)))
+    )
+except Exception as e:
+    if unlabeled_is_folder == False:
+        # This error has not yet been encountered, raise it
+        raise
+    if isinstance(e, JSONDecodeError) or ('Managed folder name not found' in str(e)):
+        raise LookupError(
+            prettify_error('Applying feature preprocessing on the content of input folder {} failed. '.format(unlabeled_samples_container) +
+                           'This error has been encountered when the folder specified as image source in the visual'
+                           'Machine Learning is not the same as the input of this recipe.') +
+            prettify_error('Original error is {}'.format(e)))
+        )
+    
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
 
 # Outputs
