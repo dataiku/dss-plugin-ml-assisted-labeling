@@ -71,7 +71,6 @@ except Exception as e:
                            'This error has been encountered when the folder specified as image source in the visual'
                            'Machine Learning is not the same as the input of this recipe.') +
             prettify_error('Original error is {}'.format(e)))
-        )
     raise
     
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
