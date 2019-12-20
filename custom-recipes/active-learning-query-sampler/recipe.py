@@ -6,12 +6,12 @@ import dataiku
 from dataiku.customrecipe import *
 
 from cardinal import uncertainty
-from dss_utils import get_folder_from_recipe
+from dss_utils import get_input_full_name
 
 
 # Load configuration
 config = get_recipe_config()
-unlabeled_samples_container = get_input_names_for_role('unlabeled_samples')[0]
+unlabeled_samples_container = get_input_full_name('unlabeled_samples')
 saved_model_id = get_input_names_for_role('saved_model')[0]
 model = dataiku.Model(saved_model_id)
 queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flow=True)
