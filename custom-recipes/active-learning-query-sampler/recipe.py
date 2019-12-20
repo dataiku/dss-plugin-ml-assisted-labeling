@@ -6,7 +6,6 @@ import dataiku
 from dataiku.customrecipe import *
 
 from cardinal import uncertainty
-from dss_utils import get_input_full_name
 
 
 # Load configuration
