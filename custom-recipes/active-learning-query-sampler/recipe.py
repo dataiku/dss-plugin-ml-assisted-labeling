@@ -53,8 +53,7 @@ logging.info("Checking that model {0} is a classifier".format(saved_model_id))
 if len(model.get_predictor().classes) == 0:
     raise TypeError(
         prettify_error('Saved model {} seems to be a regressor and not a classifier.'.format(saved_model_id) +
-                       'Active learning in regression context is not supported yet.') +
-        prettify_error('Original error is {}'.format(e)))
+                       'Active learning in regression context is not supported yet.'))
     
 # Find the current session from the previous iteration of queries
 current_session = 1
