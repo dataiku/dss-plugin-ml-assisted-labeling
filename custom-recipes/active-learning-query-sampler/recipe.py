@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 from pickle import PickleError
+from json import JSONDecodeError  
 
 import dataiku
 from dataiku.customrecipe import *
