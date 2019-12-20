@@ -41,6 +41,7 @@
       "name": "strategy",
       "label": "Query strategy",
       "type": "SELECT",
+      "defaultValue": "confidence",
       "selectChoices": [
         {
           "value": "confidence",
