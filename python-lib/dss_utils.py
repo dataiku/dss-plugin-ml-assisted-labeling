@@ -16,5 +16,5 @@ def get_input_full_name(recipe_id, input_id):
     project = client.get_project(dataiku.default_project_key())
     recipe = project.get_recipe(recipe_id)
     inputs = recipe.get_definition_and_payload().get_recipe_inputs()
-    folder_full_name = inputs['unlabeled_samples']['items'][0]['ref']
+    folder_full_name = inputs[input_id]['items'][0]['ref']
     return dataiku.Folder(folder_full_name)
