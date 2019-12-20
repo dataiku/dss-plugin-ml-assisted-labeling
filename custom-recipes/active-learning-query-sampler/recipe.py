@@ -38,6 +38,7 @@ try:
     logging.info("Unlabeled input is a dataset")
 except Exception as e:
     logging.info("Unlabeled input is a folder: {0}".format(e))
+    print('DEBUG', unlabeled_samples_container)
     unlabeled_samples = dataiku.Folder(unlabeled_samples_container)
     unlabeled_df = pd.DataFrame(unlabeled_samples.list_paths_in_partition(), columns=["path"])
 
