@@ -2,12 +2,12 @@ import dataiku
 import os
 
 
-def get_folder_from_recipe(recipe_id, folder_id):
+def get_input_full_name(recipe_id, input_id):
     """Returns a folder whether it is managed or shared
     
     Args:
         recipe_id (str): Id of the recipe whose parameter is a folder
-        folder_id (str): The id of the folder
+        input_id (str): The id of the parameter. Can be recipe, models...
 
     Returns:
         dataiku.Folder: The associated folder handler
