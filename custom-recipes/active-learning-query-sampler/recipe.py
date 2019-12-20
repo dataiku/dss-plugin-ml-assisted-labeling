@@ -67,9 +67,9 @@ try:
 except Exception as e:
     if unlabeled_is_folder and ("Failed to preprocess the following file" in str(e) or ('Managed folder name not found' in str(e))):
         raise LookupError(
-            prettify_error('Applying feature preprocessing on the content of input folder {} failed. '.format(unlabeled_samples_container) +
-                           'This error has been encountered when the folder specified as image source in the visual'
-                           'Machine Learning is not the same as the input of this recipe.') +
+            prettify_error('The model feature preprocessing could not be applied to the folder {}'.format(unlabeled_samples_container) +
+                           'This happens when the folder specified as image source in the visual '
+                           'Machine Learning is different from the input folder of this recipe.') +
             prettify_error('Original error is {}'.format(e)))
     raise
     
