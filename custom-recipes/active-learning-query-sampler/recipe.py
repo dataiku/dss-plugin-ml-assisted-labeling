@@ -65,7 +65,7 @@ func = strategy_mapper[config['strategy']]
 try:
     X = model.get_predictor().get_preprocessing().preprocess(unlabeled_df)[0]
 except Exception as e:
-    if unlabeled_is_folder and (isinstance(e, JSONDecodeError) or ('Managed folder name not found' in str(e))):
+    if unlabeled_is_folder and ("Failed to preprocess the following file" in str(e) or ('Managed folder name not found' in str(e))):
         raise LookupError(
             prettify_error('Applying feature preprocessing on the content of input folder {} failed. '.format(unlabeled_samples_container) +
                            'This error has been encountered when the folder specified as image source in the visual'
