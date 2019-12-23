@@ -1,6 +1,6 @@
-# Labeling &amp; Active Learning Plugin  
+# ML-assisted Labeling Plugin  
 
-The Labeling and Active Learning plugin provides webapps to label your data — tabular, images or sound — and boost your efficiency through an active learning framework.
+This plugin let you label your data (tabular, images or sound) efficiently by leveraging webapps and active learning recipes.
 
 Not all samples bring the same amount of information when it comes to training a model. In particular, labeling very similar to an already labeled sample might not bring any improvement to the model performance. Active learning aims at estimating how much additional information labeling a sample can bring to a model and select the next sample to label accordingly. As an example, see how active learning performs compare to random sample annotation on a task of predicting wine color:
 ![](resource/img-doc/active-learning-perf.png)  
@@ -116,7 +116,7 @@ Last but not least, the following three steps constitutes the full Active Learni
 
 # License
 
-The Labeling and Active Learning plugin is:
+The ML-assisted labeling plugin is:
 
    Copyright (c) 2019 Dataiku SAS
    Licensed under the [MIT License](LICENSE.md).
