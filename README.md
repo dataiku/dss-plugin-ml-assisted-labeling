@@ -1,4 +1,4 @@
-# ML-assisted Labeling Plugin  
+# ML Assisted Labeling Plugin  
 
 This plugin let you label your data (tabular, images or sound) efficiently by leveraging webapps and active learning recipes.
 
@@ -116,7 +116,7 @@ Last but not least, the following three steps constitutes the full Active Learni
 
 # License
 
-The ML-assisted labeling plugin is:
+The ML Assisted labeling plugin is:
 
    Copyright (c) 2019 Dataiku SAS
    Licensed under the [MIT License](LICENSE.md).
