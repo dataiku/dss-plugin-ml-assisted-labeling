@@ -1,6 +1,6 @@
 import hashlib
 import logging
-
+import pandas as pd
 from lal.classifiers.base_classifier import BaseClassifier
 
 
@@ -15,7 +15,7 @@ class TabularClassifier(BaseClassifier):
         return self.__initial_df
 
     def raw_row_to_id(self, raw):
-        return str(hash(tuple(raw)))
+        return str(hashlib.sha256(pd.util.hash_pandas_object(raw).values).hexdigest())
 
     @property
     def type(self):
