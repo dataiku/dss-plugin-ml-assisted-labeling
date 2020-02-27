@@ -68,6 +68,7 @@ export default new Vue({
                     this.items = data.items;
                     this.canLabel = true;
                     this.isLastBatch = data.isLastBatch;
+                    this.isDone = data.items.length === 0;
                 });
                 return batchPromise;
             }
@@ -81,30 +82,28 @@ export default new Vue({
     template: `
         <div class="main">
             <errors></errors>
-            <div v-if="item">
-                <div v-if="!isDone">
-                    <div class="sample-container">
-                        <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
-                        <image-sample v-if="type === 'image'" :item="item.data"/>
-                        <sound-sample v-if="type === 'sound'" :item="item.data"/>
-                    </div>
-                    <control-buttons :canSkip="!isDone"
-                                     :isFirst="isFirst || !(stats.labeled + stats.skipped)"
-                                     :isLabeled="!!item.labelId"/>
-                    <category-selector v-if="config" v-on:label="updateStatsAndProceedToNextItem"
-                                       :categories="config.categories"
-                                       :stats="stats"
-                                       v-bind:enabled.sync="canLabel"
-                                       :label="label || {}"/>
+            <div v-if="item && !isDone">
+                <div class="sample-container">
+                    <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
+                    <image-sample v-if="type === 'image'" :item="item.data"/>
+                    <sound-sample v-if="type === 'sound'" :item="item.data"/>
                 </div>
-                <div v-if="isDone">
-                    <h3>All samples are labeled</h3>
-                </div>
-                <div class="stat-container">
-                    <span class="stat">Labeled: {{stats.labeled}}</span>
-                    <span class="stat">Skipped: {{stats.skipped}}</span>
-                    <span class="stat">Total: {{stats.total}}</span>
-                </div>
+                <control-buttons :canSkip="!isDone"
+                                    :isFirst="isFirst || !(stats.labeled + stats.skipped)"
+                                    :isLabeled="!!item.labelId"/>
+                <category-selector v-if="config" v-on:label="updateStatsAndProceedToNextItem"
+                                    :categories="config.categories"
+                                    :stats="stats"
+                                    v-bind:enabled.sync="canLabel"
+                                    :label="label || {}"/>
+            </div>
+            <div v-if="isDone">
+                <h3>All samples are labeled</h3>
+            </div>
+            <div class="stat-container">
+                <span class="stat">Labeled: {{stats.labeled}}</span>
+                <span class="stat">Skipped: {{stats.skipped}}</span>
+                <span class="stat">Total: {{stats.total}}</span>
             </div>
         </div>`
 });
