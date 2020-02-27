@@ -100,7 +100,7 @@ export default new Vue({
             <div v-if="isDone">
                 <h3>All samples are labeled</h3>
             </div>
-            <div class="stat-container">
+            <div class="stat-container" v-if="stats">
                 <span class="stat">Labeled: {{stats.labeled}}</span>
                 <span class="stat">Skipped: {{stats.skipped}}</span>
                 <span class="stat">Total: {{stats.total}}</span>
