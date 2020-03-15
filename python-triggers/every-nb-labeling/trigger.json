@@ -2,7 +2,7 @@
     "meta" : {
         "label" : "Trigger every n labeling",
         "description" : "Triggers an active learning iteration every n labeling",
-        "icon" : "icon-puzzle-piece"
+        "icon" : "icon-tags"
     },
 
     "params": [
@@ -19,7 +19,7 @@
         },
         {
             "name": "ds_queries",
-            "label": "queries dataset",
+            "label": "Queries dataset",
             "type": "DATASET"
         }
     ]
