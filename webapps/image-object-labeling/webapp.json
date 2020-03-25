@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "label": "Image object labeling",
+    "description": "Manually classify objects selected on images from a folder for use in supervised learning",
+    "icon": "icon-picture"
+  },
+  "baseType": "STANDARD",
+  "enableJavascriptModules": "true",
+  "hasBackend": "true",
+  "standardWebAppLibraries": [
+    "jquery",
+    "dataiku",
+    "bootstrap",
+    "font_awesome"
+  ],
+  "params": [
+    {
+      "type": "SEPARATOR",
+      "name": "Input",
+      "label": "Input"
+    },
+    {
+      "type": "FOLDER",
+      "name": "unlabeled",
+      "label": "Images to label",
+      "description": "Folder containing image files to label",
+      "mandatory": true,
+      "canSelectForeign": true
+    },
+    {
+      "name": "categories",
+      "type": "KEY_VALUE_LIST",
+      "label": "Categories",
+      "description": "Category name → optional description",
+      "mandatory": true
+    },
+    {
+      "type": "SEPARATOR",
+      "name": "Output",
+      "label": "Output"
+    },
+    {
+      "type": "DATASET",
+      "name": "labels_ds",
+      "label": "Labels dataset",
+      "description": "Dataset to save the labels into",
+      "mandatory": false,
+      "canSelectForeign": false,
+      "canCreateDataset": true
+    },
+    {
+      "type": "DATASET",
+      "name": "metadata_ds",
+      "label": "Labeling metadata dataset",
+      "description": "Contains additional information such as annotator and timestamps for each labeling",
+      "mandatory": true,
+      "canSelectForeign": true,
+      "canCreateDataset": true
+    },
+    {
+      "name": "label_col_name",
+      "type": "STRING",
+      "label": "Labels target column name",
+      "defaultValue": "label",
+      "description": "Name of the label column in the Labels dataset",
+      "mandatory": true
+    },
+    {
+      "type": "SEPARATOR",
+      "name": "Active learning specific (optional)",
+      "label": "Active learning specific (optional)"
+    },
+    {
+      "type": "DATASET",
+      "name": "queries_ds",
+      "label": "Queries",
+      "description": "The queries dataset is the output of the Query Sampler recipe of the Labeling and Active Learning plugin. Queries are the samples to be labeled in priority as proposed by an Active Learning strategy.",
+      "mandatory": false,
+      "canSelectForeign": false,
+      "canCreateDataset": true
+    }
+  ]
+}

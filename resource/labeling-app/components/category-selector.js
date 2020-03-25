@@ -52,7 +52,7 @@ let CategorySelector = {
     template: `
         <div class="category-selector" v-bind:class="{ inactive: !enabled }" v-if="label">
             <div class="category-selector--categories">
-                <div class="button" v-for="(cat, i) in categories"
+                <div class="button category" v-for="(cat, i) in categories"
                      v-on:click="doLabel(cat.from)"
                      v-bind:class="{ selected: label.label && label.label.includes(cat.from) }"
 
@@ -65,9 +65,18 @@ let CategorySelector = {
                     </div>
                 </div>
             </div>
-            <textarea name="" id="" cols="60" rows="3" placeholder="Comments..." :disabled="!enabled"
+            <textarea name="" id="" cols="60" rows="1" placeholder="Comments..." :disabled="!enabled"
+                      ref="comments"
                       v-model="label.comment" v-on:keyup.stop></textarea>
         </div>`,
+    watch: {
+        "label.comment": function (nv) {
+            let comments = this.$refs.comments;
+            comments.style.height = "1px";
+            let height = Math.min(500, 25 + comments.scrollHeight);
+            comments.style.height = (height) + "px";
+        }
+    },
     mounted: function () {
         const unmappedCats = [];
         this.categories.forEach(cat => {
