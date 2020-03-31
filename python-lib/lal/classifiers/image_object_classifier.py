@@ -4,6 +4,7 @@ from base64 import b64encode
 import pandas as pd
 
 from lal.classifiers.base_classifier import BaseClassifier
+import json
 
 
 class ImageObjectClassifier(BaseClassifier):
@@ -40,6 +41,12 @@ class ImageObjectClassifier(BaseClassifier):
 
     def get_initial_df(self):
         return pd.DataFrame(self.folder.list_paths_in_partition(), columns=["path"])
+
+    def serialize_label(self, label):
+        return json.dumps(label)
+
+    def deserialize_label(self, label):
+        return json.loads(label)
 
     @property
     def type(self):

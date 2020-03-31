@@ -1,5 +1,7 @@
 /*global fabric*/
 
+import {config, UNDEFINED_COLOR} from "../utils/utils.js";
+
 const STROKE_WIDTH = 3;
 
 function modifyFabric() {
@@ -10,7 +12,6 @@ function modifyFabric() {
     fabric.Rect.prototype.toObject = (function () {
         return function () {
             return {
-                id: this.id,
                 label: this.label,
                 left: Math.round(this.left),
                 top: Math.round(this.top),
@@ -28,10 +29,9 @@ let ImageCanvas = {
 
     name: 'ImageCanvas',
     props: {
-        img: String,
+        item: Object,
         value: Array,
         selectedLabel: String,
-        labelConfig: Object
     },
     data() {
         return {
@@ -41,42 +41,88 @@ let ImageCanvas = {
         }
     },
     methods: {
+        fillCanvas() {
+            this.initialRender = true;
+
+            fabric.Image.fromURL(this.img, (img) => {
+                const canvas = this.canvas;
+                canvas.discardActiveObject();
+                canvas.remove(...this.canvas.getObjects());
+
+                canvas.setWidth(this.initialCanvasWidth);
+                canvas.setHeight(this.initialCanvasHeight);
+
+                // Fit image to canvas
+                if (img.height * img.scaleY > canvas.height) {
+                    img.scaleToHeight(canvas.height);
+                }
+                if (img.width * img.scaleX > canvas.width) {
+                    img.scaleToWidth(canvas.width);
+                }
+                this.backgroundImage = img;
+
+                // Shrink canvas to image
+                canvas.setWidth(img.width * img.scaleX);
+                canvas.setHeight(img.height * img.scaleY);
+
+                canvas.setBackgroundImage(img);
+
+                if (this.value) {
+                    this.drawData(this.value.map(this.convertObjectToCanvas));
+                }
+                canvas.renderAll();
+                this.initialRender = false;
+
+            });
+        },
+        getObjectsWithRealCoords() {
+            if (!this.canvas || !this.backgroundImage) {
+                return null;
+            }
+            return this.canvas.toObject().objects.map(o => {
+                return {
+                    ...o, ...{
+                        left: Math.round(o.left / this.backgroundImage.scaleX),
+                        top: Math.round(o.top / this.backgroundImage.scaleY),
+                        width: Math.round(o.width / this.backgroundImage.scaleX),
+                        height: Math.round(o.height / this.backgroundImage.scaleY)
+                    }
+                };
+            });
+        },
         toggleMode(mode) {
             this.mode = (this.mode === mode ? 'normal' : mode);
         },
-        loadBackground() {
-            return new Promise((resolve) => {
-                const background = new Image();
-                resolve();
-                // background.onload = () => {
-                // };
-                // background.src = this.img;
-            });
+        convertObjectToCanvas(o) {
+            return {
+                ...o,
+                ...{
+                    left: Math.round(o.left * this.backgroundImage.scaleX),
+                    top: Math.round(o.top * this.backgroundImage.scaleY),
+                    width: Math.round(o.width * this.backgroundImage.scaleX),
+                    height: Math.round(o.height * this.backgroundImage.scaleY),
+                }
+            }
         },
+        drawData(objects) {
+            let objectsToDraw = objects || this.value;
+            let canvas = this.canvas;
 
-        uuidv4() {
-            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-            );
-        },
-        drawData() {
-            this.canvas.remove(...this.canvas.getObjects());
-            this.value && this.value.forEach(s => {
+            canvas.remove(...canvas.getObjects());
+            canvas.discardActiveObject();
+            objectsToDraw && objectsToDraw.forEach(s => {
                 this.addRectFromObject(s)
             });
-            this.canvas.renderAll();
+            let selectedObjects = canvas.getObjects().filter(o => o.selected);
+            selectedObjects.length && canvas.setActiveObject(...selectedObjects);
+            canvas.requestRenderAll();
         },
-        getShapesDataFromCanvas() {
-            let canvas = this.canvas;
-            return canvas.toJSON(['id', 'selected', 'label']).objects
-        },
-
         addRectFromObject(o) {
-            let color = this.labelConfig[o.label].color;
+            let category = config.categories[o.label];
+            let color = category ? category.color : UNDEFINED_COLOR;
             const colorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
             const strokeColorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.8)`;
             let rect = new fabric.Rect({
-                id: o.id || this.uuidv4(),
                 left: o.left,
                 top: o.top,
                 originX: 'left',
@@ -100,11 +146,10 @@ let ImageCanvas = {
 
 
         addRect(left, top, width, height, selectedLabel, id) {
-            let color = this.labelConfig[selectedLabel].color;
+            let color = config.categories[selectedLabel].color;
             const colorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
             const strokeColorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.8)`;
             let rect = new fabric.Rect({
-                id: id || this.uuidv4(),
                 left: left,
                 top: top,
                 originX: 'left',
@@ -126,19 +171,24 @@ let ImageCanvas = {
             return rect;
         }
     },
+    computed: {
+        img: function () {
+            return 'data:image/png;base64, ' + this.item.enriched;
+        }
+    },
     watch: {
+        img: function (nv) {
+            this.canvas.remove(...this.canvas.getObjects());
+            this.fillCanvas();
+        },
         value: {
             handler(nv) {
-                const canvas = this.canvas;
-                if (JSON.stringify(nv) !== JSON.stringify(this.getShapesDataFromCanvas())) { // TODO: maybe use fabric's hasStateChanged
-                    this.drawData();
-
-                    canvas.discardActiveObject();
-                    let selected = nv.filter(o => o.selected).map(o => o.id);
-                    if (selected.length === 1) {
-                        canvas.setActiveObject(canvas.getObjects().find(o => o.id === selected[0]));
-                    }
-                    this.canvas.requestRenderAll();
+                if (!nv) {
+                    return;
+                }
+                let objectsWithCanvasCoords = nv.map(this.convertObjectToCanvas);
+                if (!this.initialRender && !_.isEqual(objectsWithCanvasCoords, this.canvas.toObject().objects)) { // TODO: maybe use fabric's hasStateChanged
+                    this.drawData(objectsWithCanvasCoords);
                 }
             },
             deep: true
@@ -149,33 +199,20 @@ let ImageCanvas = {
                 setTimeout(() => {
                     this.canvas.selection = nv === 'normal';
                     this.canvas.defaultCursor = nv === 'draw' ? 'crosshair' : 'default';
-
                 })
             }
         }
     },
     mounted() {
         this.canvas = new fabric.Canvas(this.$refs.canvas);
+        window.canvas = this.canvas;
+        this.initialCanvasWidth = this.canvas.width;
+        this.initialCanvasHeight = this.canvas.height;
         this.canvas.uniScaleTransform = true;
 
-        const canvas = this.canvas; // shortcut
+        const canvas = this.canvas;
 
-        let img = fabric.Image.fromURL(this.img, function (img) {
-            // Fit image to canvas
-            if (img.height * img.scaleY > canvas.height) {
-                img.scaleToHeight(canvas.height);
-            }
-            if (img.width * img.scaleX > canvas.width) {
-                img.scaleToWidth(canvas.width);
-            }
-            // Shrink canvas to image
-            canvas.setWidth(img.width * img.scaleX);
-            canvas.setHeight(img.height * img.scaleY);
-
-            canvas.setBackgroundImage(img);
-            canvas.requestRenderAll();
-        });
-
+        this.fillCanvas();
 
         let rect, isDrawing, isDown, origX, origY;
 
@@ -184,7 +221,9 @@ let ImageCanvas = {
 
 
         canvas.on('after:render', () => {
-            this.$emit("input", canvas.toObject().objects);
+            if (this.backgroundImage && !this.initialRender) {
+                this.$emit("input", this.getObjectsWithRealCoords());
+            }
         });
 
         canvas.on('mouse:down', (o) => {
@@ -291,7 +330,7 @@ let ImageCanvas = {
                 });
                 if (rect) {
                     rect.draft = false;
-                    this.$emit("input", canvas.toObject().objects);
+                    this.$emit("input", this.getObjectsWithRealCoords());
                     rect = null;
                 }
             }
@@ -339,15 +378,12 @@ let ImageCanvas = {
                 this.mode = 'draw';
             }
         });
-
-        this.drawData();
     },
 
 
     // language=HTML
     template: `
         <div class="canvas-wrapper" ref="wrapper">
-            <!--            <code>VALUE: {{value}}</code>-->
             <div>
                 <canvas ref="canvas" width="900" height="600"></canvas>
             </div>

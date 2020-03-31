@@ -9,10 +9,9 @@ export let ControlButtons = {
             }
             DKUApi.back(this.$root.item.id).then((data) => {
                 this.$root.item = data.item;
-                this.$root.label = data.label;
+                this.$root.annotation = data.annotation;
+                this.$root.savedAnnotation = _.cloneDeep(data.annotation);
                 this.$root.isFirst = data.isFirst;
-
-
             });
         },
         unlabeled: function () {
