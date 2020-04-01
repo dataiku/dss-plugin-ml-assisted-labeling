@@ -41,14 +41,16 @@ let ImageCanvas = {
         }
     },
     methods: {
+        deleteAll() {
+            canvas.discardActiveObject();
+            canvas.remove(...this.canvas.getObjects());
+        },
         fillCanvas() {
             this.initialRender = true;
 
             fabric.Image.fromURL(this.img, (img) => {
                 const canvas = this.canvas;
-                canvas.discardActiveObject();
-                canvas.remove(...this.canvas.getObjects());
-
+                this.deleteAll();
                 canvas.setWidth(this.initialCanvasWidth);
                 canvas.setHeight(this.initialCanvasHeight);
 
@@ -387,10 +389,13 @@ let ImageCanvas = {
             <div>
                 <canvas ref="canvas" width="900" height="600"></canvas>
             </div>
-            <button @click="toggleMode('draw')" class="tool-selector">
-                <span v-if="mode !== 'draw'"><i class="fas fa-pencil-alt"></i>Draw</span>
-                <span v-if="mode === 'draw'"><i class="far fa-object-ungroup"></i>Select</span>
-            </button>
+            <div class="canvas__button-wrapper">
+                <button @click="toggleMode('draw')">
+                    <span v-if="mode !== 'draw'"><i class="fas fa-pencil-alt"></i>Draw</span>
+                    <span v-if="mode === 'draw'"><i class="far fa-object-ungroup"></i>Select</span>
+                </button>
+                <button @click="deleteAll()"><i class="icon-trash"></i>Delete all</button>
+            </div>
         </div>`
 };
 

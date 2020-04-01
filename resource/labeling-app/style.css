@@ -264,7 +264,7 @@ button .keybind {
 
 .label-config-row {
     height: 50px;
-    border-bottom: 1px solid;
+    border-bottom: 1px solid #d3d3d3;
     text-align: center;
     line-height: 50px;
     cursor: pointer;
@@ -298,11 +298,17 @@ button .keybind {
     align-items: center;
 }
 
-.tool-selector {
-    width: 120px;
-    margin-top: 10px    ;
+.canvas__button-wrapper button {
+    min-width: 120px;
+    margin-top: 10px;
+    white-space: nowrap;
+
 }
 
-.tool-selector i {
+.canvas__button-wrapper button i {
     margin-right: 10px;
+}
+
+.canvas__button-wrapper {
+    display: flex;
 }

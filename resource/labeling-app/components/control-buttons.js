@@ -27,7 +27,7 @@ export let ControlButtons = {
             const skipLabel = {
                 "dataId": this.$root.item.id,
                 "labelId": this.$root.item.labelId,
-                "comment": this.$root.label.comment
+                "comment": this.$root.annotation.comment
             };
 
             DKUApi.skip(skipLabel).then((response) => {
