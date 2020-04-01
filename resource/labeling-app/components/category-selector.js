@@ -88,16 +88,15 @@ let CategorySelector = {
                     this.catToKeyMapping[catKey] = firstLetter;
                     possibleKeys.delete(firstLetter);
                 } else {
-                    unmappedCats.push(cat);
+                    unmappedCats.push(catKey);
                 }
             }
 
-
             while (unmappedCats.length && possibleKeys.size) {
-                const cat = unmappedCats.pop();
+                const catKey = unmappedCats.pop();
                 let key = possibleKeys.values().next().value;
-                this.keyToCatMapping[key] = cat.from;
-                this.catToKeyMapping[cat.from] = key;
+                this.keyToCatMapping[key] = catKey;
+                this.catToKeyMapping[catKey] = key;
                 possibleKeys.delete(key);
             }
         },
@@ -163,15 +162,17 @@ let CategorySelector = {
 
                 </div>
             </div>
-            <div class="category-selector--categories" v-if="!isObjectLabeling">
-                <div class="button category" v-for="(cat, i) in categories"
-                     v-on:click="doLabel(cat.from)"
-                     v-bind:class="{ selected: annotation.label && annotation.label.includes(cat.from) }">
-                    <span>{{cat.to || cat.from}}</span>
-                    <code v-if="catToKeyMapping.hasOwnProperty(cat.from)" class="keybind">{{catToKeyMapping[cat.from]}}
-                    </code>
+            
+<!--            <code>{{stats.perLabel}}</code>-->
+            
+            <div class="category-selector--categories " v-if="!isObjectLabeling">
+                <div class="button category" v-for="(lbl,key) in categories"
+                     v-on:click="doLabel(key)"
+                     v-bind:class="{ selected: annotation.label && annotation.label.includes(key) }">
+                    <span>{{lbl.caption}}</span>
+                    <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
                     <div class="progress-background">
-                        <div class="progress" :style="{ width: getProgress(cat.from) + '%' }"></div>
+                        <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
                     </div>
                 </div>
             </div>

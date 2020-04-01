@@ -93,7 +93,6 @@ canvas {
 .category-selector {
     margin: 25px;
     display: flex;
-    justify-content: space-around;
     flex-direction: column;
     flex: 1;
 

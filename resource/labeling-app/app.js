@@ -21,7 +21,7 @@ export default new Vue({
     },
     watch: {
         annotation: {
-            handler: function (nv, ov) {
+            handler: function () {
                 this.saveImageObjectsDebounced(this.annotation)
             },
             deep: true
