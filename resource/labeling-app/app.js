@@ -131,7 +131,7 @@ export default new Vue({
                     <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
                     <image-sample v-if="type === 'image'" :item="item.data"/>
                     <sound-sample v-if="type === 'sound'" :item="item.data"/>
-                    <ImageCanvas :v-if="type === 'image-object'"
+                    <ImageCanvas v-if="type === 'image-object'"
                                  :base64source="item.data.enriched"
                                  :selectedLabel="selectedLabel"
                                  v-bind:objects.sync="annotation.label"
