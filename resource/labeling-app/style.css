@@ -58,6 +58,8 @@
     height: 100%;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 4px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
     background-color: white;
+    display: flex;
+    flex-direction: column;
 }
 
 .stat-count {
@@ -88,16 +90,12 @@ canvas {
     border-radius: 20px;
 }
 
-.category-selector textarea {
-    margin-top: 25px;
-    width: 100%;
-    border-radius: 4px;
-    border: solid 1px #d1d1d1;
-    outline: none;
-}
-
 .category-selector {
     margin: 25px;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    flex: 1;
 
 }
 
@@ -269,6 +267,8 @@ button .keybind {
     line-height: 50px;
     cursor: pointer;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .label-config-row.active {
@@ -277,6 +277,8 @@ button .keybind {
 
 
 .annotation {
+    padding-top: 10px;
+    padding-bottom: 10px;
     display: flex;
     align-content: center;
     justify-content: space-between;
@@ -289,6 +291,12 @@ button .keybind {
     background-color: lightblue;
 }
 
+
+.annotation-thumb-container {
+    height: 30px;
+    width: 30px;
+    margin-right: 30px;
+}
 
 .annotation-thumb-wrapper {
     height: 100%;
@@ -311,4 +319,46 @@ button .keybind {
 
 .canvas__button-wrapper {
     display: flex;
+}
+
+.category-selector textarea.comments {
+    max-height: 200px;
+    margin-top: 25px;
+    width: 100%;
+    border-radius: 4px;
+    border: solid 1px #d1d1d1;
+    outline: none;
+}
+
+.category-selector--image-object {
+    display: flex;
+    justify-content: space-around;
+}
+
+.category-selector__image-object-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.category-selector__annotations-wrapper {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+}
+
+.category-selector__annotations-wrapper > div {
+    overflow: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+hr {
+    margin-top: 20px;
+}
+
+.annotation select{
+    width: 200px;height: 30px;
 }

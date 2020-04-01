@@ -29,8 +29,13 @@ let ImageCanvas = {
 
     name: 'ImageCanvas',
     props: {
-        item: Object,
-        value: Array,
+        base64source: String,
+        objects: {
+            type: Array,
+            default: () => {
+                return [];
+            }
+        },
         selectedLabel: String,
     },
     data() {
@@ -69,8 +74,8 @@ let ImageCanvas = {
 
                 canvas.setBackgroundImage(img);
 
-                if (this.value) {
-                    this.drawData(this.value.map(this.convertObjectToCanvas));
+                if (this.objects) {
+                    this.drawData(this.objects.map(this.convertObjectToCanvas));
                 }
                 canvas.renderAll();
                 this.initialRender = false;
@@ -107,7 +112,7 @@ let ImageCanvas = {
             }
         },
         drawData(objects) {
-            let objectsToDraw = objects || this.value;
+            let objectsToDraw = objects || this.objects;
             let canvas = this.canvas;
 
             canvas.remove(...canvas.getObjects());
@@ -175,7 +180,7 @@ let ImageCanvas = {
     },
     computed: {
         img: function () {
-            return 'data:image/png;base64, ' + this.item.enriched;
+            return 'data:image/png;base64, ' + this.base64source;
         }
     },
     watch: {
@@ -183,7 +188,7 @@ let ImageCanvas = {
             this.canvas.remove(...this.canvas.getObjects());
             this.fillCanvas();
         },
-        value: {
+        objects: {
             handler(nv) {
                 if (!nv) {
                     return;
@@ -224,7 +229,7 @@ let ImageCanvas = {
 
         canvas.on('after:render', () => {
             if (this.backgroundImage && !this.initialRender) {
-                this.$emit("input", this.getObjectsWithRealCoords());
+                this.$emit("update:objects", this.getObjectsWithRealCoords());
             }
         });
 
@@ -332,7 +337,7 @@ let ImageCanvas = {
                 });
                 if (rect) {
                     rect.draft = false;
-                    this.$emit("input", this.getObjectsWithRealCoords());
+                    this.$emit("update:objects", this.getObjectsWithRealCoords());
                     rect = null;
                 }
             }
@@ -370,14 +375,6 @@ let ImageCanvas = {
                     this.canvas.remove(selection);
                 }
                 this.canvas.discardActiveObject();
-            }
-        });
-        window.addEventListener('keydown', (event) => {
-            if (event.key === "Shift") {
-                this.mode = 'normal';
-            }
-            if (event.key === 'Control') {
-                this.mode = 'draw';
             }
         });
     },

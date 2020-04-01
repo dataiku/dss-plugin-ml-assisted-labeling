@@ -5,8 +5,6 @@ import {ControlButtons} from "./components/control-buttons.js";
 import {APIErrors, DKUApi} from "./dku-api.js";
 import {ErrorsComponent} from "./components/errors.js";
 import {ImageSample} from "./components/image-sample.js";
-import {ImageObjectSample} from "./components/image-object-sample/ImageObjectSample.js";
-import {ObjectDetectionLables} from "./components/image-object-sample/ObjectDetectionLables.js";
 import {ImageCanvas} from "./components/image-object-sample/ImageCanvas.js";
 import {config, debounce} from './components/utils/utils.js'
 
@@ -15,13 +13,19 @@ export default new Vue({
     components: {
         'category-selector': CategorySelector,
         'image-sample': ImageSample,
-        'image-object-sample': ImageObjectSample,
         'sound-sample': SoundSample,
         'tabular-sample': TabularSample,
         'control-buttons': ControlButtons,
         'errors': ErrorsComponent,
-        'ObjectDetectionLables': ObjectDetectionLables,
         'ImageCanvas': ImageCanvas
+    },
+    watch: {
+        annotation: {
+            handler: function (nv, ov) {
+                this.saveImageObjectsDebounced(this.annotation)
+            },
+            deep: true
+        }
     },
     data: {
         config: config,
@@ -39,6 +43,14 @@ export default new Vue({
         saveImageObjectsDebounced: null
     },
     methods: {
+        isCurrentItemLabeled() {
+            if (this.type === 'image-object') {
+                let annotation = this.annotation;
+                return !!this.item.labelId || (annotation.label && annotation.label.length > 0 || annotation.comment);
+            } else {
+                return !!this.item.labelId;
+            }
+        },
         labelSelected(selectedLabel) {
             this.selectedLabel = selectedLabel;
         },
@@ -52,6 +64,7 @@ export default new Vue({
             let doRemoveHead = this.item && !this.item.labelId;
             const doAssignNextItem = () => {
                 this.isFirst = false;
+                this.savedAnnotation = {comment: null, label: null};
                 this.annotation = {comment: null, label: null};
 
                 if (doRemoveHead) {
@@ -96,11 +109,12 @@ export default new Vue({
             let annotation = this.annotation;
             let annotationToSave = {
                 comment: annotation.comment,
-                label: annotation.label.map(mapLabelToSaveObject)
+                label: annotation.label && annotation.label.map(mapLabelToSaveObject)
             };
             if (!_.isEqual(annotationToSave, this.savedAnnotation)) {
-                console.log("SAVE");
-                DKUApi.label({...annotationToSave, ...{id: this.item.id}}).then(labelingResponse => {
+                let annotationData = {...annotationToSave, ...{id: this.item.id}};
+                console.log("SAVE", annotationData);
+                DKUApi.label(annotationData).then(labelingResponse => {
                     this.$emit('label', labelingResponse);
                     this.savedAnnotation = _.cloneDeep(annotationToSave);
                 });
@@ -118,11 +132,11 @@ export default new Vue({
                     <image-sample v-if="type === 'image'" :item="item.data"/>
                     <sound-sample v-if="type === 'sound'" :item="item.data"/>
                     <ImageCanvas :v-if="type === 'image-object'"
-                                 :item="item.data"
+                                 :base64source="item.data.enriched"
                                  :selectedLabel="selectedLabel"
-                                 v-model="annotation.label"
-                                 v-on:input="saveImageObjectsDebounced"
+                                 v-bind:objects.sync="annotation.label"
                     />
+                    <!--                                 v-on:update:objects="saveImageObjectsDebounced"-->
 
                 </div>
                 <div class="right-pannel">
@@ -134,17 +148,14 @@ export default new Vue({
                         </div>
                         <control-buttons :canSkip="!isDone"
                                          :isFirst="isFirst || !(stats.labeled + stats.skipped)"
-                                         :isLabeled="!!item.labelId"/>
+                                         :isLabeled="isCurrentItemLabeled()"/>
                     </div>
-                    <category-selector v-if="config && type !== 'image-object'"
-                                       v-on:label="updateStatsAndProceedToNextItem"
-                                       :stats="stats"
+                    <category-selector v-on:label="updateStatsAndProceedToNextItem"
                                        v-bind:enabled.sync="canLabel"
-                                       :label="annotation || {}"/>
-                    <ObjectDetectionLables v-if="type === 'image-object'"
-                                           v-model="annotation.label"
-                                           v-on:selectedLabel="labelSelected">
-                    </ObjectDetectionLables>
+                                       :stats="stats"
+                                       :type="type"
+                                       @selectedLabel="selectedLabel = $event"
+                                       :annotation="annotation"/>
                 </div>
             </div>
             <div v-if="isDone">
