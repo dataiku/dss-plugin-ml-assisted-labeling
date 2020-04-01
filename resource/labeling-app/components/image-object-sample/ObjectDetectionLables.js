@@ -39,11 +39,7 @@ let ObjectDetectionLables = {
             return `rgb(${rgb[0]},${rgb[1]},${rgb[2]},${opacity || 1})`
         },
         toggleLabel(lbl) {
-            if (this.selectedLabel === lbl) {
-                this.selectedLabel = null;
-            } else {
-                this.selectedLabel = lbl;
-            }
+            this.selectedLabel = lbl;
             this.$emit('selectedLabel', this.selectedLabel);
         }
     },
