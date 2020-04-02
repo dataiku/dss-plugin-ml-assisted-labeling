@@ -22,7 +22,7 @@ export default new Vue({
     watch: {
         annotation: {
             handler: function () {
-                this.saveImageObjectsDebounced(this.annotation)
+                this.annotation.label &&  this.saveImageObjectsDebounced(this.annotation)
             },
             deep: true
         }
@@ -46,7 +46,7 @@ export default new Vue({
         isCurrentItemLabeled() {
             if (this.type === 'image-object') {
                 let annotation = this.annotation;
-                return !!this.item.labelId || (annotation.label && annotation.label.length > 0 || annotation.comment);
+                return !!this.item.labelId || (annotation.label && annotation.label.length > 0);
             } else {
                 return !!this.item.labelId;
             }
