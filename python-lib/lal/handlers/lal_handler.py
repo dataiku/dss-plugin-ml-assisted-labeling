@@ -114,7 +114,8 @@ class LALHandler(object):
             "type": self.classifier.type,
             "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
             "isLastBatch": len(remaining) < BATCH_SIZE,
-            "stats": stats
+            "stats": stats,
+            "al_enabled": self.classifier.is_al_enabled
         }
 
     def current_user_meta(self):

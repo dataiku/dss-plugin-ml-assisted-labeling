@@ -90,6 +90,7 @@ export default new Vue({
             } else {
                 let batchPromise = DKUApi.batch();
                 batchPromise.then(data => {
+                    this.isAlEnabled = data.al_enabled;
                     this.stats = data.stats;
                     this.type = data.type;
                     this.items = data.items;
@@ -128,6 +129,7 @@ export default new Vue({
             <errors></errors>
             <div v-if="item && !isDone" class="ongoing-training-main">
                 <div class="sample-container">
+                    <div class="al-enabled-widget" v-bind:class="{ 'enabled': isAlEnabled }"><span>●</span> Active learning {{isAlEnabled ? 'enabled' : 'disabled'}}</div>
                     <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
                     <image-sample v-if="type === 'image'" :item="item.data"/>
                     <sound-sample v-if="type === 'sound'" :item="item.data"/>
