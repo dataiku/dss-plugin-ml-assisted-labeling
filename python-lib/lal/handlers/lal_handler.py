@@ -1,13 +1,11 @@
 import hashlib
 import json
 import logging
+import pandas as pd
 from abc import abstractmethod
 from datetime import datetime
-from typing import TypeVar
-
-import pandas as pd
-
 from lal.classifiers.base_classifier import BaseClassifier
+from typing import TypeVar
 
 META_STATUS_LABELED = 'LABELED'
 
@@ -54,9 +52,17 @@ class LALHandler(object):
             "labeled": len(self.get_meta_by_status(META_STATUS_LABELED)),
             "total": total_count,
             "skipped": len(self.get_meta_by_status(META_STATUS_SKIPPED)),
-            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].astype('str').value_counts().to_dict()
+            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].astype(
+                'str').value_counts().to_dict()
         }
         return stats
+
+    def get_config(self):
+        return {
+            "halting_thresholds": [0.25, 0.68, 0.75],
+            "halting_score": 0.37,
+            "al_enabled": True or self.classifier.is_al_enabled
+        }
 
     def label(self, data):
         self.logger.info("Labeling: %s" % json.dumps(data))
@@ -114,8 +120,7 @@ class LALHandler(object):
             "type": self.classifier.type,
             "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
             "isLastBatch": len(remaining) < BATCH_SIZE,
-            "stats": stats,
-            "al_enabled": self.classifier.is_al_enabled
+            "stats": stats
         }
 
     def current_user_meta(self):
