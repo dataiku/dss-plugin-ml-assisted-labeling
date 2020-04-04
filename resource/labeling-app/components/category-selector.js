@@ -163,8 +163,6 @@ let CategorySelector = {
                 </div>
             </div>
             
-<!--            <code>{{stats.perLabel}}</code>-->
-            
             <div class="category-selector--categories " v-if="!isObjectLabeling">
                 <div class="button category" v-for="(lbl,key) in categories"
                      v-on:click="doLabel(key)"
