@@ -1,48 +1,28 @@
-import os.path as op
+import os
 import json
 import logging
+import random
 
 import dataiku
 from dataiku.customrecipe import *
 
 import pandas as pd
 import numpy as np
-
-from keras_retinanet.preprocessing.csv_generator import CSVGenerator, Generator
-from keras_retinanet.utils.transform import random_transform_generator
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
-
-
-import os
-import random
-import logging
 
 from sklearn.model_selection import train_test_split
-from keras import optimizers
-from keras import callbacks
 from keras.utils import multi_gpu_model
 from keras.models import load_model
-import tensorflow as tf
 
-import keras_retinanet
 from keras_retinanet.models.resnet import resnet50_retinanet
 from keras_retinanet.models.retinanet import *
 from keras_retinanet.utils.model import freeze as freeze_model
 from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
-from keras_retinanet.utils.visualization import draw_box
-from keras_retinanet.utils.colors import label_color
-
 from keras_retinanet import backend
-
-
-from keras import optimizers
-from keras import callbacks
-from keras.utils import multi_gpu_model
-from keras.models import load_model
-import keras_retinanet
-
 from keras_retinanet.layers import FilterDetections
+
+from cardinal import uncertainty
+
 
 
 def prettify_error(s):
@@ -66,11 +46,10 @@ from retinanet_model import get_model
 from dfgenerator import DfGenerator
 from gpu_utils import load_gpu_options
 
-logging.basicConfig(level=logging.INFO, format='[Object Detection] %(levelname)s - %(message)s')
 
-
-
-def filter_detections(
+# This is a modification of the original filter_detection to have probabilities of
+# all classes
+def proba_filter_detections(
     boxes,
     classification,
     other                 = [],
@@ -93,7 +72,7 @@ def filter_detections(
     Returns
         A list of [boxes, scores, labels, other[0], other[1], ...].
         boxes is shaped (max_detections, 4) and contains the (x1, y1, x2, y2) of the non-suppressed boxes.
-        scores is shaped (max_detections,) and contains the scores of the predicted class.
+        scores is shaped (max_detections, n_classes) and contains the scores of the predicted class.
         labels is shaped (max_detections,) and contains the predicted label.
         other[i] is shaped (max_detections, ...) and contains the filtered other[i] data.
         In case there are less than max_detections detections, the tensors are padded with -1's.
@@ -119,6 +98,7 @@ def filter_detections(
         return indices
 
     if class_specific_filter:
+        # XXX THIS PATH HAS NOT BEEN TESTED YET
         all_indices = []
         # perform per class filtering
         for c in range(int(classification.shape[1])):
@@ -166,7 +146,7 @@ def filter_detections(
     return [boxes, scores, labels] + other_
 
 
-class MyFilterDetections(FilterDetections):
+class ProbaFilterDetections(FilterDetections):
     """ Keras layer for filtering detections using score threshold and NMS.
     """
 
@@ -185,7 +165,7 @@ class MyFilterDetections(FilterDetections):
             classification = args[1]
             other          = args[2]
 
-            return filter_detections(
+            return proba_filter_detections(
                 boxes,
                 classification,
                 other,
@@ -223,10 +203,6 @@ class MyFilterDetections(FilterDetections):
         ]
 
 
-
-
-
-
 def __build_anchors(anchor_parameters, features):
     """ Builds anchors for the shape of the features from FPN.
     Args
@@ -251,14 +227,11 @@ def __build_anchors(anchor_parameters, features):
 
     return keras.layers.Concatenate(axis=1, name='anchors')(anchors)
 
-
     
-    
-    
-def my_retinanet_bbox(
+def proba_retinanet_bbox(
     model                 = None,
     nms                   = True,
-    class_specific_filter = False,
+    class_specific_filter = False, # XXX DEFAULT HAS BEEN MODIFIER
     name                  = 'retinanet-bbox',
     anchor_params         = None,
     nms_threshold         = 0.5,
@@ -317,7 +290,7 @@ def my_retinanet_bbox(
     boxes = layers.ClipBoxes(name='clipped_boxes')([model.inputs[0], boxes])
 
     # filter detections (apply NMS / score threshold / select top-k)
-    detections = MyFilterDetections(
+    detections = ProbaFilterDetections(
         nms                   = nms,
         class_specific_filter = class_specific_filter,
         name                  = 'filtered_detections',
@@ -343,7 +316,7 @@ def get_test_model(weights, num_classes):
         The inference model.
     """
     model = get_model(weights, num_classes, freeze=True, n_gpu=1)[0]
-    test_model = my_retinanet_bbox(model=model)
+    test_model = proba_retinanet_bbox(model=model)
     return test_model
 
 
@@ -367,8 +340,6 @@ def find_objects(model, paths):
     path_i = 0
     nb_paths = len(paths)
     b_boxes, b_scores, b_labels = [], [], []
-
-    #print(model.summary())
     
     while nb_paths != path_i:
         images = []
@@ -391,11 +362,6 @@ def find_objects(model, paths):
 
         images = np.stack(images)
         boxes, scores, labels = model.predict_on_batch(images)
-        print(images.shape, boxes.shape, scores.shape, labels.shape)
-        print(np.argmax(scores[0], axis=1))
-        #print(scores)
-        print(labels[0])
-        print(np.min(scores[0]), np.max(scores[0]), np.sum(scores[0], axis=1))
         
         for i, scale in enumerate(scales):
             boxes[i, :, :] /= scale # Taking in account the resizing factor
@@ -404,15 +370,11 @@ def find_objects(model, paths):
         b_scores.append(scores)
         b_labels.append(labels)
 
-
-
     b_boxes = np.concatenate(b_boxes, axis=0)
     b_scores = np.concatenate(b_scores, axis=0)
     b_labels = np.concatenate(b_labels, axis=0)
 
     return b_boxes, b_scores, b_labels
-
-
 
 
 logging.basicConfig(level=logging.INFO, format='[Object Detection] %(levelname)s - %(message)s')
@@ -421,22 +383,39 @@ logging.basicConfig(level=logging.INFO, format='[Object Detection] %(levelname)s
 images_folder = dataiku.Folder(get_input_names_for_role('unlabeled_samples')[0])
 weights_folder = dataiku.Folder(get_input_names_for_role('saved_model')[0])
 
-weights = op.join(weights_folder.get_path(), 'weights.h5')
-labels_to_names = json.loads(open(op.join(weights_folder.get_path(), 'labels.json')).read())
+weights = os.path.join(weights_folder.get_path(), 'weights.h5')
+labels_to_names = json.loads(open(os.path.join(weights_folder.get_path(), 'labels.json')).read())
 
 configs = get_recipe_config()
+
+strategy_mapper = {
+    'confidence': uncertainty.confidence_sampling,
+    'margin': uncertainty.margin_sampling,
+    'entropy': uncertainty.entropy_sampling
+}
+class NoClassifier():
+    def fit(self, X, y=None):
+        pass
+    def predict(self, X):
+        return X
+    def predict_proba(self, X):
+        return X
+
+scorer = strategy_mapper[configs['strategy']]
+
 
 gpu_opts = load_gpu_options(configs.get('should_use_gpu', False),
                                         configs.get('list_gpu', ''),
                                         configs.get('gpu_allocation', 0.))
 
-batch_size = 10  # int(configs['batch_size'])
-confidence = 0.05  # float(configs['confidence'])
+batch_size = 3  # int(configs['batch_size'])
+confidence = 0.1  # float(configs['confidence'])
 
 model = get_test_model(weights, len(labels_to_names))
 
 df = pd.DataFrame(columns=['path', 'uncertainty', 'session'])
 df_idx = 0
+session = 1
 
 paths = images_folder.list_paths_in_partition()
 folder_path = images_folder.get_path()
@@ -450,34 +429,22 @@ def print_percent(i, total):
 
 for i in range(0, len(paths), batch_size):
     batch_paths = paths[i:i+batch_size]
-    batch_paths = list(map(lambda x: op.join(folder_path, x[1:]), batch_paths))
+    batch_paths = list(map(lambda x: os.path.join(folder_path, x[1:]), batch_paths))
 
     boxes, scores, labels = find_objects(model, batch_paths)
-
-
+    print('image', i)
     for batch_i in range(boxes.shape[0]):
         # For each image of the batch
         cur_path = [batch_paths[batch_i].split('/')[-1]]
-
-        at_least_one = False
-        for box, score, label in zip(boxes[batch_i], scores[batch_i], labels[batch_i]):
-            # if score < confidence: break # Scores are ordered.
-            print(score, box, label)
-
-            at_least_one = True
-
-            int_box = list(box.astype(int))
-            label_name = labels_to_names[label]
-
-            # df.loc[df_idx] = cur_path + int_box + [label_name, round(score, 2)]
-            df.loc[df_idx] = cur_path + [score, 1]
-            df_idx += 1
-            break
-
-        if not at_least_one and configs['record_missing']:
-            # df.loc[df_idx] = cur_path + [np.nan for _ in range(6)]
+        print('batch', batch_i)
+            
+        if len(boxes[batch_i]):
+            # We take the box with highest probability
+            best_row = scores[batch_i][np.argmax(np.max(scores[batch_i], axis=1))]
+            df.loc[df_idx] = cur_path + [scorer(NoClassifier(), [best_row])[1][0], session]
+        else:
             df.loc[df_idx] = cur_path + [1., 1]
-            df_idx += 1
+        df_idx += 1
 
     if i % 100 == 0:
         print_percent(i, total_paths)
