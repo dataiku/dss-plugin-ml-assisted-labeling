@@ -61,7 +61,7 @@ class LALHandler(object):
     def label(self, data):
         self.logger.info("Labeling: %s" % json.dumps(data))
         if 'id' not in data:
-            message = "Labeling data doesn't containg sample ID"
+            message = "Labeling data doesn't contain sample ID"
             self.logger.error(message)
             raise ValueError(message)
 
@@ -140,7 +140,7 @@ class LALHandler(object):
         else:
             label = None
         return {
-            "label": {"label": label, "comment": previous['comment']},
+            "annotation": {"label": label, "comment": previous['comment']},
             "isFirst": len(meta) == 1,
             "item": {"id": data_id,
                      "labelId": previous[self.lbl_id_col],

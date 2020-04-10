@@ -9,10 +9,9 @@ export let ControlButtons = {
             }
             DKUApi.back(this.$root.item.id).then((data) => {
                 this.$root.item = data.item;
-                this.$root.label = data.label;
+                this.$root.annotation = data.annotation;
+                this.$root.savedAnnotation = _.cloneDeep(data.annotation);
                 this.$root.isFirst = data.isFirst;
-
-
             });
         },
         unlabeled: function () {
@@ -28,7 +27,7 @@ export let ControlButtons = {
             const skipLabel = {
                 "dataId": this.$root.item.id,
                 "labelId": this.$root.item.labelId,
-                "comment": this.$root.label.comment
+                "comment": this.$root.annotation.comment
             };
 
             DKUApi.skip(skipLabel).then((response) => {
