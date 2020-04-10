@@ -43,3 +43,7 @@ def define_endpoints(app, classifier_cls):
     def label():
         req_data = request.get_json()
         return jsonify(handler().label(req_data))
+
+    @app.route('/config', methods=['GET'])
+    def config():
+        return jsonify(handler().get_config())
