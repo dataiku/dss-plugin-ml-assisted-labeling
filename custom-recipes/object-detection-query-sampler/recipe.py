@@ -231,7 +231,7 @@ def __build_anchors(anchor_parameters, features):
 def proba_retinanet_bbox(
     model                 = None,
     nms                   = True,
-    class_specific_filter = False, # XXX DEFAULT HAS BEEN MODIFIER
+    class_specific_filter = False, # XXX DEFAULT HAS BEEN MODIFIED
     name                  = 'retinanet-bbox',
     anchor_params         = None,
     nms_threshold         = 0.5,
@@ -436,14 +436,13 @@ for i in range(0, len(paths), batch_size):
     for batch_i in range(boxes.shape[0]):
         # For each image of the batch
         cur_path = [batch_paths[batch_i].split('/')[-1]]
-        print('batch', batch_i)
             
-        if len(boxes[batch_i]):
+        if len(boxes[batch_i]) and boxes[batch_i][0][0] >= 0.:
             # We take the box with highest probability
             best_row = scores[batch_i][np.argmax(np.max(scores[batch_i], axis=1))]
             df.loc[df_idx] = cur_path + [scorer(NoClassifier(), [best_row])[1][0], session]
         else:
-            df.loc[df_idx] = cur_path + [1., 1]
+            df.loc[df_idx] = cur_path + [1., session]
         df_idx += 1
 
     if i % 100 == 0:
