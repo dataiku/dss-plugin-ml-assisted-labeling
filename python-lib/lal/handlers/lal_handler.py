@@ -1,11 +1,13 @@
 import hashlib
 import json
 import logging
-import pandas as pd
 from abc import abstractmethod
 from datetime import datetime
-from lal.classifiers.base_classifier import BaseClassifier
 from typing import TypeVar
+
+import pandas as pd
+
+from lal.classifiers.base_classifier import BaseClassifier
 
 META_STATUS_LABELED = 'LABELED'
 
@@ -59,9 +61,8 @@ class LALHandler(object):
 
     def get_config(self):
         return {
-            "halting_thresholds": [0.25, 0.68, 0.75],
-            "halting_score": 0.37,
-            "al_enabled": True or self.classifier.is_al_enabled
+            **self.classifier.get_config(),
+            **{"al_enabled": self.classifier.is_al_enabled}
         }
 
     def label(self, data):
