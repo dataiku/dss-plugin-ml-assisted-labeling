@@ -17,8 +17,5 @@ def halting_criterion(values):
     pos = np.where((data - thr) < 0)[0]
     min_thr = pos[0]
     max_thr = pos[-1] + 1
-    final = np.ones(data.shape[0])
-    final[index[min_thr:max_thr]] = 2
-    final[index[max_thr:]] = 3
     
-    return final
+    return (values[min_thr], values[max_thr])
