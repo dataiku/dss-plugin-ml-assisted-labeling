@@ -123,7 +123,7 @@ def get_halting_values(scores):
     halting_score = test['test']
     min_score = scores.min()
     max_score = scores.max()
-    values = np.asarray([weighted_sample_score(x, hs, min_score, max_score) for x in scores])
+    values = np.asarray([weighted_sample_score(x, halting_score, min_score, max_score) for x in scores])
     low_thr =  (2 * min_score + max_score) / 3.
     high_thr = (min_score + 2 * max_score) / 3.
     return values, low_thr, high_thr
