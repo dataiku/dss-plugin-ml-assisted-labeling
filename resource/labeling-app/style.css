@@ -510,6 +510,8 @@ hr {
 }
 
 .halting-criterion {
+    margin-left: 25px;
+    margin-right: 25px;
     display: flex;
     position: relative;
     padding-top: 20px;
@@ -531,4 +533,11 @@ hr {
 }
 .al-status-popover{
     width: 400px;
+}
+.tooltip.popover .popover-arrow{
+    border-color: darkgrey;
+}
+
+.halting-criterion .v-popover, .halting-criterion .v-popover .trigger{
+    width: 100%;
 }

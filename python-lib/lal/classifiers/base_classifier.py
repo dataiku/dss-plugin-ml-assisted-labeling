@@ -35,6 +35,9 @@ class BaseClassifier(object):
 
         return df_to_label
 
+    def get_config(self):
+        pass
+
     def get_session(self):
         if self.queries_df is None or self.queries_df.empty:
             return 0
