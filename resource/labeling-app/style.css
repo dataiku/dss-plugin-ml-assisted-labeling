@@ -260,8 +260,12 @@ button .keybind {
     margin-right: 30px;
 }
 
+.label-config-row .keybind {
+    margin: 0;
+}
+
 .label-config-row {
-    height: 50px;
+    height: 30px;
     border-bottom: 1px solid #d3d3d3;
     text-align: center;
     line-height: 50px;
