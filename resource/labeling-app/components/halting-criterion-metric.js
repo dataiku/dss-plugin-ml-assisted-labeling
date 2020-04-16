@@ -37,9 +37,8 @@ let HaltingCriterionMetric = {
     template: `
 
         <div class="halting-criterion">
-            <v-popover :trigger="'hover'" style="width: 100%">
-
-                <div style="width: 100%; display: flex">
+            <v-popover :trigger="'hover'">
+                <div style="display: flex">
                     <div class="halting-criterion-cell" v-for="t in drawData"
                          :style="{ width: t.width + '%', backgroundColor: t.color }"></div>
 
