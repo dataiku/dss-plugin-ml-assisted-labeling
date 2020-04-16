@@ -425,7 +425,7 @@ model = get_test_model(weights, len(labels_to_names))
 df = pd.DataFrame(columns=['path', 'uncertainty'])
 df_idx = 0
 
-current_session = utils.increment_queries_session(queries_ds.short_name)
+utils.increment_queries_session(queries_ds.short_name)
 
 paths = images_folder.list_paths_in_partition()
 folder_path = images_folder.get_path()
@@ -450,9 +450,9 @@ for i in range(0, len(paths), batch_size):
         if len(boxes[batch_i]) and boxes[batch_i][0][0] >= 0.:
             # We take the box with highest probability
             best_row = scores[batch_i][np.argmax(np.max(scores[batch_i], axis=1))]
-            df.loc[df_idx] = cur_path + [scorer(NoClassifier(), [best_row])[1][0], current_session + 1]
+            df.loc[df_idx] = cur_path + [scorer(NoClassifier(), [best_row])[1][0]]
         else:
-            df.loc[df_idx] = cur_path + [1., current_session + 1]
+            df.loc[df_idx] = cur_path + [1.]
         df_idx += 1
 
     if i % 100 == 0:
