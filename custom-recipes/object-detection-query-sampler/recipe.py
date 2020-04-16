@@ -20,7 +20,7 @@ from keras_retinanet.utils.model import freeze as freeze_model
 from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from keras_retinanet import backend
 from keras_retinanet.layers import FilterDetections
-
+from lal import utils
 from cardinal import uncertainty
 
 
@@ -422,18 +422,10 @@ confidence = 0.1  # float(configs['confidence'])
 
 model = get_test_model(weights, len(labels_to_names))
 
-df = pd.DataFrame(columns=['path', 'uncertainty', 'session'])
+df = pd.DataFrame(columns=['path', 'uncertainty'])
 df_idx = 0
 
-
-
-# Find the current session from the previous iteration of queries
-current_session = 1
-try:
-    queries_df = queries_ds.get_dataframe()
-    current_session = 1 if queries_df.session.empty else queries_df.session[0] + 1
-except Exception as e:
-    logging.info("Could not determine session. Default to 1. Original error is: {0}".format(e))
+current_session = utils.increment_queries_session(queries_ds.short_name)
 
 paths = images_folder.list_paths_in_partition()
 folder_path = images_folder.get_path()
@@ -454,7 +446,7 @@ for i in range(0, len(paths), batch_size):
     for batch_i in range(boxes.shape[0]):
         # For each image of the batch
         cur_path = [batch_paths[batch_i].split('/')[-1]]
-            
+
         if len(boxes[batch_i]) and boxes[batch_i][0][0] >= 0.:
             # We take the box with highest probability
             best_row = scores[batch_i][np.argmax(np.max(scores[batch_i], axis=1))]
