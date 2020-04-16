@@ -7,6 +7,7 @@ import dataiku
 from dataiku.customrecipe import *
 
 from cardinal import uncertainty
+from lal import utils
 
 
 # Load configuration
@@ -58,13 +59,7 @@ if len(model.get_predictor().classes) == 0:
         prettify_error('Saved model {} seems to be a regressor and not a classifier.'.format(saved_model_id) +
                        'Active learning in regression context is not supported yet.'))
     
-# Find the current session from the previous iteration of queries
-current_session = 1
-try:
-    queries_df = queries_ds.get_dataframe()
-    current_session = 1 if queries_df.session.empty else queries_df.session[0] + 1
-except Exception as e:
-    logging.info("Could not determine session. Default to 1. Original error is: {0}".format(e))
+utils.increment_queries_session(queries_ds.short_name)
 
 # Active learning
 func = strategy_mapper[config['strategy']]
@@ -84,5 +79,4 @@ index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
 # Outputs
 queries_df = unlabeled_df.loc[index]
 queries_df['uncertainty'] = uncertainty
-queries_df['session'] = current_session
 queries_ds.write_with_schema(queries_df)
