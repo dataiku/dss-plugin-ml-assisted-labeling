@@ -54,7 +54,7 @@
 }
 
 .right-pannel {
-    width: 500px;
+    width: 400px;
     height: 100%;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 4px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
     background-color: white;
@@ -72,6 +72,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    padding: 50px 20px 20px;
 }
 
 canvas {
@@ -129,6 +131,7 @@ canvas {
 
 audio {
     outline: none;
+    width: 600px;
 }
 
 .button.category {
@@ -227,6 +230,8 @@ button .keybind {
 
 .tabular-sample--header {
     background-color: lightgrey;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 .tabular-sample--key {
@@ -238,8 +243,10 @@ button .keybind {
     text-align: right;
 }
 
-.image-sample img {
-    min-height: 300px;
+.image-sample  {
+    max-height: 800px;
+    display: flex;
+    object-fit: contain;
 }
 
 .canvas-wrapper {
