@@ -246,6 +246,7 @@ button .keybind {
     max-height: 800px;
     display: flex;
     object-fit: contain;
+    height: 100%;
 }
 
 .canvas-wrapper {
