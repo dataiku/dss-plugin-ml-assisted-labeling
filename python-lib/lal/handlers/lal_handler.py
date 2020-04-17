@@ -2,8 +2,8 @@ import hashlib
 import json
 import logging
 from abc import abstractmethod
-from asyncio import Lock
 from datetime import datetime, timedelta
+from threading import RLock
 from typing import TypeVar, Dict
 
 import pandas as pd
@@ -34,7 +34,7 @@ class ReservedSample:
 
 
 class LALHandler(object):
-    lock = Lock()
+    lock = RLock()
     sample_by_user_reservation: Dict[str, ReservedSample] = dict()
     logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class LALHandler(object):
         logging.info("get_remaining: Seen ids: {0}".format(labeled_ids))
         unlabeled_ids = [i for i in self.classifier.get_all_item_ids_list() if i not in labeled_ids]
         result = []
-        with self.lock:
+        with LALHandler.lock:
             for i in unlabeled_ids:
                 if i in self.sample_by_user_reservation:
                     reserved_sample = self.sample_by_user_reservation.get(i)
@@ -139,7 +139,7 @@ class LALHandler(object):
 
         remaining = self.get_remaining()
         ids_batch = remaining[-BATCH_SIZE:]
-        with self.lock:
+        with LALHandler.lock:
             for i in ids_batch:
                 if i not in self.sample_by_user_reservation:
                     reserved_until = datetime.now() + timedelta(minutes=int(BATCH_SIZE * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
