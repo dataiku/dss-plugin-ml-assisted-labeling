@@ -32,6 +32,7 @@ export default new Vue({
         }
     },
     data: {
+        isAlEnabled: false,
         config: config,
         haltingThresholds: null,
         item: null,
@@ -142,8 +143,7 @@ export default new Vue({
             <errors></errors>
             <div v-if="item && !isDone" class="ongoing-training-main">
                 <div class="sample-container">
-                    <v-popover :trigger="'hover'"
-                               style="transform: translateX(-50%); position: absolute; top: 10px; left: 50%; border-radius: 4px">
+                    <v-popover :trigger="'hover'" class="al-status">
                         <div class="al-enabled-widget"
                              v-bind:class="{ 'enabled': isAlEnabled }">
                             <span>●</span> Active learning {{isAlEnabled ? 'enabled' : 'disabled'}}

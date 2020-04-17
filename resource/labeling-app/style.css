@@ -531,11 +531,20 @@ hr {
 .popover{
     max-width: 1000px;
 }
-.halting-criterion span{
+.halting-criterion span {
     position: absolute;
     color: grey;
 }
-.al-status-popover{
+
+.al-status {
+    transform: translateX(-50%);
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    border-radius: 4px;
+}
+
+.al-status-popover {
     width: 400px;
 }
 .tooltip.popover .popover-arrow{
