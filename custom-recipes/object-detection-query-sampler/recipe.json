@@ -37,28 +37,10 @@
       "acceptsDataset": true
     }
   ],
-  "params": [
-    {
-      "name": "strategy",
-      "label": "Query strategy",
-      "type": "SELECT",
-      "defaultValue": "confidence",
-      "selectChoices": [
-        {
-          "value": "confidence",
-          "label": "Smallest confidence sampling"
-        },
-        {
-          "value": "margin",
-          "label": "Smallest margin sampling"
-        },
-        {
-          "value": "entropy",
-          "label": "Greatest entropy sampling"
-        }
-      ]
-    }
-  ],
+  "paramsTemplate" : "object-detection-recipe-template.html",
+  "paramsModule" : "detectionRecipe.detect",
+  "paramsPythonSetup": "recipes-helper.py",
   "resourceKeys": []
 }
+
 
