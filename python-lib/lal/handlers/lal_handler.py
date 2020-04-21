@@ -63,7 +63,8 @@ class LALHandler(object):
     def get_remaining(self):
         labeled_ids = set(self.get_meta_by_status().data_id.values)
         logging.info("get_remaining: Seen ids: {0}".format(labeled_ids))
-        unlabeled_ids = [i for i in self.classifier.get_all_item_ids_list() if i not in labeled_ids]
+        unlabeled_ids = [item_id for item_id in self.classifier.get_all_item_ids_list() if item_id not in labeled_ids]
+        unlabeled_ids = [item_id for item_id in self.classifier.get_all_item_ids_list() if item_id not in labeled_ids]
         result = []
         with LALHandler.lock:
             for i in unlabeled_ids:
@@ -140,9 +141,9 @@ class LALHandler(object):
         remaining = self.get_remaining()
         ids_batch = remaining[-BATCH_SIZE:]
         with LALHandler.lock:
+            reserved_until = datetime.now() + timedelta(minutes=int(BATCH_SIZE * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
             for i in ids_batch:
                 if i not in self.sample_by_user_reservation:
-                    reserved_until = datetime.now() + timedelta(minutes=int(BATCH_SIZE * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
                     self.sample_by_user_reservation[i] = ReservedSample(self.current_user, reserved_until)
         ids_batch.reverse()
         return {
