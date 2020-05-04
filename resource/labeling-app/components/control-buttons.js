@@ -43,7 +43,7 @@ export let ControlButtons = {
             if (event.code === 'ArrowLeft') {
                 this.back();
             }
-            if (event.code === 'ArrowRight') {
+            if (event.code === 'ArrowRight' || event.code === 'Enter') {
                 this.unlabeled();
             }
         }, false);

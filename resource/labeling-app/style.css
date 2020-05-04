@@ -48,7 +48,7 @@
 }
 
 .right-pannel {
-    width: 500px;
+    width: 400px;
     height: 100%;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 4px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
     background-color: var(--white);
@@ -66,6 +66,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    padding: 50px 20px 20px;
 }
 
 canvas {
@@ -123,6 +125,7 @@ canvas {
 
 audio {
     outline: none;
+    width: 600px;
 }
 
 .button.category {
@@ -220,6 +223,8 @@ button .keybind {
 
 .tabular-sample--header {
     background-color: var(--grey-lighten-7);
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 .tabular-sample--key {
@@ -231,8 +236,11 @@ button .keybind {
     text-align: right;
 }
 
-.image-sample img {
-    min-height: 300px;
+.image-sample  {
+    max-height: 800px;
+    display: flex;
+    object-fit: contain;
+    height: 100%;
 }
 
 .canvas-wrapper {
@@ -253,8 +261,12 @@ button .keybind {
     margin-right: 30px;
 }
 
+.label-config-row .keybind {
+    margin: 0;
+}
+
 .label-config-row {
-    height: 50px;
+    height: 30px;
     border-bottom: 1px solid var(--grey-lighten-7);
     text-align: center;
     line-height: 50px;

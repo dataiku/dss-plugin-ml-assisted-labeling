@@ -121,6 +121,7 @@ export default new Vue({
                 console.log("SAVE", annotationData);
                 DKUApi.label(annotationData).then(labelingResponse => {
                     this.$emit('label', labelingResponse);
+                    this.stats = labelingResponse.stats;
                     this.savedAnnotation = _.cloneDeep(annotationToSave);
                 });
             }

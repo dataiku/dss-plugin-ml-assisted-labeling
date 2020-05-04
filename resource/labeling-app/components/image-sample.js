@@ -6,10 +6,7 @@ let ImageSample = {
         }
     },
     // language=HTML
-    template: `
-        <div class="image-sample">
-            <img :src="imgSrc">
-        </div>`
+    template: `<img class="image-sample" :src="imgSrc">`
 };
 
 export {ImageSample}
