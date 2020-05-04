@@ -50,16 +50,12 @@ export default new Vue({
     methods: {
         isCurrentItemLabeled() {
             if (this.type === 'image-object') {
-                let annotation = this.annotation;
+                const annotation = this.annotation;
                 return !!this.item.labelId || (annotation.label && annotation.label.length > 0);
             } else {
                 return !!this.item.labelId;
             }
         },
-        labelSelected(selectedLabel) {
-            this.selectedLabel = selectedLabel;
-        },
-
         updateStatsAndProceedToNextItem: function (response) {
             this.stats = response.stats;
             this.assignNextItem();
@@ -108,16 +104,16 @@ export default new Vue({
     },
     mounted: function () {
         this.saveImageObjectsDebounced = debounce.call(this, () => {
-            let mapLabelToSaveObject = a => {
+            const mapLabelToSaveObject = a => {
                 return {top: a.top, left: a.left, label: a.label, width: a.width, height: a.height}
             };
-            let annotation = this.annotation;
-            let annotationToSave = {
+            const annotation = this.annotation;
+            const annotationToSave = {
                 comment: annotation.comment,
                 label: annotation.label && annotation.label.map(mapLabelToSaveObject)
             };
             if (!_.isEqual(annotationToSave, this.savedAnnotation)) {
-                let annotationData = {...annotationToSave, ...{id: this.item.id}};
+                const annotationData = {...annotationToSave, ...{id: this.item.id}};
                 console.log("SAVE", annotationData);
                 DKUApi.label(annotationData).then(labelingResponse => {
                     this.$emit('label', labelingResponse);
@@ -144,7 +140,7 @@ export default new Vue({
                 <div class="sample-container">
                     <v-popover :trigger="'hover'" class="al-status">
                         <div class="al-enabled-widget"
-                             v-bind:class="{ 'enabled': isAlEnabled }">
+                             :class="{ 'enabled': isAlEnabled }">
                             <span>●</span> Active learning {{isAlEnabled ? 'enabled' : 'disabled'}}
                         </div>
                         <div slot="popover" class="al-status-popover">
@@ -165,13 +161,12 @@ export default new Vue({
                     <ImageCanvas v-if="type === 'image-object'"
                                  :base64source="item.data.enriched.img"
                                  :selectedLabel="selectedLabel"
-                                 v-bind:objects.sync="annotation.label"
+                                 :objects.sync="annotation.label"
                     />
-                    <!--                                 v-on:update:objects="saveImageObjectsDebounced"-->
 
                 </div>
-                <div class="right-pannel">
-                    <div class="right-pannel-top">
+                <div class="right-panel">
+                    <div class="right-panel-top">
                         <div class="stat-container" v-if="stats">
                             <span class="stat"><span class="stat-count">{{stats.total}}</span> samples</span>
                             <span class="stat"><span class="stat-count">{{stats.labeled}}</span> labeled</span>
@@ -189,8 +184,8 @@ export default new Vue({
                             :currentValue="item.data.enriched.halting"></halting-criterion-metric>
                     
 
-                    <category-selector v-on:label="updateStatsAndProceedToNextItem"
-                                       v-bind:enabled.sync="canLabel"
+                    <category-selector @label="updateStatsAndProceedToNextItem"
+                                       :enabled.sync="canLabel"
                                        :stats="stats"
                                        :type="type"
                                        @selectedLabel="selectedLabel = $event"

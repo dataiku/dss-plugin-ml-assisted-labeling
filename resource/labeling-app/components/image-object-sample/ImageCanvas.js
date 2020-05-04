@@ -19,13 +19,12 @@ function modifyFabric() {
                 height: Math.round(this.height * this.scaleY),
                 selected: this.selected,
                 draft: this.draft,
-
             }
         };
     })(fabric.Rect.prototype.toObject);
 }
 
-let ImageCanvas = {
+const ImageCanvas = {
 
     name: 'ImageCanvas',
     props: {
@@ -112,24 +111,24 @@ let ImageCanvas = {
             }
         },
         drawData(objects) {
-            let objectsToDraw = objects || this.objects;
-            let canvas = this.canvas;
+            const objectsToDraw = objects || this.objects;
+            const canvas = this.canvas;
 
             canvas.remove(...canvas.getObjects());
             canvas.discardActiveObject();
             objectsToDraw && objectsToDraw.forEach(s => {
                 this.addRectFromObject(s)
             });
-            let selectedObjects = canvas.getObjects().filter(o => o.selected);
+            const selectedObjects = canvas.getObjects().filter(o => o.selected);
             selectedObjects.length && canvas.setActiveObject(...selectedObjects);
             canvas.requestRenderAll();
         },
         addRectFromObject(o) {
-            let category = config.categories[o.label];
-            let color = category ? category.color : UNDEFINED_COLOR;
+            const category = config.categories[o.label];
+            const color = category ? category.color : UNDEFINED_COLOR;
             const colorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
             const strokeColorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.8)`;
-            let rect = new fabric.Rect({
+            const rect = new fabric.Rect({
                 left: o.left,
                 top: o.top,
                 originX: 'left',
@@ -153,10 +152,10 @@ let ImageCanvas = {
 
 
         addRect(left, top, width, height, selectedLabel, id) {
-            let color = config.categories[selectedLabel].color;
+            const color = config.categories[selectedLabel].color;
             const colorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
             const strokeColorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.8)`;
-            let rect = new fabric.Rect({
+            const rect = new fabric.Rect({
                 left: left,
                 top: top,
                 originX: 'left',
@@ -240,7 +239,7 @@ let ImageCanvas = {
             isDown = true;
             isDrawing = o.target === null;
             if (isDrawing) {
-                let pointer = canvas.getPointer(o.e);
+                const pointer = canvas.getPointer(o.e);
                 origX = pointer.x;
                 origY = pointer.y;
             }
@@ -301,11 +300,11 @@ let ImageCanvas = {
 
         canvas.on('mouse:move', (o) => {
             if (!isDown) return;
-            let pointer = canvas.getPointer(o.e);
+            const pointer = canvas.getPointer(o.e);
             if (isDrawing) {
 
-                let pointerX = Math.max(Math.min(canvas.width - STROKE_WIDTH, pointer.x), 0);
-                let pointerY = Math.max(Math.min(canvas.height - STROKE_WIDTH, pointer.y), 0);
+                const pointerX = Math.max(Math.min(canvas.width - STROKE_WIDTH, pointer.x), 0);
+                const pointerY = Math.max(Math.min(canvas.height - STROKE_WIDTH, pointer.y), 0);
                 if (!rect) {
                     let width = pointerX - origX;
                     let height = pointerY - origY;
