@@ -51,9 +51,9 @@ let HaltingCriterionMetric = {
 
                 <div slot="popover" class="al-status-popover">
                     <div>
-                        <p>This bar represents a halting criterion metric</p>
-                        <p>It shows how efficient the labeling process is with Active Learning compared to random sampling</p>
-                        <p>Being in the red zone means that your model should be retrained and labeling should continue after a queries dataset is regenerated</p>
+                        <p>This bar represents a halting criterion metric.</p>
+                        <p>It shows how efficient the labeling process is with Active Learning compared to random sampling.</p>
+                        <p>Being in the red zone means that your model should be retrained and labeling should continue after a queries dataset is regenerated.</p>
                     </div>
                 </div>
             </v-popover>

@@ -43,7 +43,6 @@ export default new Vue({
         type: null,
         annotation: null,
         apiErrors: APIErrors,
-        currentALColor: null,
         annotations: null,
         selectedLabel: null,
         saveImageObjectsDebounced: null
@@ -186,8 +185,7 @@ export default new Vue({
                             v-if="isAlEnabled && type === 'image-object'"
                             :thresholds="haltingThresholds"
                             :colors="['#2AA876','#FFD265','#CE4D45']"
-                            :currentValue="item.data.enriched.halting"
-                            @currentColor="currentALColor=$event"></halting-criterion-metric>
+                            :currentValue="item.data.enriched.halting"></halting-criterion-metric>
                     
 
                     <category-selector v-on:label="updateStatsAndProceedToNextItem"

@@ -12,14 +12,12 @@
     height: 5px;
     width: 100%;
     border-radius: 0;
-    background-color: #d3d3d3;
+    background-color: var(--grey-lighten-7);
     margin-top: 5px;
-    /*position: absolute;*/
-    /*bottom: 0;*/
 }
 
 .progress {
-    background-color: #277194a1;
+    background-color: var(--blue) ;
     height: 100%;
     border-radius: 0;
 }
@@ -35,10 +33,6 @@
     cursor: pointer;
 }
 
-.errors-container {
-    /*padding-top: 20px;*/
-}
-
 .error-name {
     font-weight: 600;
     font-size: 20px;
@@ -49,7 +43,7 @@
     height: 100%;
     display: flex;
     justify-content: space-between;
-    background-color: #f2f2f2;
+    background-color: var(--grey-lighten-7);
 
 }
 
@@ -57,7 +51,7 @@
     width: 500px;
     height: 100%;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 4px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
-    background-color: white;
+    background-color: var(--white);
     display: flex;
     flex-direction: column;
 }
@@ -143,9 +137,8 @@ audio {
     position: relative;
     white-space: nowrap;
     min-width: 60px;
-    border: 1px solid #03a9f4;
+    border: 1px solid var(--blue);
     margin: 5px;
-    /*padding: 10px;*/
     cursor: pointer;
     text-align: center;
     flex-direction: column;
@@ -160,8 +153,8 @@ audio {
 }
 
 .right-pannel-top {
-    background-color: #f2f2f2;
-    border-bottom: 1px solid #cccccc;
+    background-color: var(--grey-lighten-7);
+    border-bottom: 1px solid var(--grey-lighten-5);
     height: 150px;
     display: flex;
     flex-direction: column;
@@ -169,11 +162,11 @@ audio {
 }
 
 .button:hover {
-    background-color: rgba(211, 211, 211, 0.18);
+    background-color: var(--grey-lighten-7);
 }
 
 .button.selected {
-    background-color: rgba(144, 238, 144, 0.49);
+    background-color: var(--blue-lighten-4);
 }
 
 button .keybind {
@@ -185,7 +178,7 @@ button .keybind {
 .keybind {
     font-family: arial, sans-serif;
     margin-top: 5px;
-    color: grey;
+    color: var(--grey-lighten-3);
     font-size: 9px;
     /*border: 1px solid lightgray;*/
     width: 13px;
@@ -222,11 +215,11 @@ button .keybind {
 }
 
 .tabular-sample > table > tr.odd {
-    background-color: rgba(211, 211, 211, 0.38);
+    background-color: var(--grey-lighten-7);
 }
 
 .tabular-sample--header {
-    background-color: lightgrey;
+    background-color: var(--grey-lighten-7);
 }
 
 .tabular-sample--key {
@@ -262,7 +255,7 @@ button .keybind {
 
 .label-config-row {
     height: 50px;
-    border-bottom: 1px solid #d3d3d3;
+    border-bottom: 1px solid var(--grey-lighten-7);
     text-align: center;
     line-height: 50px;
     cursor: pointer;
@@ -272,7 +265,7 @@ button .keybind {
 }
 
 .label-config-row.active {
-    background-color: rgba(143, 210, 255, 0.32);
+    background-color: var(--blue-lighten-5);
 }
 
 
@@ -288,7 +281,7 @@ button .keybind {
 
 .annotation.selected,
 .annotation:hover {
-    background-color: lightblue;
+    background-color: var(--blue-lighten-5);
 }
 
 
@@ -326,7 +319,7 @@ button .keybind {
     margin-top: 25px;
     width: 100%;
     border-radius: 4px;
-    border: solid 1px #d1d1d1;
+    border: solid 1px var(--grey-lighten-4);
     outline: none;
 }
 
@@ -369,8 +362,8 @@ hr {
 .al-enabled-widget {
     cursor: default;
     border-radius: 4px;
-    background-color: #BBBBBB;
-    color: white;
+    background-color: var(--grey-lighten-4);
+    color: var(--white);
     white-space: nowrap;
     top: 10px;
     padding: 2px 10px;
@@ -378,21 +371,21 @@ hr {
 }
 
 .al-enabled-widget.enabled {
-    background-color: #2196f3;
+    background-color: var(--blue);
 }
 
 
-/*-------------------TOOLTIP-------------------*/
+/*-------------------TOOLTIP (START)-------------------*/
 .tooltip {
-    display: block !important;
+    display: block;
     z-index: 10000;
 }
 
 .tooltip .tooltip-inner {
-    background: white;
-    color: black;
+    background: var(--white);
+    color: var(--black);
     padding: 5px 10px 4px;
-    border: 1px solid lightgrey;
+    border: 1px solid var(--grey-lighten-4);
     max-width: 1000px;
 }
 
@@ -402,7 +395,7 @@ hr {
     border-style: solid;
     position: absolute;
     margin: 5px;
-    border-color: lightgrey;
+    border-color: var(--grey-lighten-5);
     z-index: 1;
 }
 
@@ -467,15 +460,14 @@ hr {
 }
 
 .tooltip.popover .popover-inner {
-    background: #f9f9f9;
-    color: black;
+    color: var(--black);
     padding: 10px;
     border-radius: 5px;
-    box-shadow: 0 5px 30px rgba(black, .1);
+    box-shadow: 0 5px 30px rgba(var(--black), .1);
 }
 
 .tooltip.popover .popover-arrow {
-    border-color: #f9f9f9;
+    border-color: var(--grey-lighten-4);
 }
 
 .tooltip[aria-hidden='true'] {
@@ -490,7 +482,7 @@ hr {
     transition: opacity .15s;
 }
 
-/*-------------------TOOLTIP-------------------*/
+/*-------------------TOOLTIP (END)-------------------*/
 
 
 .halting-criterion-cell {
@@ -519,17 +511,18 @@ hr {
 }
 
 .halting-criterion-overlay {
-    background-color: white;
+    background-color: var(--white);
     opacity: 60%;
     position: absolute;
-
 }
-.popover{
+
+.popover {
     max-width: 1000px;
 }
+
 .halting-criterion span {
     position: absolute;
-    color: grey;
+    color: var(--grey-lighten-4);
 }
 
 .al-status {
@@ -543,10 +536,7 @@ hr {
 .al-status-popover {
     width: 400px;
 }
-.tooltip.popover .popover-arrow{
-    border-color: darkgrey;
-}
 
-.halting-criterion .v-popover, .halting-criterion .v-popover .trigger{
+.halting-criterion .v-popover, .halting-criterion .v-popover .trigger {
     width: 100%;
 }
