@@ -20,16 +20,23 @@ class BaseClassifier(object):
             self.ordered_ids.append(row_id)
 
     @property
+    def is_al_enabled(self):
+        return self.queries_df is not None and not self.queries_df.empty
+
+    @property
     def df_to_label(self):
-        if self.queries_df is None or self.queries_df.empty:
-            logging.info("Taking initial dataframe to label")
-            df_to_label = self.initial_df
-        else:
+        if self.is_al_enabled:
             logging.info("Taking queries dataframe to label")
             df_to_label = self.queries_df.sort_values('uncertainty', ascending=True)
             df_to_label = df_to_label[self.initial_df.columns]
+        else:
+            logging.info("Taking initial dataframe to label")
+            df_to_label = self.initial_df
 
         return df_to_label
+
+    def get_config(self):
+        pass
 
     def get_session(self):
         if self.queries_df is None or self.queries_df.empty:

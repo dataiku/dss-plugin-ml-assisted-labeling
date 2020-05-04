@@ -54,9 +54,17 @@ class LALHandler(object):
             "labeled": len(self.get_meta_by_status(META_STATUS_LABELED)),
             "total": total_count,
             "skipped": len(self.get_meta_by_status(META_STATUS_SKIPPED)),
-            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].astype('str').value_counts().to_dict()
+            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].astype(
+                'str').value_counts().to_dict()
         }
         return stats
+
+    def get_config(self):
+        result = {"al_enabled": self.classifier.is_al_enabled}
+        custom_config = self.classifier.get_config()
+        if custom_config is not None:
+            result = {**result, **custom_config}
+        return result
 
     def label(self, data):
         self.logger.info("Labeling: %s" % json.dumps(data))
@@ -158,7 +166,7 @@ class LALHandler(object):
             self.lbl_col: None,
             self.lbl_id_col: lbl_id,
             'comment': data.get('comment'),
-            'session': 0,
+            'session': self.classifier.get_session(),
             'annotator': self.current_user,
         }
         self.meta_df = self.meta_df[self.meta_df[self.lbl_id_col] != lbl_id]
