@@ -112,7 +112,7 @@ let ImageCanvas = {
             }
         },
         drawData(objects) {
-            let objectsToDraw = objects || this.objects;
+            const objectsToDraw = objects || this.objects;
             let canvas = this.canvas;
 
             canvas.remove(...canvas.getObjects());
