@@ -35,9 +35,17 @@ def define_endpoints(app, classifier_cls):
 
     @app.route('/back', methods=['POST'])
     def back():
-        req_data = request.get_json()
-        resp = handler().back(req_data.get('id'))
+        resp = handler().previous(request.get_json().get('id'))
         return jsonify(resp)
+
+    @app.route('/next', methods=['POST'])
+    def next():
+        resp = handler().next(request.get_json().get('id'))
+        return jsonify(resp)
+
+    @app.route('/first', methods=['POST'])
+    def first():
+        return jsonify(handler().first())
 
     @app.route('/label', methods=['POST'])
     def label():

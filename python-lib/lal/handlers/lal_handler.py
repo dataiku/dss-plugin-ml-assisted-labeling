@@ -29,7 +29,7 @@ class LALHandler(object):
         self.lbl_col = label_col_name
         self.lbl_id_col = label_col_name + "_id"
         self._skipped = {}
-        self.meta_df = meta_df
+        self.meta_df = meta_df.set_index("date", drop=False)
         self.labels_df = labels_df
         self.current_user = user
         self.do_users_share_labels = do_users_share_labels
@@ -80,11 +80,11 @@ class LALHandler(object):
         serialized_label = self.classifier.serialize_label(data.get('label'))
         label = {**raw_data, **{self.lbl_col: serialized_label, self.lbl_id_col: lbl_id}}
         meta = {
+            self.lbl_col: serialized_label,
+            self.lbl_id_col: lbl_id,
             'date': datetime.now(),
             'data_id': data_id,
             'status': META_STATUS_LABELED,
-            self.lbl_col: serialized_label,
-            self.lbl_id_col: lbl_id,
             'comment': data.get('comment'),
             'session': self.classifier.get_session(),
             'annotator': self.current_user,
@@ -128,30 +128,58 @@ class LALHandler(object):
     def current_user_meta(self):
         return self.meta_df[(self.meta_df.annotator == self.current_user)]
 
-    def back(self, current_data_id):
-        self.logger.info(f"Going back from {current_data_id}")
+    def first(self):
+        return self.create_annotation_response(self.current_user_meta().iloc[0],
+                                               is_first=True,
+                                               is_last=len(self.current_user_meta()) == 1)
+
+    def next(self, current_data_id):
+        if not current_data_id:
+            raise ValueError("Empty annotation id")
+
+        self.logger.info(f"Going forward from {current_data_id}")
         meta = self.current_user_meta()
 
         current_data_meta = meta[meta['data_id'] == current_data_id]
+        if not len(current_data_meta):
+            raise ValueError(f"Couldn't find annotation with ID: {current_data_id}")
+
+        next_els = meta[meta.date > current_data_meta.iloc[0].date]
+
+        return self.create_annotation_response(next_els.iloc[0], is_first=False, is_last=len(next_els) == 1)
+
+    def previous(self, current_data_id):
+        is_first = False
+        is_last = False
+        self.logger.info(f"Going back from {current_data_id}")
+        user_meta = self.current_user_meta()
+
+        current_data_meta = user_meta[user_meta['data_id'] == current_data_id]
         if len(current_data_meta):
-            meta = meta[meta.date < current_data_meta.iloc[0].date]
-            previous = meta.sort_values(by='date', ascending=False)
-            previous = previous.iloc[0] if len(previous) else None
+            previous = user_meta[user_meta.date < current_data_meta.iloc[0].date]
+            is_first = len(previous) == 1
+            if not len(previous):
+                raise ValueError("Reached the first labeled annotation")
+            previous = previous.iloc[len(previous) - 1]
         else:
-            previous = meta.sort_values(by='date', ascending=False).iloc[0]
+            is_last = True
+            is_first = len(user_meta) == 1
+            previous = user_meta.iloc[len(user_meta) - 1]
+        return self.create_annotation_response(previous, is_first=is_first, is_last=is_last)
 
-        previous = previous.where((pd.notnull(previous)), None).astype('object').to_dict()
-        data_id = previous['data_id']
-
-        if previous['status'] != META_STATUS_SKIPPED:
-            label = self.classifier.deserialize_label(previous[self.lbl_col])
+    def create_annotation_response(self, annotation, is_first, is_last):
+        annotation = annotation.where((pd.notnull(annotation)), None).astype('object').to_dict()
+        data_id = annotation['data_id']
+        if annotation['status'] != META_STATUS_SKIPPED:
+            label = self.classifier.deserialize_label(annotation[self.lbl_col])
         else:
             label = None
         return {
-            "annotation": {"label": label, "comment": previous['comment']},
-            "isFirst": len(meta) == 1,
+            "annotation": {"label": label, "comment": annotation['comment']},
+            "isFirst": is_first,
+            "isLast": is_last,
             "item": {"id": data_id,
-                     "labelId": previous[self.lbl_id_col],
+                     "labelId": annotation[self.lbl_id_col],
                      "data": self.classifier.get_item_by_id(data_id)}
         }
 

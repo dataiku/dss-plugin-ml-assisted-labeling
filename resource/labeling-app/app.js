@@ -26,7 +26,7 @@ export default new Vue({
     watch: {
         annotation: {
             handler: function () {
-                this.annotation.label &&  this.saveImageObjectsDebounced(this.annotation)
+                this.type === 'image-object' && this.annotation.label &&  this.saveImageObjectsDebounced(this.annotation)
             },
             deep: true
         }

@@ -24,19 +24,37 @@
 
 .errors {
     text-align: left;
-    position: relative;
+    width: 600px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--white);
+}
+
+.errors-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(var(--grey-lighten-7), 0.8);
+    z-index: 998;
 }
 
 .errors--close {
     position: absolute;
-    right: 0;
     cursor: pointer;
+    right: 10px;
+    top: 10px;
 }
 
 .error-name {
     font-weight: 600;
     font-size: 20px;
     padding-left: 0;
+    word-break: break-word
 }
 
 .ongoing-training-main {
@@ -178,6 +196,7 @@ button .keybind {
 }
 
 .keybind {
+    text-transform: capitalize;
     font-family: arial, sans-serif;
     margin-top: 5px;
     color: var(--grey-lighten-3);
@@ -547,4 +566,9 @@ hr {
 
 .halting-criterion .v-popover, .halting-criterion .v-popover .trigger {
     width: 100%;
+}
+
+button:disabled{
+    background-color: grey !important;
+    opacity: 0.1;
 }
