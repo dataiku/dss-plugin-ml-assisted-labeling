@@ -20,7 +20,7 @@ from keras_retinanet.utils.model import freeze as freeze_model
 from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from keras_retinanet import backend
 from keras_retinanet.layers import FilterDetections
-
+from lal import utils
 from cardinal import uncertainty
 
 
@@ -119,7 +119,7 @@ def proba_filter_detections(
         indices = _filter_detections(scores, labels)
 
     # select top k
-    cscores = keras.backend.gather(classification, indices[:, 0])
+    cscores             = keras.backend.gather(classification, indices[:, 0])
     scores              = backend.gather_nd(classification, indices)
     labels              = indices[:, 1]
     scores, top_indices = backend.top_k(scores, k=keras.backend.minimum(max_detections, keras.backend.shape(scores)[0]))
@@ -154,6 +154,9 @@ def proba_filter_detections(
 class ProbaFilterDetections(FilterDetections):
     """ Keras layer for filtering detections using score threshold and NMS.
     """
+
+    def __init__(self, *args, **kwargs):
+        super(ProbaFilterDetections, self)
 
     def call(self, inputs, **kwargs):
         """ Constructs the NMS graph.
@@ -387,6 +390,7 @@ logging.basicConfig(level=logging.INFO, format='[Object Detection] %(levelname)s
 
 images_folder = dataiku.Folder(get_input_names_for_role('unlabeled_samples')[0])
 weights_folder = dataiku.Folder(get_input_names_for_role('saved_model')[0])
+queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0])
 
 weights = os.path.join(weights_folder.get_path(), 'weights.h5')
 labels_to_names = json.loads(open(os.path.join(weights_folder.get_path(), 'labels.json')).read())
@@ -418,9 +422,10 @@ confidence = 0.1  # float(configs['confidence'])
 
 model = get_test_model(weights, len(labels_to_names))
 
-df = pd.DataFrame(columns=['path', 'uncertainty', 'session'])
+df = pd.DataFrame(columns=['path', 'uncertainty'])
 df_idx = 0
-session = 1
+
+utils.increment_queries_session(queries_ds.short_name)
 
 paths = images_folder.list_paths_in_partition()
 folder_path = images_folder.get_path()
@@ -441,18 +446,16 @@ for i in range(0, len(paths), batch_size):
     for batch_i in range(boxes.shape[0]):
         # For each image of the batch
         cur_path = [batch_paths[batch_i].split('/')[-1]]
-            
+
         if len(boxes[batch_i]) and boxes[batch_i][0][0] >= 0.:
             # We take the box with highest probability
             best_row = scores[batch_i][np.argmax(np.max(scores[batch_i], axis=1))]
-            df.loc[df_idx] = cur_path + [scorer(NoClassifier(), [best_row])[1][0], session]
+            df.loc[df_idx] = cur_path + [scorer(NoClassifier(), [best_row])[1][0]]
         else:
-            df.loc[df_idx] = cur_path + [1., session]
+            df.loc[df_idx] = cur_path + [1.]
         df_idx += 1
 
     if i % 100 == 0:
         print_percent(i, total_paths)
 
-
-bb_ds = dataiku.Dataset(get_output_names_for_role('queries')[0])
-bb_ds.write_with_schema(df)
+queries_ds.write_with_schema(df)
