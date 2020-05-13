@@ -57,13 +57,13 @@ export let ControlButtons = {
     },
     mounted: function () {
         window.addEventListener("keyup", (event) => {
-            if (event.code === 'Space') {
+            if (event.code === 'Enter') {
                 this.skip();
             }
             if (event.code === 'ArrowLeft') {
                 this.back();
             }
-            if (event.code === 'ArrowRight') {
+            if (event.code === 'ArrowRight' || event.code === 'Space') {
                 this.next();
             }
         }, false);
@@ -76,7 +76,7 @@ export let ControlButtons = {
     <v-popover :trigger="'hover'" :placement="'bottom'" v-if="isLabeled" :disabled="$root.item.status === 'SKIPPED'">
         <button class="right-panel-button fixed-width-button" @click="next()" ><span>next</span><i class="fas fa-chevron-right"></i><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
         <div slot="popover">
-            <code class="keybind" style="vertical-align: baseline">Space</code> to skip
+            <code class="keybind" style="vertical-align: baseline">Enter</code> to skip
         </div>
     </v-popover>
     <button class="right-panel-button" :disabled="!isLabeled" @click="unlabeled()"><i class="fas fa-step-forward"></i></button></div>
