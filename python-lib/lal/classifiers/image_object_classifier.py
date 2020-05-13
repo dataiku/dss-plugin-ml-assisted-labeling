@@ -42,7 +42,7 @@ class ImageObjectClassifier(BaseClassifier):
         import random
         self.logger.info("Read: {0}, {1}".format(len(data), type(data)))
         return {"img": data.decode('utf-8'),
-                "halting": random.random()
+                "halting": self.halting_values_by_path and self.halting_values_by_path[sid]
                 }
 
     def get_raw_item_by_id(self, sid):
