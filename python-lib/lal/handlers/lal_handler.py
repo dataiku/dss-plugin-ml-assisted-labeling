@@ -73,7 +73,7 @@ class LALHandler(object):
                     if reserved_sample.reserved_until <= datetime.now():
                         del self.sample_by_user_reservation[i]
                         result.append(i)
-                    elif reserved_sample.username == self.current_user:
+                    elif reserved_sample.username == user:
                         result.append(i)
                 else:
                     result.append(i)
@@ -157,7 +157,7 @@ class LALHandler(object):
         with LALHandler.lock:
             reserved_until = datetime.now() + timedelta(minutes=int(BATCH_SIZE * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
             for i in ids_batch:
-                self.sample_by_user_reservation[i] = ReservedSample(self.current_user, reserved_until)
+                self.sample_by_user_reservation[i] = ReservedSample(user, reserved_until)
         ids_batch.reverse()
         return {
             "type": self.classifier.type,
