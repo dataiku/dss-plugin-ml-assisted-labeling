@@ -11,6 +11,7 @@ let CategorySelector = {
             type: Object,
             required: true,
         },
+        status: {type: String},
         annotation: {
             type: Object,
             required: true,
@@ -119,6 +120,7 @@ let CategorySelector = {
                 this.$emit('update:enabled', false);
 
                 this.annotation.id = this.$root.item.id;
+                this.annotation.labelId = this.$root.item.labelId;
                 this.annotation.label = [c];
                 DKUApi.label(this.annotation).then(labelingResponse => {
                     this.$emit('label', labelingResponse);
@@ -126,43 +128,75 @@ let CategorySelector = {
             }
         },
     },
+
+    watch: {
+        "label.comment": function (nv) {
+            let comments = this.$refs.comments;
+            comments.style.height = "1px";
+            let height = Math.min(500, 25 + comments.scrollHeight);
+            comments.style.height = (height) + "px";
+        }
+    },
+    mounted: function () {
+        this.initCatToKeyMapping();
+        window.addEventListener("keyup", (event) => {
+            if (this.keyToCatMapping.hasOwnProperty(event.key)) {
+                this.shortcutPressed(event.key);
+            }
+        }, false);
+        this.$forceUpdate();
+    },
     // language=HTML
     template: `
         <div class="category-selector" :class="{ inactive: !enabled }" v-if="annotation">
             <div v-if="isObjectLabeling" class="category-selector__image-object-wrapper">
-                <div v-for="(lbl,key) in categories" class="label-config-row"
-                     :class="{ 'active': selectedLabel === key }"
-                     @click="categoryClick(key)">
-                    <div :style="{ backgroundColor: color(lbl, 0.3) }"
-                         class="color-box">
+                <div class="section" style="margin-bottom: 0">
+                    <div class="category-selector--header">
+                        <span style="  font-weight: 600; font-size: 13px;">Categories</span>
+                        <span style="  font-size: 10px; color: var(--grey-lighten-3);">Select category to apply</span>
                     </div>
-                    <div class="category">
-                        <div>{{lbl.caption}}</div>
-                    </div>
-                    <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
-
-                </div>
-                <hr>
-                <div v-if="annotation.label" class="category-selector__annotations-wrapper">
-                    <div>
-                        <div v-for="a in annotation.label.filter(e=>!e.draft)" class="annotation"
-                             :class="{ selected: a.selected }"
-                             @click="annotationClick(a)">
-                            <div class="annotation-thumb-container">
-                                <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
+                    <div class="categories-container">
+                        <div v-for="(lbl,key) in categories" class="right-panel-button category-button"
+                             :class="{ 'active': selectedLabel === key }"
+                             @click="categoryClick(key)">
+                            <div :style="{ backgroundColor: color(lbl, 0.3), borderColor: color(lbl, 0.3) }"
+                                 class="color-box">
                             </div>
-                            <select v-model="a.label">
-                                <option v-for="(lbl, key, idx) in categories" :value="key">
-                                    {{ lbl.caption }}
-                                </option>
-                            </select>
-                            <i @click="remove(a)" class="icon-trash"/>
+                            <div class="category">
+                                <div>{{lbl.caption}}</div>
+                            </div>
+                            <code v-if="catToKeyMapping.hasOwnProperty(key)"
+                                  class="keybind">{{catToKeyMapping[key]}}</code>
                         </div>
+                    </div>
+                </div>
+                <div class="empty-annotations-placeholder" v-if="!annotation?.label?.filter(e=>!e.draft).length">
+                    <div v-if="status !== 'SKIPPED'" class="circle"></div>
+                    <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
+                    <i v-if="status === 'SKIPPED'"class="fas fa-forward skipped"></i>
+                    <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
+                    <p>Select a label and draw a box around the target.</p>
+                </div>
+                <div v-if="annotation?.label?.filter(e=>!e.draft).length"
+                     class="category-selector__annotations-wrapper">
+                    <div v-for="a in annotation.label.filter(e=>!e.draft)" class="annotation"
+                         :class="{ selected: a.selected }"
+                         @click="annotationClick(a)">
+                        <div class="annotation-thumb-container">
+                            <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
+                        </div>
+                        <select v-model="a.label">
+                            <option value="null" disabled selected>Select a category</option>
+                            <option v-for="(lbl, key, idx) in categories" :value="key">
+                                {{ lbl.caption }}
+                            </option>
+                        </select>
+                        <i @click="remove(a)" class="icon-trash"/>
                     </div>
 
                 </div>
             </div>
-            
+
             <div class="category-selector--categories" v-if="!isObjectLabeling">
                 <div class="button category" v-for="(lbl,key) in categories"
                      @click="doLabel(key)"
@@ -174,34 +208,9 @@ let CategorySelector = {
                     </div>
                 </div>
             </div>
-            <textarea name="" id="" cols="60" rows="1" placeholder="Comments..." :disabled="!enabled"
+            <textarea name="" id="" cols="60" rows="2" placeholder="Comments..." :disabled="!enabled"
                       ref="comments"
                       v-model="annotation.comment" @keyup.stop v-autoexpand class="comments"></textarea>
         </div>`,
-    watch: {
-        "label.comment": function (nv) {
-            let comments = this.$refs.comments;
-            comments.style.height = "1px";
-            let height = Math.min(500, 25 + comments.scrollHeight);
-            comments.style.height = (height) + "px";
-        }
-    },
-    mounted: function () {
-
-        if (this.isObjectLabeling) {
-            if (this.categories) {
-                this.categoryClick(Object.keys(this.categories)[0])
-            }
-        }
-
-        this.initCatToKeyMapping();
-        window.addEventListener("keyup", (event) => {
-            if (this.keyToCatMapping.hasOwnProperty(event.key)) {
-                this.shortcutPressed(event.key);
-            }
-        }, false);
-        this.$forceUpdate();
-    },
-    // language=CSS
 };
 export {CategorySelector}

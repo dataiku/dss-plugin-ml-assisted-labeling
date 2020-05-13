@@ -12,8 +12,8 @@ export let DKUApi = {
 
     batch: () => axios.get('batch'),
     config: () => axios.get('config'),
-    back: (id) => axios.post('back', {id}),
-    next: (id) => axios.post('next', {id}),
+    back: (labelId) => axios.post('back', {labelId}),
+    next: (labelId) => axios.post('next', {labelId}),
     first: () => axios.post('first'),
     skip: (data) => axios.post('skip', data),
     label: data => axios.post('label', data)

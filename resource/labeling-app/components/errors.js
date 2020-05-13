@@ -12,7 +12,7 @@ let ErrorsComponent = {
     },
     // language=HTML
     template: `
-        <div class="errors-background" v-if="errors.length">
+        <div class="errors-main-container" v-if="errors.length">
             <div class="errors" >
                 <div v-on:click="clearAll()" class="errors--close">✖</div>
                 <div class="errors-container">
@@ -23,6 +23,7 @@ let ErrorsComponent = {
                     </div>
                 </div>
             </div>
+            <div class="errors-background"/>
         </div>`
 };
 export {ErrorsComponent}

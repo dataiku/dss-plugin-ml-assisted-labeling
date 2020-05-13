@@ -97,7 +97,7 @@ const ImageCanvas = {
             });
         },
         toggleMode(mode) {
-            this.mode = (this.mode === mode ? 'normal' : mode);
+            this.mode = (this.mode === mode ? 'select' : mode);
         },
         convertObjectToCanvas(o) {
             return {
@@ -152,7 +152,8 @@ const ImageCanvas = {
 
 
         addRect(left, top, width, height, selectedLabel, id) {
-            const color = config.categories[selectedLabel].color;
+            const category = config.categories[selectedLabel];
+            const color = category ? category.color : [255,255,255];
             const colorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
             const strokeColorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.8)`;
             const rect = new fabric.Rect({
@@ -203,7 +204,7 @@ const ImageCanvas = {
             immediate: true,
             handler(nv) {
                 setTimeout(() => {
-                    this.canvas.selection = nv === 'normal';
+                    this.canvas.selection = nv === 'select';
                     this.canvas.defaultCursor = nv === 'draw' ? 'crosshair' : 'default';
                 })
             }
@@ -233,7 +234,7 @@ const ImageCanvas = {
         });
 
         canvas.on('mouse:down', (o) => {
-            if (this.mode !== 'draw' || !this.selectedLabel) {
+            if (this.mode !== 'draw') {
                 return;
             }
             isDown = true;
@@ -383,14 +384,18 @@ const ImageCanvas = {
     template: `
         <div class="canvas-wrapper" ref="wrapper">
             <div>
-                <canvas ref="canvas" width="900" height="600"></canvas>
+                <canvas ref="canvas" width="900" height="600" class="main-area-element"></canvas>
             </div>
             <div class="canvas__button-wrapper">
-                <button @click="toggleMode('draw')">
-                    <span v-if="mode !== 'draw'"><i class="fas fa-pencil-alt"></i>Draw</span>
-                    <span v-if="mode === 'draw'"><i class="far fa-object-ungroup"></i>Select</span>
-                </button>
-                <button @click="deleteAll()"><i class="icon-trash"></i>Delete all</button>
+                <div class="main-area-element tool-selector">
+                    <button @click="mode='draw'" :class="{'active': mode==='draw'}" class="adjacent-from-right">
+                        <span><i class="fas fa-vector-square"></i>Create box</span>
+                    </button>
+                    <button @click="mode='select'" :class="{'active': mode==='select'}" class="adjacent-from-left">
+                        <span><i class="fas fa-mouse-pointer"></i>Select</span>
+                    </button>
+                </div>
+                <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>Delete all</button>
             </div>
         </div>`
 };

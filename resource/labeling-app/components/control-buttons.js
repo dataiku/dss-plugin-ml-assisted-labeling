@@ -10,16 +10,18 @@ export let ControlButtons = {
             if (!this.$root.canLabel || this.isFirst) {
                 return;
             }
-            DKUApi.back(this.$root.item.id).then(this.processAnnotationResponce);
+            DKUApi.back(this.$root.item.labelId).then(this.processAnnotationResponce);
         },
         next: function () {
-            if (!this.$root.canLabel || !this.isLabeled) {
+            if (!this.$root.canLabel) {
                 return;
             }
-            if (this.isLast) {
+            if (!this.isLabeled){
+                this.skip();
+            } else if (this.isLast) {
                 this.unlabeled();
             } else {
-                DKUApi.next(this.$root.item.id).then(this.processAnnotationResponce);
+                DKUApi.next(this.$root.item.labelId).then(this.processAnnotationResponce);
             }
         },
         processAnnotationResponce: function (data) {
@@ -67,11 +69,16 @@ export let ControlButtons = {
         }, false);
     },
     template: `<div class="control-buttons">
-<div>
-    <button :disabled="isFirst" @click="first()"><span>First</span><code class="keybind">←←</code></button>
-    <button :disabled="isFirst" @click="back()"><span>Back</span><code class="keybind">←</code></button>
-    <button :disabled="!canSkip" @click="skip()"><span>Skip</span><code class="keybind">Space</code></button>
-    <button :disabled="!isLabeled" @click="next()"><span>Next</span><code class="keybind">→</code></button>
-    <button :disabled="!isLabeled" @click="unlabeled()"><span>Next unlabeled</span><code class="keybind">→→</code></button></div>
+<div style="display: flex">
+    <button class="right-panel-button" :disabled="isFirst" @click="first()"><i class="fas fa-step-backward"></i></button>
+    <button class="right-panel-button fixed-width-button" :disabled="isFirst" @click="back()"><i class="fas fa-chevron-left"></i><span>back</span><code class="keybind"><i class="fas fa-arrow-left"></i></code></button>
+    <button class="right-panel-button fixed-width-button" @click="skip()" v-if="!isLabeled"><span>skip</span><i class="fas fa-chevron-right"></i><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
+    <v-popover :trigger="'hover'" :placement="'bottom'" v-if="isLabeled" :disabled="$root.item.status === 'SKIPPED'">
+        <button class="right-panel-button fixed-width-button" @click="next()" ><span>next</span><i class="fas fa-chevron-right"></i><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
+        <div slot="popover">
+            <code class="keybind" style="vertical-align: baseline">Space</code> to skip
+        </div>
+    </v-popover>
+    <button class="right-panel-button" :disabled="!isLabeled" @click="unlabeled()"><i class="fas fa-step-forward"></i></button></div>
 </div>`
 };
