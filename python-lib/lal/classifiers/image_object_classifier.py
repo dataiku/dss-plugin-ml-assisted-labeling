@@ -4,7 +4,7 @@ from base64 import b64encode
 
 import pandas as pd
 
-# from cardinal.criteria import get_halting_values
+from cardinal.criteria import get_halting_values
 from lal.classifiers.base_classifier import BaseClassifier
 
 
