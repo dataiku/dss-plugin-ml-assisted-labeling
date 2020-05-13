@@ -26,12 +26,15 @@ export default new Vue({
     watch: {
         annotation: {
             handler: function () {
-                this.type === 'image-object' && this.annotation?.label?.some(e => e.label !== null) && this.saveImageObjectsDebounced(this.annotation)
+                if (this.type === 'image-object' && this.annotation?.label?.some(e => e.label !== null)) {
+                    this.saveImageObjectsDebounced(this.item.id, this.annotation, this.savedAnnotation);
+                }
             },
             deep: true
         }
     },
     data: {
+        savedAnnotation: null,
         isAlEnabled: false,
         config: config,
         haltingThresholds: null,
@@ -103,25 +106,26 @@ export default new Vue({
         }
     },
     mounted: function () {
-        this.saveImageObjectsDebounced = debounce.call(this, () => {
+        this.saveImageObjectsDebounced = debounce.call(this, (id, annotation, savedAnnotation) => {
             const mapLabelToSaveObject = a => {
                 return {top: a.top, left: a.left, label: a.label, width: a.width, height: a.height}
             };
-            const annotation = this.annotation;
             const annotationToSave = {
                 comment: annotation.comment,
                 label: annotation.label && annotation.label.filter(e => e.label !== null).map(mapLabelToSaveObject)
             };
-            if (!_.isEqual(annotationToSave, this.savedAnnotation)) {
-                const annotationData = {...annotationToSave, ...{id: this.item.id, labelId: this.item.labelId}};
+            if (!_.isEqual(annotationToSave, savedAnnotation)) {
+                const annotationData = {...annotationToSave, ...{id}};
                 console.log("SAVE", annotationData);
                 DKUApi.label(annotationData).then(labelingResponse => {
-                    this.$emit('label', labelingResponse);
                     this.stats = labelingResponse.stats;
-                    this.savedAnnotation = _.cloneDeep(annotationToSave);
+                    if (this.annotation === annotation) { // user may have already switched to another sample
+                        this.$emit('label', labelingResponse);
+                        this.savedAnnotation = _.cloneDeep(annotationToSave);
+                    }
                 });
             }
-        }, 500);
+        }, 200);
 
 
         DKUApi.config().then(data => {
@@ -220,6 +224,5 @@ export default new Vue({
             <div v-if="isDone">
                 <h3>All samples are labeled</h3>
             </div>
-
         </div>`
 });
