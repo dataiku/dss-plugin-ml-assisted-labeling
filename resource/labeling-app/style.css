@@ -447,10 +447,14 @@ audio {
 .category-selector textarea.comments {
     max-height: 200px;
     width: 100%;
-    border: solid 1px var(--grey-lighten-4);
     outline: none;
     border-radius: 0;
     background-color: white;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-top: solid 2px var(--grey-lighten-7);
+    padding: 0 15px 5px;
 }
 
 .category-selector--image-object {
