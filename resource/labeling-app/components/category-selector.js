@@ -11,6 +11,7 @@ let CategorySelector = {
             type: Object,
             required: true,
         },
+        status: {type: String},
         annotation: {
             type: Object,
             required: true,
@@ -29,7 +30,7 @@ let CategorySelector = {
         },
     },
     directives: {
-        autoExpand: {
+        autoexpand: {
             update: function (el) {
                 el.style.height = 'inherit';
                 const computed = window.getComputedStyle(el);
@@ -71,7 +72,7 @@ let CategorySelector = {
             this.annotation.label.splice(this.annotation.label.indexOf(annotation), 1);
         },
         color: function (label, opacity) {
-            let rgb = label.color;
+            const rgb = label.color;
             return `rgb(${rgb[0]},${rgb[1]},${rgb[2]},${opacity || 1})`
         },
         categoryClick(lbl) {
@@ -82,7 +83,7 @@ let CategorySelector = {
             const unmappedCats = [];
 
             for (let [catKey, cat] of Object.entries(this.categories)) {
-                let firstLetter = (cat.caption || catKey).trim().slice(0, 1).toLowerCase();
+                const firstLetter = (cat.caption || catKey).trim().slice(0, 1).toLowerCase();
                 if (!this.keyToCatMapping.hasOwnProperty(firstLetter)) {
                     this.keyToCatMapping[firstLetter] = catKey;
                     this.catToKeyMapping[catKey] = firstLetter;
@@ -119,6 +120,7 @@ let CategorySelector = {
                 this.$emit('update:enabled', false);
 
                 this.annotation.id = this.$root.item.id;
+                this.annotation.labelId = this.$root.item.labelId;
                 this.annotation.label = [c];
                 DKUApi.label(this.annotation).then(labelingResponse => {
                     this.$emit('label', labelingResponse);
@@ -126,58 +128,7 @@ let CategorySelector = {
             }
         },
     },
-    // language=HTML
-    template: `
-        <div class="category-selector" v-bind:class="{ inactive: !enabled }" v-if="annotation">
-            <div v-if="isObjectLabeling" class="category-selector__image-object-wrapper">
-                <div v-for="(lbl,key) in categories" class="label-config-row"
-                     v-bind:class="{ 'active': selectedLabel === key }"
-                     @click="categoryClick(key)">
-                    <div v-bind:style="{ backgroundColor: color(lbl, 0.3) }"
-                         class="color-box">
-                    </div>
-                    <div class="category">
-                        <div>{{lbl.caption}}</div>
-                    </div>
-                    <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
 
-                </div>
-                <hr>
-                <div v-if="annotation.label" class="category-selector__annotations-wrapper">
-                    <div>
-                        <div v-for="a in annotation.label.filter(e=>!e.draft)" class="annotation"
-                             v-bind:class="{ selected: a.selected }"
-                             @click="annotationClick(a)">
-                            <div class="annotation-thumb-container">
-                                <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
-                            </div>
-                            <select v-model="a.label">
-                                <option v-for="(lbl, key, idx) in categories" v-bind:value="key">
-                                    {{ lbl.caption }}
-                                </option>
-                            </select>
-                            <i @click="remove(a)" class="icon-trash"/>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            
-            <div class="category-selector--categories " v-if="!isObjectLabeling">
-                <div class="button category" v-for="(lbl,key) in categories"
-                     v-on:click="doLabel(key)"
-                     v-bind:class="{ selected: annotation.label && annotation.label.includes(key) }">
-                    <span>{{lbl.caption}}</span>
-                    <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
-                    <div class="progress-background">
-                        <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
-                    </div>
-                </div>
-            </div>
-            <textarea name="" id="" cols="60" rows="1" placeholder="Comments..." :disabled="!enabled"
-                      ref="comments"
-                      v-model="annotation.comment" v-on:keyup.stop v-autoExpand class="comments"></textarea>
-        </div>`,
     watch: {
         "label.comment": function (nv) {
             let comments = this.$refs.comments;
@@ -187,13 +138,6 @@ let CategorySelector = {
         }
     },
     mounted: function () {
-
-        if (this.isObjectLabeling) {
-            if (this.categories) {
-                this.categoryClick(Object.keys(this.categories)[0])
-            }
-        }
-
         this.initCatToKeyMapping();
         window.addEventListener("keyup", (event) => {
             if (this.keyToCatMapping.hasOwnProperty(event.key)) {
@@ -202,6 +146,71 @@ let CategorySelector = {
         }, false);
         this.$forceUpdate();
     },
-    // language=CSS
+    // language=HTML
+    template: `
+        <div class="category-selector" :class="{ inactive: !enabled }" v-if="annotation">
+            <div v-if="isObjectLabeling" class="category-selector__image-object-wrapper">
+                <div class="section" style="margin-bottom: 0">
+                    <div class="category-selector--header">
+                        <span style="  font-weight: 600; font-size: 13px;">Categories</span>
+                        <span style="  font-size: 10px; color: var(--grey-lighten-3);">Select category to apply</span>
+                    </div>
+                    <div class="categories-container">
+                        <div v-for="(lbl,key) in categories" class="right-panel-button category-button"
+                             :class="{ 'active': selectedLabel === key }"
+                             @click="categoryClick(key)">
+                            <div :style="{ backgroundColor: color(lbl, 0.3), borderColor: color(lbl, 0.3) }"
+                                 class="color-box">
+                            </div>
+                            <div class="category">
+                                <div>{{lbl.caption}}</div>
+                            </div>
+                            <code v-if="catToKeyMapping.hasOwnProperty(key)"
+                                  class="keybind">{{catToKeyMapping[key]}}</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-annotations-placeholder" v-if="!annotation?.label?.filter(e=>!e.draft).length">
+                    <div v-if="status !== 'SKIPPED'" class="circle"></div>
+                    <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
+                    <i v-if="status === 'SKIPPED'"class="fas fa-forward skipped"></i>
+                    <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
+                    <p>Select a label and draw a box around the target.</p>
+                </div>
+                <div v-if="annotation?.label?.filter(e=>!e.draft).length"
+                     class="category-selector__annotations-wrapper">
+                    <div v-for="a in annotation.label.filter(e=>!e.draft)" class="annotation"
+                         :class="{ selected: a.selected }"
+                         @click="annotationClick(a)">
+                        <div class="annotation-thumb-container">
+                            <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
+                        </div>
+                        <select v-model="a.label">
+                            <option value="null" disabled selected>Select a category</option>
+                            <option v-for="(lbl, key, idx) in categories" :value="key">
+                                {{ lbl.caption }}
+                            </option>
+                        </select>
+                        <i @click="remove(a)" class="icon-trash"/>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="category-selector--categories" v-if="!isObjectLabeling">
+                <div class="button category" v-for="(lbl,key) in categories"
+                     @click="doLabel(key)"
+                     :class="{ selected: annotation.label && annotation.label.includes(key) }">
+                    <span>{{lbl.caption}}</span>
+                    <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
+                    <div class="progress-background">
+                        <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
+                    </div>
+                </div>
+            </div>
+            <textarea name="" id="" cols="60" rows="2" placeholder="Comments..." :disabled="!enabled"
+                      ref="comments"
+                      v-model="annotation.comment" @keyup.stop v-autoexpand class="comments"></textarea>
+        </div>`,
 };
 export {CategorySelector}

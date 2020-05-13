@@ -39,10 +39,11 @@ class ImageObjectClassifier(BaseClassifier):
         self.logger.info('Reading image from: ' + str(sid))
         with self.folder.get_download_stream(sid) as s:
             data = b64encode(s.read())
-
+        import random
         self.logger.info("Read: {0}, {1}".format(len(data), type(data)))
         return {"img": data.decode('utf-8'),
-                "halting": self.halting_values_by_path and self.halting_values_by_path[sid]}
+                "halting": self.halting_values_by_path and self.halting_values_by_path[sid]
+                }
 
     def get_raw_item_by_id(self, sid):
         return {"path": sid}
