@@ -19,6 +19,8 @@ C = TypeVar('C', bound=BaseClassifier)
 
 class LALHandler(object):
     """Manages the Labels and Metadata"""
+    lock = RLock()
+    sample_by_user_reservation: Dict[str, ReservedSample] = dict()
 
     logger = logging.getLogger(__name__)
 
@@ -45,9 +47,22 @@ class LALHandler(object):
                 (self.meta_df.status == status) & (self.meta_df.annotator == user)]
 
     def get_remaining(self, user):
-        seen_ids = set(self.get_meta_by_status(user).data_id.values)
-        logging.info("get_remaining: Seen ids: {0}".format(seen_ids))
-        return [i for i in self.classifier.get_all_item_ids_list() if i not in seen_ids]
+        labeled_ids = set(self.get_meta_by_status(user).data_id.values)
+        logging.info("get_remaining: Seen ids: {0}".format(labeled_ids))
+        unlabeled_ids = [item_id for item_id in self.classifier.get_all_item_ids_list() if item_id not in labeled_ids]
+        result = []
+        with LALHandler.lock:
+            for i in unlabeled_ids:
+                if i in self.sample_by_user_reservation:
+                    reserved_sample = self.sample_by_user_reservation.get(i)
+                    if reserved_sample.reserved_until <= datetime.now():
+                        del self.sample_by_user_reservation[i]
+                        result.append(i)
+                    elif reserved_sample.username == self.current_user:
+                        result.append(i)
+                else:
+                    result.append(i)
+        return result
 
     def calculate_stats(self, user):
         total_count = len(self.classifier.get_all_item_ids_list())
@@ -124,6 +139,10 @@ class LALHandler(object):
 
         remaining = self.get_remaining(user)
         ids_batch = remaining[-BATCH_SIZE:]
+        with LALHandler.lock:
+            reserved_until = datetime.now() + timedelta(minutes=int(BATCH_SIZE * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
+            for i in ids_batch:
+                self.sample_by_user_reservation[i] = ReservedSample(self.current_user, reserved_until)
         ids_batch.reverse()
         return {
             "type": self.classifier.type,
