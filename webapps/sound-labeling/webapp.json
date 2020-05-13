@@ -46,7 +46,8 @@
       "description": "Dataset to save the labels into",
       "mandatory": false,
       "canSelectForeign": false,
-      "canCreateDataset": true
+      "canCreateDataset": true,
+      "markCreatedAsBuilt": true
     },
     {
       "type": "DATASET",
@@ -55,7 +56,8 @@
       "description": "Contains additional information such as annotator and timestamps for each labeling",
       "mandatory": true,
       "canSelectForeign": true,
-      "canCreateDataset": true
+      "canCreateDataset": true,
+      "markCreatedAsBuilt": true
     },
     {
       "name": "label_col_name",

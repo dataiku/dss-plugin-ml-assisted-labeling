@@ -15,7 +15,6 @@ class ImageClassifier(BaseClassifier):
         :type folder: dataiku.core.managed_folder.Folder
         """
         self.folder = folder
-        self.queries_df = queries_df
         super(ImageClassifier, self).__init__(queries_df, config)
 
     def validate_config(self, config):
