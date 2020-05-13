@@ -77,7 +77,10 @@ class LALHandler(object):
             raise ValueError(message)
 
         data_id = data.get('id')
-        lbl_id = data.get('labelId', self.create_label_id())
+        user_meta = self.user_meta(user)
+        existing_meta_record = user_meta[user_meta.data_id == data_id]
+
+        lbl_id = self.create_label_id() if existing_meta_record.empty else existing_meta_record.iloc[0][self.lbl_id_col]
         raw_data = self.classifier.get_raw_item_by_id(data_id)
 
         serialized_label = self.classifier.serialize_label(data.get('label'))
