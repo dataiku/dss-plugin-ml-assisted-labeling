@@ -42,11 +42,10 @@ except:
     except:
         raise ImportError(prettify_error(
             'ML assisted labeling object detection relies on the DSS object detection '
-            'plugin. The plugin could not be found on this instance. Please insteall it '
+            'plugin. The plugin could not be found on this instance. Please install it '
             'to use this recipe. More information: https://www.dataiku.com/product/plugins/object-detection/'
         ))
-
-
+    
 from retinanet_model import get_model
 from dfgenerator import DfGenerator
 from gpu_utils import load_gpu_options
@@ -445,7 +444,7 @@ for i in range(0, len(paths), batch_size):
     boxes, scores, labels = find_objects(model, batch_paths)
     for batch_i in range(boxes.shape[0]):
         # For each image of the batch
-        cur_path = [batch_paths[batch_i].split('/')[-1]]
+        cur_path = ["/"+os.path.relpath(os.path.relpath(batch_paths[batch_i], folder_path))]
 
         if len(boxes[batch_i]) and boxes[batch_i][0][0] >= 0.:
             # We take the box with highest probability
