@@ -150,8 +150,8 @@ class ProbaFilterDetections(FilterDetections):
     """ Keras layer for filtering detections using score threshold and NMS.
     """
 
-#     def __init__(self, *args, **kwargs):
-#         super(ProbaFilterDetections, self)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def call(self, inputs, **kwargs):
         """ Constructs the NMS graph.
@@ -197,7 +197,7 @@ class ProbaFilterDetections(FilterDetections):
             List of tuples representing the output shapes:
             [filtered_boxes.shape, filtered_scores.shape, filtered_labels.shape, filtered_other[0].shape, filtered_other[1].shape, ...]
         """
-        
+
         return [
             (input_shape[0][0], self.max_detections, 4),
             (input_shape[1][0], self.max_detections, input_shape[1][1]),
