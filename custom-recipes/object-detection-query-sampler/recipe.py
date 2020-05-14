@@ -156,7 +156,7 @@ class ProbaFilterDetections(FilterDetections):
     """
 
     def __init__(self, *args, **kwargs):
-        super(ProbaFilterDetections, self)
+        super().__init__(*args, **kwargs)
 
     def call(self, inputs, **kwargs):
         """ Constructs the NMS graph.
@@ -202,6 +202,7 @@ class ProbaFilterDetections(FilterDetections):
             List of tuples representing the output shapes:
             [filtered_boxes.shape, filtered_scores.shape, filtered_labels.shape, filtered_other[0].shape, filtered_other[1].shape, ...]
         """
+
         return [
             (input_shape[0][0], self.max_detections, 4),
             (input_shape[1][0], self.max_detections, input_shape[1][1]),
@@ -332,7 +333,7 @@ def find_objects(model, paths):
     """Find objects with bach size >= 1.
     To support batch size > 1, this method implements a naive ratio grouping
     where batch of images will be processed together solely if they have a
-    similar shape.
+    identical shape.
     Args:
         model: A retinanet model in inference mode.
         paths: Paths to all images to process. The *maximum* batch size is the
@@ -385,7 +386,7 @@ def find_objects(model, paths):
     return b_boxes, b_scores, b_labels
 
 
-logging.basicConfig(level=logging.INFO, format='[Object Detection] %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='[ML Assisted labeling] %(levelname)s - %(message)s')
 
 
 images_folder = dataiku.Folder(get_input_names_for_role('unlabeled_samples')[0])
@@ -417,8 +418,8 @@ gpu_opts = load_gpu_options(configs.get('should_use_gpu', False),
                                         configs.get('list_gpu', ''),
                                         configs.get('gpu_allocation', 0.))
 
-batch_size = 3  # int(configs['batch_size'])
-confidence = 0.1  # float(configs['confidence'])
+batch_size = int(configs['batch_size'])
+confidence = float(configs['confidence'])
 
 model = get_test_model(weights, len(labels_to_names))
 
@@ -442,7 +443,6 @@ for i in range(0, len(paths), batch_size):
     batch_paths = list(map(lambda x: os.path.join(folder_path, x[1:]), batch_paths))
 
     boxes, scores, labels = find_objects(model, batch_paths)
-    print('image', i)
     for batch_i in range(boxes.shape[0]):
         # For each image of the batch
         cur_path = [batch_paths[batch_i].split('/')[-1]]
