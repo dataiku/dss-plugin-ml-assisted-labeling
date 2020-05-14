@@ -35,7 +35,7 @@ class SoundClassifier(BaseClassifier):
         return {"path": sid}
 
     def raw_row_to_id(self, raw):
-        return raw['path']
+        return raw['path'][1:]
 
     def get_initial_df(self):
         return pd.DataFrame(self.folder.list_paths_in_partition(), columns=["path"])
