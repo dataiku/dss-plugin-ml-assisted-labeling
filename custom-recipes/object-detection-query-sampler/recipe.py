@@ -37,10 +37,14 @@ def prettify_error(s):
 try:
     dataiku.use_plugin_libs('object-detection-cpu')
 except:
-    raise ImportError(prettify_error(
-        'Could not find dss object detection plugin. Please install it to use '
-        'this recipe. More information: https://www.dataiku.com/product/plugins/object-detection/'
-    ))
+    try:
+        dataiku.use_plugin_libs('object-detection')
+    except:
+        raise ImportError(prettify_error(
+            'ML assisted labeling object detection relies on the DSS object detection '
+            'plugin. The plugin could not be found on this instance. Please install it '
+            'to use this recipe. More information: https://www.dataiku.com/product/plugins/object-detection/'
+        ))
     
 from retinanet_model import get_model
 from dfgenerator import DfGenerator
