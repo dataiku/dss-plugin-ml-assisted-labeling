@@ -445,7 +445,7 @@ for i in range(0, len(paths), batch_size):
     boxes, scores, labels = find_objects(model, batch_paths)
     for batch_i in range(boxes.shape[0]):
         # For each image of the batch
-        cur_path = [batch_paths[batch_i].split('/')[-1]]
+        cur_path = ["/"+os.path.relpath(os.path.relpath(batch_paths[batch_i], folder_path))]
 
         if len(boxes[batch_i]) and boxes[batch_i][0][0] >= 0.:
             # We take the box with highest probability
