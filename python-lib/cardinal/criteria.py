@@ -60,15 +60,18 @@ def quantile_constant(data, B=11, halting=True):
 def get_halting_values(scores):
     sorted_scores = np.sort(scores)
     _, binids = quantile_constant(sorted_scores)
-    low_thr = sorted_scores[(binids <= 3)].max()
-    high_thr = sorted_scores[(binids >= 8)].min()
+    low_values = sorted_scores[(binids <= 3)]
+    low_thr = low_values.max() if low_values.size else sorted_scores.min()
+    high_values = sorted_scores[(binids >= 8)]
+    high_thr = high_values.min() if high_values.size else sorted_scores.max()
     
     # Normalize scores from 0 to 1 for display
     vmin = scores.min()
     vmax = scores.max()
     
-    scores = (vmax - scores) / vmin
-    low_thr = (vmax - low_thr) / vmin
-    high_thr = (vmax - high_thr) / vmin
+    scores = 1 - ((scores - vmin) / vmax)
+    low_thr = 1 - ((low_thr - vmin) / vmax)
+    high_thr = 1 - ((high_thr - vmin) / vmax)
     
     return scores, high_thr, low_thr  # Because of normalization we inverse low and high
+
