@@ -63,3 +63,13 @@ class ImageObjectClassifier(BaseClassifier):
     @property
     def type(self):
         return "image-object"
+
+    @staticmethod
+    def format_labels_for_stats(raw_labels_series):
+        labels = []
+        for v in raw_labels_series.values:
+            if pd.notnull(v):
+                labels += [a['label'] for a in json.loads(v) if a['label']]
+        print("AAA", labels)
+        return pd.Series(labels)
+

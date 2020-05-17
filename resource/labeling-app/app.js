@@ -26,7 +26,7 @@ export default new Vue({
     watch: {
         annotation: {
             handler: function () {
-                if (this.type === 'image-object' && this.annotation?.label?.some(e => e.label !== null)) {
+                if (this.type === 'image-object') {
                     this.saveImageObjectsDebounced(this.item.id, this.annotation, this.savedAnnotation);
                 }
             },
@@ -154,16 +154,11 @@ export default new Vue({
                 </div>
                 <div class="right-panel">
                     <div class="section right-panel-top">
-                        <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 10px">
+                        <div style="display:flex; flex-direction: column; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 10px">
                             <div class="stat-container" v-if="stats">
-                                <v-popover :trigger="'hover'" :placement="'left'">
-                                    <span class="stat"><span class="stat-count">{{stats.labeled}}</span> labeled</span>
-                                    <div slot="popover">
-                                        <div class="stat"><span class="stat-count">{{stats.total}}</span> total</div>
-                                        <div class="stat"><span class="stat-count">{{stats.skipped}}</span> skipped
-                                        </div>
-                                    </div>
-                                </v-popover>
+                                <span class="stat"><span class="stat-count">{{stats.labeled}}</span> labeled</span>
+                                <span class="stat"><span class="stat-count">{{stats.skipped}}</span> skipped</span>
+                                <span class="stat"><span class="stat-count">{{stats.total}}</span> total</span>
                             </div>
                             <control-buttons :canSkip="!isDone"
                                              :isFirst="isFirst || !(stats.labeled + stats.skipped)"
@@ -177,6 +172,7 @@ export default new Vue({
                                     <div class="status">
                                         <span class="icon">●</span>
                                         <span>Active learning {{isAlEnabled ? 'enabled' : 'disabled'}}</span>
+                                        <i class="icon-info-sign" style="flex: 1; text-align: right"></i>
                                     </div>
                                     <halting-criterion-metric
                                             v-if="isAlEnabled && type === 'image-object'"

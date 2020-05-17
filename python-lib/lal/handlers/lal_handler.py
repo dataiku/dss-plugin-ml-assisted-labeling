@@ -87,7 +87,7 @@ class LALHandler(object):
             "labeled": len(labeled_samples),
             "total": total_count,
             "skipped": len(skipped_samples),
-            "perLabel": labeled_samples[self.lbl_col].astype(
+            "perLabel": self.classifier.format_labels_for_stats(labeled_samples[self.lbl_col]).astype(
                 'str').value_counts().to_dict()
         }
         return stats
@@ -203,7 +203,7 @@ class LALHandler(object):
     def create_annotation_response(self, annotation, is_first, is_last):
         annotation = annotation.where((pd.notnull(annotation)), None).astype('object').to_dict()
         data_id = annotation['data_id']
-        if annotation['status'] != META_STATUS_SKIPPED:
+        if annotation[self.lbl_col] is not None and annotation['status'] != META_STATUS_SKIPPED:
             label = self.classifier.deserialize_label(annotation[self.lbl_col])
         else:
             label = None
