@@ -102,10 +102,14 @@ let CategorySelector = {
             }
         },
         getProgress(key) {
+            let totalLabelBoxes = Object.values(this.stats.perLabel).reduce((a, b) => a + b, 0);
+            if (totalLabelBoxes === 0){
+                return 0;
+            }
             if (!this.stats.labeled) {
                 return 0;
             }
-            return Math.round((this.stats.perLabel[key] || 0) / this.stats.labeled * 100);
+            return Math.round((this.stats.perLabel[key] || 0) / totalLabelBoxes * 100);
         },
 
         shortcutPressed: function (key) {
@@ -167,13 +171,16 @@ let CategorySelector = {
                             </div>
                             <code v-if="catToKeyMapping.hasOwnProperty(key)"
                                   class="keybind">{{catToKeyMapping[key]}}</code>
+                            <div class="progress-background">
+                                <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="empty-annotations-placeholder" v-if="!annotation?.label?.filter(e=>!e.draft).length">
                     <div v-if="status !== 'SKIPPED'" class="circle"></div>
                     <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                    <i v-if="status === 'SKIPPED'"class="fas fa-forward skipped"></i>
+                    <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
                     <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
                     <p>Select a label and draw a box around the target.</p>
                 </div>
@@ -186,7 +193,7 @@ let CategorySelector = {
                             <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
                         </div>
                         <select v-model="a.label">
-                            <option value="null" disabled selected>Select a category</option>
+                            <option :value="undefined" disabled selected>Select a category</option>
                             <option v-for="(lbl, key, idx) in categories" :value="key">
                                 {{ lbl.caption }}
                             </option>

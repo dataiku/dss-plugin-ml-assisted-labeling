@@ -83,3 +83,7 @@ class BaseClassifier(object):
     @abstractmethod
     def type(self):
         pass
+
+    @staticmethod
+    def format_labels_for_stats(raw_labels_series):
+        return raw_labels_series

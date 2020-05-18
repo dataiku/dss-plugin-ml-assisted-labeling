@@ -13,13 +13,17 @@
     width: 100%;
     border-radius: 0;
     background-color: var(--grey-lighten-7);
-    margin-top: 5px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
 }
 
 .progress {
-    background-color: var(--blue);
+    margin: 0;
+    background-color: var(--grey-lighten-5);
     height: 100%;
     border-radius: 0;
+    transition: width 0.5s;
 }
 
 .errors {
@@ -78,6 +82,13 @@
     flex-direction: column;
 }
 
+.stat-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
 .stat-count {
     font-weight: bold;
 }
@@ -102,11 +113,8 @@ canvas {
 
 .control-buttons {
     display: flex;
-    justify-content: center;
-}
-
-.control-buttons .button {
-    border-radius: 20px;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .categories-container {
@@ -137,6 +145,7 @@ canvas {
     color: #f9f9f9; /*No equivalent in variable list*/
     font-size: 117px;
 }
+
 .circle {
     background-color: #f9f9f9; /*No equivalent in variable list*/
     width: 117px;
@@ -189,6 +198,7 @@ audio {
     overflow: hidden;
     min-width: 100px;
     height: fit-content;
+    padding-bottom: 10px;
 }
 
 .button {
@@ -198,7 +208,7 @@ audio {
     position: relative;
     white-space: nowrap;
     min-width: 60px;
-    border: 1px solid var(--blue);
+    border: 1px solid var(--grey-lighten-6);
     margin: 5px;
     cursor: pointer;
     text-align: center;
@@ -232,6 +242,7 @@ audio {
 
 .right-panel-top .right-panel-button {
     height: 30px;
+    white-space: nowrap;
 }
 
 .button:hover {
@@ -353,11 +364,19 @@ audio {
     justify-content: space-between;
 }
 
+.right-panel-button.category-button {
+    padding: 10px 10px 15px;
+}
+
+.right-panel-button.category-button.active {
+    background-color: var(--blue-lighten-5);
+}
+
 .category-button {
-    height: 44px;
+    position: relative;
+    overflow: hidden;
     width: 176px;
     text-align: center;
-    line-height: 50px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -365,13 +384,10 @@ audio {
     cursor: pointer;
 }
 
-.right-panel-button.fixed-width-button {
-    width: 90px;
+.right-panel-button {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-.right-panel-button {
     border-radius: 3px;
     padding: 5px;
     border: 1px solid var(--grey-lighten-6);
@@ -733,6 +749,7 @@ select {
     border-radius: 3px;
 
 }
-.errors-container pre{
+
+.errors-container pre {
     font-size: 10px;
 }
