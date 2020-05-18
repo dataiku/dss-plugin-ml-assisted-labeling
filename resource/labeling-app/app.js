@@ -23,38 +23,29 @@ export default new Vue({
         'errors': ErrorsComponent,
         'ImageCanvas': ImageCanvas
     },
-    watch: {
-        annotation: {
-            handler: function () {
-                if (this.type === 'image-object') {
-                    this.saveImageObjectsDebounced(this.item.id, this.annotation, this.savedAnnotation);
-                }
-            },
-            deep: true
-        }
-    },
     data: {
-        savedAnnotation: null,
-        isAlEnabled: false,
+        apiErrors: APIErrors,
+
+        savedAnnotation: undefined,
         config: config,
-        haltingThresholds: null,
-        item: null,
-        canLabel: true,
-        stats: null,
+        haltingThresholds: undefined,
+        item: undefined,
+        stats: undefined,
+        type: undefined,
+        annotation: undefined,
+        annotations: undefined,
+        selectedLabel: undefined,
+
+        isAlEnabled: false,
         isDone: false,
         isFirst: false,
-        type: null,
-        annotation: null,
-        apiErrors: APIErrors,
-        annotations: null,
-        selectedLabel: null,
-        saveImageObjectsDebounced: null
+        canLabel: true,
     },
     methods: {
         isCurrentItemLabeled() {
             if (this.type === 'image-object') {
                 const annotation = this.annotation;
-                return !!this.item.labelId || (annotation.label && annotation.label.filter(e => e.label !== null).length > 0);
+                return !!this.item.labelId || (annotation.label && annotation.label.filter(e => e.label).length > 0);
             } else {
                 return !!this.item.labelId;
             }
@@ -106,28 +97,6 @@ export default new Vue({
         }
     },
     mounted: function () {
-        this.saveImageObjectsDebounced = debounce.call(this, (id, annotation, savedAnnotation) => {
-            const mapLabelToSaveObject = a => {
-                return {top: a.top, left: a.left, label: a.label, width: a.width, height: a.height}
-            };
-            const annotationToSave = {
-                comment: annotation.comment,
-                label: annotation.label && annotation.label.filter(e => e.label !== null).map(mapLabelToSaveObject)
-            };
-            if (!_.isEqual(annotationToSave, savedAnnotation)) {
-                const annotationData = {...annotationToSave, ...{id}};
-                console.log("SAVE", annotationData);
-                DKUApi.label(annotationData).then(labelingResponse => {
-                    this.stats = labelingResponse.stats;
-                    if (this.annotation === annotation) { // user may have already switched to another sample
-                        this.$emit('label', labelingResponse);
-                        this.savedAnnotation = _.cloneDeep(annotationToSave);
-                    }
-                });
-            }
-        }, 200);
-
-
         DKUApi.config().then(data => {
             this.isAlEnabled = data.al_enabled;
             this.haltingThresholds = data.halting_thr;

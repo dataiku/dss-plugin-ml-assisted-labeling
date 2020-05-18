@@ -193,7 +193,7 @@ let CategorySelector = {
                             <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
                         </div>
                         <select v-model="a.label">
-                            <option value="null" disabled selected>Select a category</option>
+                            <option :value="undefined" disabled selected>Select a category</option>
                             <option v-for="(lbl, key, idx) in categories" :value="key">
                                 {{ lbl.caption }}
                             </option>

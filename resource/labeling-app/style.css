@@ -117,10 +117,6 @@ canvas {
     width: 100%;
 }
 
-.control-buttons button:last-child {
-    margin-right: 0;
-}
-
 .categories-container {
     display: flex;
     flex-wrap: wrap;
@@ -246,6 +242,7 @@ audio {
 
 .right-panel-top .right-panel-button {
     height: 30px;
+    white-space: nowrap;
 }
 
 .button:hover {
