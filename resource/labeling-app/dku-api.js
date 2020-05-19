@@ -11,7 +11,10 @@ export let APIErrors = [];
 export let DKUApi = {
 
     batch: () => axios.get('batch'),
-    back: (id) => axios.post('back', {id}),
+    config: () => axios.get('config'),
+    back: (labelId) => axios.post('back', {labelId}),
+    next: (labelId) => axios.post('next', {labelId}),
+    first: () => axios.post('first'),
     skip: (data) => axios.post('skip', data),
     label: data => axios.post('label', data)
 };
