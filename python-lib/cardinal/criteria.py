@@ -1,7 +1,8 @@
 import numpy as np
-
-
 from itertools import combinations
+import dataiku
+lal = dataiku.import_from_plugin('ml-assisted-labeling', 'lal')
+from lal import utils
 
 def new_halting_score(data):
     
@@ -77,3 +78,28 @@ def get_halting_values(scores):
     
     return scores, high_thr, low_thr  # Because of normalization we inverse low and high
 
+
+def get_stopping_warning(metadata_name, contradiction_tol=.01, auc_tol=.01, lookback=3):
+    hist_contradictions, hist_auc = utils.get_perf_metrics(metadata_name)
+
+    warn = []
+
+    if len(hist_contradictions) >= lookback:
+        trigger = True
+        for con1, con2 in zip(hist_contradictions[-(lookback - 1):], hist_contradictions[-(lookback):-1]):
+            trigger = np.abs(con1 - con2) < contradiction_tol
+            if not trigger:
+                break
+        if trigger:
+            warn.append('Contradictions have stalled for the past {} iterations.'.format(lookback))
+
+    if len(hist_auc) >= lookback:
+        trigger = True
+        for auc1, auc2 in zip(hist_auc[-(lookback - 1):], hist_auc[-(lookback):-1]):
+            trigger = np.abs(auc1 - auc2) < auc_tol
+            if not trigger:
+                break
+        if trigger:
+            warn.append('Classifier AUC has stalled for the past {} iterations.'.format(lookback))
+
+    return ' '.join(warn)
