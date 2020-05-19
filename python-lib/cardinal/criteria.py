@@ -51,7 +51,7 @@ def quantile_constant(data, B=11, halting=True):
             score = new_halting_score(bins[binids <= i])
             print("score:", np.sqrt(bins[binids == i].mean() / bins.max() * index[binids == i].mean()))
             if score < 0.2:
-                bins[binids <= i] = 0
+                bins[binids <= i] = data.min()
                 break
     
     return bins, binids
