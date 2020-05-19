@@ -1,13 +1,11 @@
 import hashlib
 import json
 import logging
+import pandas as pd
 from abc import abstractmethod
 from datetime import datetime
-from typing import TypeVar
-
-import pandas as pd
-
 from lal.classifiers.base_classifier import BaseClassifier
+from typing import TypeVar
 
 META_STATUS_LABELED = 'LABELED'
 
@@ -54,14 +52,22 @@ class LALHandler(object):
             "labeled": len(self.get_meta_by_status(META_STATUS_LABELED)),
             "total": total_count,
             "skipped": len(self.get_meta_by_status(META_STATUS_SKIPPED)),
-            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].astype('str').value_counts().to_dict()
+            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].astype(
+                'str').value_counts().to_dict()
         }
         return stats
+
+    def get_config(self):
+        return {
+            "halting_thresholds": [0.25, 0.68, 0.75],
+            "halting_score": 0.37,
+            "al_enabled": True or self.classifier.is_al_enabled
+        }
 
     def label(self, data):
         self.logger.info("Labeling: %s" % json.dumps(data))
         if 'id' not in data:
-            message = "Labeling data doesn't containg sample ID"
+            message = "Labeling data doesn't contain sample ID"
             self.logger.error(message)
             raise ValueError(message)
 
@@ -140,7 +146,7 @@ class LALHandler(object):
         else:
             label = None
         return {
-            "label": {"label": label, "comment": previous['comment']},
+            "annotation": {"label": label, "comment": previous['comment']},
             "isFirst": len(meta) == 1,
             "item": {"id": data_id,
                      "labelId": previous[self.lbl_id_col],
