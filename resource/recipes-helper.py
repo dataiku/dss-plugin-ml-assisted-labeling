@@ -6,15 +6,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 import dataiku
-
-
-def prettify_error(s):
-    """Adds a blank and replaces regular spaces by non-breaking in the first 90 characters
-    
-    This function adds a big blank space and forces the first words to be a big block of
-    unbreakable words. This enforces a newline in the DSS display and makes the error prettier.
-    """
-    return '\xa0' * 130 + ' \n' + s[:90].replace(' ', '\xa0') + s[90:]
+from lal.utils import prettify_error
 
 
 try:

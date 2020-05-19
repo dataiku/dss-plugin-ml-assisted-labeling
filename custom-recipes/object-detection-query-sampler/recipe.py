@@ -8,30 +8,13 @@ from dataiku.customrecipe import *
 
 import pandas as pd
 import numpy as np
-import tensorflow as tf
 
-from sklearn.model_selection import train_test_split
-from keras.utils import multi_gpu_model
-from keras.models import load_model
-
-from keras_retinanet.models.resnet import resnet50_retinanet
 from keras_retinanet.models.retinanet import *
-from keras_retinanet.utils.model import freeze as freeze_model
 from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from keras_retinanet import backend
 from keras_retinanet.layers import FilterDetections
 from lal import utils
 from cardinal import uncertainty
-
-
-
-def prettify_error(s):
-    """Adds a blank and replaces regular spaces by non-breaking in the first 90 characters
-    
-    This function adds a big blank space and forces the first words to be a big block of
-    unbreakable words. This enforces a newline in the DSS display and makes the error prettier.
-    """
-    return '\xa0' * 130 + ' \n' + s[:90].replace(' ', '\xa0') + s[90:]
 
 
 try:
@@ -40,7 +23,7 @@ except:
     try:
         dataiku.use_plugin_libs('object-detection')
     except:
-        raise ImportError(prettify_error(
+        raise ImportError(utils.prettify_error(
             'ML assisted labeling object detection relies on the DSS object detection '
             'plugin. The plugin could not be found on this instance. Please insteall it '
             'to use this recipe. More information: https://www.dataiku.com/product/plugins/object-detection/'
@@ -48,7 +31,6 @@ except:
 
 
 from retinanet_model import get_model
-from dfgenerator import DfGenerator
 from gpu_utils import load_gpu_options
 
 
