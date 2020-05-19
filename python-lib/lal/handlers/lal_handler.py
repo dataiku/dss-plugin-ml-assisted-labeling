@@ -1,22 +1,41 @@
 import hashlib
 import json
 import logging
-import pandas as pd
 from abc import abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
+from threading import RLock
+from typing import TypeVar, Dict
+
+import pandas as pd
+
 from lal.classifiers.base_classifier import BaseClassifier
-from typing import TypeVar
+
+logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(message)s')
 
 META_STATUS_LABELED = 'LABELED'
-
 META_STATUS_SKIPPED = 'SKIPPED'
 
+BLOCK_SAMPLE_BY_USER_FOR_MINUTES = 0.5
 BATCH_SIZE = 20
 
 C = TypeVar('C', bound=BaseClassifier)
 
 
+class ReservedSample:
+    username: str
+    reserved_until: datetime
+
+    def __init__(self, username: str, reserved_until: datetime) -> None:
+        self.username = username
+        self.reserved_until = reserved_until
+
+    def __repr__(self) -> str:
+        return f"User: {self.username}; Reserved until: {self.reserved_until}"
+
+
 class LALHandler(object):
+    lock = RLock()
+    sample_by_user_reservation: Dict[str, ReservedSample] = dict()
     logger = logging.getLogger(__name__)
 
     def __init__(self, classifier, label_col_name, meta_df, labels_df, user, do_users_share_labels=True):
@@ -42,9 +61,22 @@ class LALHandler(object):
                 (self.meta_df.status == status) & (self.meta_df.annotator == self.current_user)]
 
     def get_remaining(self):
-        seen_ids = set(self.get_meta_by_status().data_id.values)
-        logging.info("get_remaining: Seen ids: {0}".format(seen_ids))
-        return [i for i in self.classifier.get_all_item_ids_list() if i not in seen_ids]
+        labeled_ids = set(self.get_meta_by_status().data_id.values)
+        logging.info("get_remaining: Seen ids: {0}".format(labeled_ids))
+        unlabeled_ids = [item_id for item_id in self.classifier.get_all_item_ids_list() if item_id not in labeled_ids]
+        result = []
+        with LALHandler.lock:
+            for i in unlabeled_ids:
+                if i in self.sample_by_user_reservation:
+                    reserved_sample = self.sample_by_user_reservation.get(i)
+                    if reserved_sample.reserved_until <= datetime.now():
+                        del self.sample_by_user_reservation[i]
+                        result.append(i)
+                    elif reserved_sample.username == self.current_user:
+                        result.append(i)
+                else:
+                    result.append(i)
+        return result
 
     def calculate_stats(self):
         total_count = len(self.classifier.get_all_item_ids_list())
@@ -52,22 +84,14 @@ class LALHandler(object):
             "labeled": len(self.get_meta_by_status(META_STATUS_LABELED)),
             "total": total_count,
             "skipped": len(self.get_meta_by_status(META_STATUS_SKIPPED)),
-            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].astype(
-                'str').value_counts().to_dict()
+            "perLabel": self.get_meta_by_status(META_STATUS_LABELED)[self.lbl_col].astype('str').value_counts().to_dict()
         }
         return stats
-
-    def get_config(self):
-        return {
-            "halting_thresholds": [0.25, 0.68, 0.75],
-            "halting_score": 0.37,
-            "al_enabled": True or self.classifier.is_al_enabled
-        }
 
     def label(self, data):
         self.logger.info("Labeling: %s" % json.dumps(data))
         if 'id' not in data:
-            message = "Labeling data doesn't contain sample ID"
+            message = "Labeling data doesn't containg sample ID"
             self.logger.error(message)
             raise ValueError(message)
 
@@ -115,6 +139,10 @@ class LALHandler(object):
 
         remaining = self.get_remaining()
         ids_batch = remaining[-BATCH_SIZE:]
+        with LALHandler.lock:
+            reserved_until = datetime.now() + timedelta(minutes=int(BATCH_SIZE * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
+            for i in ids_batch:
+                self.sample_by_user_reservation[i] = ReservedSample(self.current_user, reserved_until)
         ids_batch.reverse()
         return {
             "type": self.classifier.type,
@@ -146,7 +174,7 @@ class LALHandler(object):
         else:
             label = None
         return {
-            "annotation": {"label": label, "comment": previous['comment']},
+            "label": {"label": label, "comment": previous['comment']},
             "isFirst": len(meta) == 1,
             "item": {"id": data_id,
                      "labelId": previous[self.lbl_id_col],
