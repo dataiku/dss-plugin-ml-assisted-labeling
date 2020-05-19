@@ -30,19 +30,21 @@ let HaltingCriterionMetric = {
             this.$emit('currentColor', currentColor);
         }
     },
-    mounted:function(){
+    mounted: function () {
         this.init();
     },
     // language=HTML
     template: `
+
         <div class="halting-criterion">
             <div class="halting-criterion-cell" v-for="t in drawData"
                  :style="{ width: t.width + '%', backgroundColor: t.color }"></div>
+
             <div class="halting-criterion-cell halting-criterion-overlay"
                  :style="{width: 100-currentValue * 100 + '%', left: currentValue*100 + '%'}"></div>
             <i class="fas fa-map-pin halting-criterion-pointer" :style="{left: currentValue*100 + '%'}"></i>
-            <span style="top: 5px">Efficient</span>
-            <span style="right: 0; top: 5px">Not efficient</span>
+            <span style="top: 0">Efficient</span>
+            <span style="right: 0; top: 0">Not efficient</span>
         </div>`
 };
 
