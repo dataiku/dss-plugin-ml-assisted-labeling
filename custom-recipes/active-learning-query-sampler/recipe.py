@@ -7,6 +7,7 @@ import dataiku
 from dataiku.customrecipe import *
 
 from cardinal import uncertainty
+from lal import utils
 
 
 # Load configuration
@@ -48,23 +49,17 @@ try:
     clf = model.get_predictor()._clf
 except Exception as e:
     raise PickleError(
-        prettify_error('Failed to load the saved model. The visual Machine Learning '
-                       'code environment needs to be compatible with the code environment of this plugin.' ) +
-        prettify_error('Original error is {}'.format(e)))
+        utils.prettify_error('Failed to load the saved model. The visual Machine Learning '
+                             'code environment needs to be compatible with the code environment of this plugin.' ) +
+        utils.prettify_error('Original error is {}'.format(e)))
 
 logging.info("Checking that model {0} is a classifier".format(saved_model_id))
 if len(model.get_predictor().classes) == 0:
     raise TypeError(
-        prettify_error('Saved model {} seems to be a regressor and not a classifier.'.format(saved_model_id) +
-                       'Active learning in regression context is not supported yet.'))
+        utils.prettify_error('Saved model {} seems to be a regressor and not a classifier.'.format(saved_model_id) +
+                             'Active learning in regression context is not supported yet.'))
     
-# Find the current session from the previous iteration of queries
-current_session = 1
-try:
-    queries_df = queries_ds.get_dataframe()
-    current_session = 1 if queries_df.session.empty else queries_df.session[0] + 1
-except Exception as e:
-    logging.info("Could not determine session. Default to 1. Original error is: {0}".format(e))
+utils.increment_queries_session(queries_ds.short_name)
 
 # Active learning
 func = strategy_mapper[config['strategy']]
@@ -73,10 +68,10 @@ try:
 except Exception as e:
     if unlabeled_is_folder and ("Failed to preprocess the following file" in str(e) or ('Managed folder name not found' in str(e))):
         raise LookupError(
-            prettify_error('The model feature preprocessing could not be applied to the folder {}'.format(unlabeled_samples_container) +
-                           'This happens when the folder specified as image source in the visual '
-                           'Machine Learning is different from the input folder of this recipe.') +
-            prettify_error('Original error is {}'.format(e)))
+            utils.prettify_error('The model feature preprocessing could not be applied to the folder {}'.format(unlabeled_samples_container) +
+                                 'This happens when the folder specified as image source in the visual '
+                                 'Machine Learning is different from the input folder of this recipe.') +
+            utils.prettify_error('Original error is {}'.format(e)))
     raise
     
 index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
@@ -84,5 +79,4 @@ index, uncertainty = func(clf, X=X, n_instances=unlabeled_df.shape[0])
 # Outputs
 queries_df = unlabeled_df.loc[index]
 queries_df['uncertainty'] = uncertainty
-queries_df['session'] = current_session
 queries_ds.write_with_schema(queries_df)

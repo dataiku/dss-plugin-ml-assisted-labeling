@@ -3,6 +3,8 @@ from abc import abstractmethod
 
 import pandas as pd
 
+from lal import utils
+
 
 class BaseClassifier(object):
     logger = logging.getLogger(__name__)
@@ -39,9 +41,7 @@ class BaseClassifier(object):
         pass
 
     def get_session(self):
-        if self.queries_df is None or self.queries_df.empty:
-            return 0
-        return self.queries_df.session[0]  # all session values are the same in queries, taking first
+        return utils.get_current_session_id(self.config.get('queries_ds'))
 
     def validate_config(self, config):
         self.logger.info("Webapp config: %s" % repr(config))
