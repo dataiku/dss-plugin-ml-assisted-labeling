@@ -4,6 +4,9 @@ import dataiku
 import pandas as pd
 import numpy as np
 
+from pickle import PickleError
+
+
 def increment_queries_session(queries_ds_name):
     session_var_name = f'ML-ASSISTED-LABELING__{queries_ds_name}__session'
     variables = dataiku.Project().get_variables()
