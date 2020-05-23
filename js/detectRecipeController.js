@@ -1,39 +1,48 @@
-var app = angular.module('detectionRecipe.detect', []);
-
-app.controller('detectRecipeController', function($scope) {
+var app = angular.module('mlAssistedLabelingModule', []);
 
 
-    var retrieveCanUseGPU = function() {
+app.directive('querySamplingSettings', function () {
+    return {
+        link: function (scope, element, attrs) {
+            scope.type = attrs['type'];
+            scope.getTemplateUrl = function () {
+                return scope.$parent.baseTemplateUrl + "query-sampling-settings-template.html";
+            }
+            const retrieveCanUseGPU = function () {
 
-        $scope.callPythonDo({method: "get-gpu-info"}).then(function(data) {
-            $scope.canUseGPU = data["can_use_gpu"];
-            $scope.finishedLoading = true;
-        }, function(data) {
-            $scope.canUseGPU = false;
-            $scope.finishedLoading = true;
-        });
-    };
+                scope.callPythonDo({method: "get-gpu-info"}).then(function (data) {
+                    scope.canUseGPU = data["can_use_gpu"];
+                    scope.finishedLoading = true;
+                }, function (data) {
+                    scope.canUseGPU = false;
+                    scope.finishedLoading = true;
+                });
+            };
 
-    var initVariable = function(varName, initValue) {
-        if ($scope.config[varName] == undefined) {
-            $scope.config[varName] = initValue;
-        }
-    };
+            const initVariable = function (varName, initValue) {
+                if (scope.config[varName] === undefined) {
+                    scope.config[varName] = initValue;
+                }
+            };
 
-    var initVariables = function() {
-        initVariable("batch_size", 1);
-        initVariable("confidence", 0.5);
-        initVariable("gpu_allocation", 0.5);
-        initVariable("list_gpu", "0");
-        initVariable("record_missing", false);
-    };
+            const initVariables = function () {
+                initVariable("batch_size", 1);
+                initVariable("confidence", 0.5);
+                initVariable("gpu_allocation", 0.5);
+                initVariable("list_gpu", "0");
+                initVariable("record_missing", false);
+            };
 
-    var init = function() {
-        $scope.finishedLoading = false;
-        initVariables();
-        retrieveCanUseGPU();
-    };
+            const init = function () {
+                scope.finishedLoading = false;
+                initVariables();
+                retrieveCanUseGPU();
+            };
 
-    init();
+            init();
+        },
+        template: '<div ng-include="getTemplateUrl()"></div>'
+    }
 });
 
+app.value()

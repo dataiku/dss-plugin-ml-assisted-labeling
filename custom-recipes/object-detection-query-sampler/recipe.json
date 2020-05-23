@@ -38,7 +38,7 @@
     }
   ],
   "paramsTemplate" : "object-detection-recipe-template.html",
-  "paramsModule" : "detectionRecipe.detect",
+  "paramsModule" : "mlAssistedLabelingModule",
   "paramsPythonSetup": "recipes-helper.py",
   "resourceKeys": []
 }
