@@ -5,9 +5,8 @@ app.directive('querySamplingSettings', function () {
     return {
         link: function (scope, element, attrs) {
             scope.type = attrs['type'];
-            scope.getTemplateUrl = function () {
-                return scope.$parent.baseTemplateUrl + "query-sampling-settings-template.html";
-            }
+            scope.templateUrl = scope.$parent.baseTemplateUrl + "query-sampling-settings-template.html";
+
             const retrieveCanUseGPU = function () {
 
                 scope.callPythonDo({method: "get-gpu-info"}).then(function (data) {
@@ -41,7 +40,7 @@ app.directive('querySamplingSettings', function () {
 
             init();
         },
-        template: '<div ng-include="getTemplateUrl()"></div>'
+        template: '<div ng-include="templateUrl"></div>'
     }
 });
 
