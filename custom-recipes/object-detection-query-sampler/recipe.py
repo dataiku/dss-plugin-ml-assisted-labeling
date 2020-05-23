@@ -372,7 +372,7 @@ logging.basicConfig(level=logging.INFO, format='[ML Assisted labeling] %(levelna
 
 
 images_folder = dataiku.Folder(get_input_names_for_role('unlabeled_samples')[0])
-weights_folder = dataiku.Folder(get_input_names_for_role('saved_model')[0])
+weights_folder = dataiku.Folder(get_input_names_for_role('model_weights')[0])
 queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0])
 
 weights = os.path.join(weights_folder.get_path(), 'weights.h5')
