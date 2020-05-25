@@ -1,7 +1,7 @@
 import {DKUApi} from "../dku-api.js";
 
 export let ControlButtons = {
-    props: ['isFirst', 'canSkip', 'isLabeled'],
+    props: ['isFirst', 'canSkip', 'isLabeled', 'currentStatus'],
     data: () => {
         return {isLast: true}
     },
@@ -35,7 +35,7 @@ export let ControlButtons = {
             return new Promise((resolve, reject) => {
                 if (this.$root.type === 'image-object') {
                     const annotationToSave = this.annotationToSave;
-                    if (this.isDirty) {
+                    if (this.isSaveRequired()) {
                         if (!_.isEqual(annotationToSave.comment, this.$root.savedAnnotation.comment) && this.$root.item.status === 'SKIPPED') {
                             this.skip().then(resolve);
                         } else {
@@ -53,7 +53,7 @@ export let ControlButtons = {
             })
         },
         next: function () {
-            if (!this.$root.canLabel || !this.isLabeled) {
+            if (!this.$root.canLabel || !this.currentStatus) {
                 return;
             }
             this.saveIfRequired().then(() => {
@@ -63,6 +63,10 @@ export let ControlButtons = {
                     DKUApi.next(this.$root.item.labelId).then(this.processAnnotationResponce);
                 }
             });
+        },
+
+        isSaveRequired(){
+            return this.isDirty && this.isLabeled;
         },
         processAnnotationResponce: function (data) {
             this.$root.item = data.item;
@@ -75,7 +79,7 @@ export let ControlButtons = {
             DKUApi.first().then(this.processAnnotationResponce);
         },
         unlabeled: function () {
-            if (!this.isLabeled) {
+            if (!this.currentStatus) {
                 return
             }
             this.$root.assignNextItem();
@@ -114,7 +118,7 @@ export let ControlButtons = {
     <button style="min-width: 75px" class="right-panel-button" :disabled="isFirst" @click="back()"><code class="keybind" style="margin-right: 10px"><i class="fas fa-arrow-left"></i></code><span>back</span></button>
     <button class="right-panel-button skip-button" @click="skip()"><span>skip</span></button>
     <v-popover :trigger="'hover'" :placement="'bottom'">
-        <button style="min-width: 75px" class="right-panel-button" @click="next()" :disabled="!isLabeled"><span>{{isDirty && isLabeled ? 'save & next' : 'next'}}</span><code class="keybind" style="margin-left: 10px"><i class="fas fa-arrow-right"></i></code></button>
+        <button style="min-width: 75px" class="right-panel-button" @click="next()" :disabled="!currentStatus"><span>{{isSaveRequired() ? 'save & next' : 'next'}}</span><code class="keybind" style="margin-left: 10px"><i class="fas fa-arrow-right"></i></code></button>
         <div slot="popover">
             Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Space</code>
         </div>

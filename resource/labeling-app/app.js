@@ -43,11 +43,11 @@ export default new Vue({
     },
     methods: {
         isCurrentItemLabeled() {
+            const annotation = this.annotation;
             if (this.type === 'image-object') {
-                const annotation = this.annotation;
-                return !!this.item.labelId || (annotation.label && annotation.label.filter(e => e.label).length > 0);
+                return annotation?.label?.filter(e => e.label).length > 0;
             } else {
-                return !!this.item.labelId;
+                return annotation?.label?.length;
             }
         },
         updateStatsAndProceedToNextItem: function (response) {
@@ -131,7 +131,9 @@ export default new Vue({
                             </div>
                             <control-buttons :canSkip="!isDone"
                                              :isFirst="isFirst || !(stats.labeled + stats.skipped)"
-                                             :isLabeled="isCurrentItemLabeled()"/>
+                                             :isLabeled="isCurrentItemLabeled()"
+                                             :currentStatus="item.status"
+                            />
                         </div>
 
                         <div>
