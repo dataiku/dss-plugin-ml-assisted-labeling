@@ -3,6 +3,7 @@ from abc import abstractmethod
 
 import pandas as pd
 
+from cardinal.criteria import get_halting_values
 from lal import utils
 
 
@@ -16,17 +17,23 @@ class BaseClassifier(object):
         self.initial_df = self.get_initial_df()
         self.id_to_index = {}
         self.ordered_ids = list()
+        self.df_to_label = self.get_df_to_label()
         for index, row in self.df_to_label.iterrows():
             row_id = self.raw_row_to_id(row)
             self.id_to_index[row_id] = index
             self.ordered_ids.append(row_id)
 
+        if self.is_al_enabled:
+            self.halting_values, self.halting_thr_low, self.halting_thr_high = get_halting_values(self.queries_df.sort_values('uncertainty', ascending=True).uncertainty)
+            self.halting_values_by_id = dict(zip(self.ordered_ids, self.halting_values))
+        else:
+            self.halting_values_by_id = None
+
     @property
     def is_al_enabled(self):
         return self.queries_df is not None and not self.queries_df.empty
 
-    @property
-    def df_to_label(self):
+    def get_df_to_label(self):
         if self.is_al_enabled:
             logging.info("Taking queries dataframe to label")
             df_to_label = self.queries_df.sort_values('uncertainty', ascending=True)
@@ -37,8 +44,6 @@ class BaseClassifier(object):
 
         return df_to_label
 
-    def get_config(self):
-        pass
 
     def get_session(self):
         return utils.get_current_session_id(self.config.get('queries_ds'))
@@ -52,8 +57,13 @@ class BaseClassifier(object):
         return config
 
     def get_item_by_id(self, sid):
-        return {"raw": self.get_raw_item_by_id(sid),
-                "enriched": self.get_enriched_item_by_id(sid)}
+        result = {"raw": self.get_raw_item_by_id(sid)}
+        enriched = self.get_enriched_item_by_id(sid)
+        if enriched:
+            result["enriched"] = enriched
+        if self.is_al_enabled:
+            result["halting"] = self.halting_values_by_id[sid]
+        return result
 
     def get_enriched_item_by_id(self, sid):
         pass

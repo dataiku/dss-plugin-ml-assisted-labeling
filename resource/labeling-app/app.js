@@ -144,10 +144,10 @@ export default new Vue({
                                         <i class="icon-info-sign" style="flex: 1; text-align: right"></i>
                                     </div>
                                     <halting-criterion-metric
-                                            v-if="isAlEnabled && type === 'image-object'"
+                                            v-if="isAlEnabled"
                                             :thresholds="haltingThresholds"
                                             :colors="['#2AA876','#FFD265','#CE4D45']"
-                                            :currentValue="item.data.enriched.halting"></halting-criterion-metric>
+                                            :currentValue="item.data.halting"></halting-criterion-metric>
                                 </div>
                                 <div slot="popover">
                                     <div v-if="isAlEnabled" style="text-align: left">

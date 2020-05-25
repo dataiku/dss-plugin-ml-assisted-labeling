@@ -94,9 +94,8 @@ class LALHandler(object):
 
     def get_config(self):
         result = {"al_enabled": self.classifier.is_al_enabled}
-        custom_config = self.classifier.get_config()
-        if custom_config is not None:
-            result = {**result, **custom_config}
+        if self.classifier.is_al_enabled:
+            result["halting_thr"] = sorted([self.classifier.halting_thr_low, self.classifier.halting_thr_high])
         return result
 
     def label(self, data, user):

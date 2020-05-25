@@ -162,6 +162,7 @@ canvas {
 }
 
 .category-selector--categories {
+    align-content: flex-start;
     margin-left: -5px;
     margin-right: -5px;
     display: flex;
@@ -234,10 +235,6 @@ audio {
     margin-left: 5px;
     margin-right: 5px;
     vertical-align: middle;
-}
-
-.right-panel-top .right-panel-button .keybind {
-    margin-left: 10px;
 }
 
 .right-panel-top .right-panel-button {
@@ -546,6 +543,7 @@ hr {
 }
 
 .tooltip .tooltip-inner {
+    text-decoration: none;
     background: var(--white);
     color: var(--black);
     padding: 5px 10px 4px;
@@ -720,6 +718,12 @@ button.adjacent-from-right {
     border-bottom-right-radius: 0;
 }
 
+button.skip-button {
+    min-width: 75px;
+    display: flex;
+    justify-content: center;
+}
+
 button.adjacent-from-left {
     margin-left: 0;
     border-left: none;
@@ -752,4 +756,8 @@ select {
 
 .errors-container pre {
     font-size: 10px;
+}
+
+* {
+    text-decoration: none;
 }
