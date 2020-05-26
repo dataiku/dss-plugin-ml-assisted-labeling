@@ -36,12 +36,12 @@ prev_i = 0
 while version_i < len(versions) - 1:
     ref_n_samples = versions[version_i]['snippet']['trainInfo']['trainRows']
     prev_i = version_i
-    while versions[version_i]['snippet']['trainInfo']['trainRows'] - ref_n_samples < 20:
+    while version_i < len(versions) and versions[version_i]['snippet']['trainInfo']['trainRows'] - ref_n_samples < 20:
         version_i += 1
 
 if versions[-1]['snippet']['trainInfo']['trainRows'] - versions[prev_i]['snippet']['trainInfo']['trainRows'] < 20:
     # Not enough samples to trigger computation
-    exit
+    exit()
 
 prev_version_id = versions[prev_i]['versionId']
 
