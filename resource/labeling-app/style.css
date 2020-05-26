@@ -505,6 +505,7 @@ hr {
 }
 
 .al-enabled-widget .status .icon {
+    width: 14px;
     font-size: 20px;
 }
 
@@ -516,6 +517,7 @@ hr {
     font-weight: 600;
     display: flex;
     align-items: center;
+    margin-bottom: 10px;
 }
 
 .v-popover .trigger {
@@ -665,14 +667,10 @@ hr {
 }
 
 .halting-criterion {
-    margin-top: 10px;
-
-    /*margin-left: 25px;*/
-    /*margin-right: 25px;*/
     display: flex;
     position: relative;
     padding-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .halting-criterion-overlay {

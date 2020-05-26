@@ -100,6 +100,7 @@ export default new Vue({
         DKUApi.config().then(data => {
             this.isAlEnabled = data.al_enabled;
             this.haltingThresholds = data.halting_thr;
+            this.stoppingMessages = data.stopping_messages;
         });
 
 
@@ -150,6 +151,15 @@ export default new Vue({
                                             :thresholds="haltingThresholds"
                                             :colors="['#2AA876','#FFD265','#CE4D45']"
                                             :currentValue="item.data.halting"></halting-criterion-metric>
+                                    <div v-show="stoppingMessages?.length">
+                                        <span class="status">
+                                            <i class="icon-warning-sign" style="margin-right: 5px"></i>
+                                            <span style="flex: 1">Labeling may be stopped</span>
+                                        </span>
+                                        <ul>
+                                            <li v-for="msg in stoppingMessages">{{msg}}</li>
+                                        </ul>
+                                    </div>
                                 </div>
                                 <div slot="popover">
                                     <div v-if="isAlEnabled" style="text-align: left">

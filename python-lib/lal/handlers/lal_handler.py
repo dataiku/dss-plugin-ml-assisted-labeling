@@ -63,7 +63,6 @@ class LALHandler(object):
 
     def get_remaining(self, user):
         labeled_ids = set(self.get_meta_by_status(user).data_id.values)
-        logging.info("get_remaining: Seen ids: {0}".format(labeled_ids))
         unlabeled_ids = [item_id for item_id in self.classifier.get_all_item_ids_list() if item_id not in labeled_ids]
         result = []
         with LALHandler.lock:

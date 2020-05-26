@@ -5,10 +5,10 @@ lal = dataiku.import_from_plugin('ml-assisted-labeling', 'lal')
 from lal import utils
 
 def new_halting_score(data):
-    
-    values, bins = np.histogram(data)  
+
+    values, bins = np.histogram(data)
     scores = values / values.sum()
-    
+
     distances = np.zeros(55)
  
     for i, (min_unif, max_unif) in enumerate(combinations(np.arange(11), r=2)):
@@ -83,7 +83,6 @@ def get_stopping_warning(metadata_name, contradiction_tol=.01, auc_tol=.01, look
     hist_contradictions, hist_auc = utils.get_perf_metrics(metadata_name)
 
     warn = []
-
     if len(hist_contradictions) >= lookback:
         trigger = True
         for con1, con2 in zip(hist_contradictions[-(lookback - 1):], hist_contradictions[-(lookback):-1]):
@@ -102,4 +101,4 @@ def get_stopping_warning(metadata_name, contradiction_tol=.01, auc_tol=.01, look
         if trigger:
             warn.append('Classifier AUC has stalled for the past {} iterations.'.format(lookback))
 
-    return ' '.join(warn)
+    return warn
