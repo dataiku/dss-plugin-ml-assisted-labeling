@@ -28,11 +28,21 @@ import misc_utils
 import constants
 
 
-def can_use_gpu():
+def can_use_gpu(inputs):
     """Check that system supports gpu."""
     # Check that 'tensorflow-gpu' is installed on the current code-env
     import pkg_resources 
-    return "tensorflow-gpu" in [d.key for d in pkg_resources.working_set] 
+    has_tf_gpu = "tensorflow-gpu" in [d.key for d in pkg_resources.working_set]
+    
+    # In the case of classification query sampler, check if the model is keras
+    is_keras_model = True
+    saved_models = [inp for inp in inputs if inp["role"] == 'saved_model']
+    if len(saved_models) > 0:
+        # We found a saved model, we are in the query sampling case
+        model = dataiku.Model(saved_models[0]['fullName'])
+        is_keras_model = (model.get_definition().get('contentType') == 'prediction/keras')
+    
+    return has_tf_gpu and is_keras_model
 
 
 def get_dataset_info(inputs):
@@ -71,7 +81,7 @@ def do(payload, config, plugin_config, inputs):
         response.update(get_avg_side(inputs))
         return response
     if payload['method'] == 'get-gpu-info':
-        return {'can_use_gpu': can_use_gpu()}
+        return {'can_use_gpu': can_use_gpu(inputs)}
     if payload['method'] == 'get-confidence':
         return {'has_confidence': has_confidence(inputs)}
     if payload['method'] == 'get-video-info':

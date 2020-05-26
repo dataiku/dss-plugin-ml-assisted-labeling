@@ -5,15 +5,23 @@ import dataiku
 from dataiku.customrecipe import *
 
 from cardinal import uncertainty
-from lal import utils
+from lal import utils, gpu_utils
 
+
+
+config = get_recipe_config()
+
+# GPU set up
+gpu_opts = gpu_utils.load_gpu_options(config.get('should_use_gpu', False),
+                                      config.get('list_gpu', ''),
+                                      config.get('gpu_allocation', 0.))
 
 # Load configuration
-config = get_recipe_config()
 unlabeled_samples_container = get_input_names_for_role('unlabeled_samples')[0]
 saved_model_id = get_input_names_for_role('saved_model')[0]
 model = dataiku.Model(saved_model_id)
 queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0], ignore_flow=True)
+
 
 strategy_mapper = {
     'confidence': uncertainty.confidence_sampling,

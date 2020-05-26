@@ -4,7 +4,6 @@ from base64 import b64encode
 
 import pandas as pd
 
-from cardinal.criteria import get_halting_values
 from lal.classifiers.base_classifier import FolderBasedDataClassifier
 
 
@@ -18,13 +17,6 @@ class ImageObjectClassifier(FolderBasedDataClassifier):
         """
         self.folder = folder
         super(ImageObjectClassifier, self).__init__(queries_df, config)
-        if self.queries_df is not None and not queries_df.empty:
-            hv, self.halting_thr_low, self.halting_thr_high = get_halting_values(self.queries_df.uncertainty)
-            self.halting_values_by_path = {k: v for k, v in zip(self.queries_df.path, hv)}
-            self.custom_config = {"halting_thr": sorted([self.halting_thr_low, self.halting_thr_high])}
-        else:
-            self.halting_values_by_path = None
-            self.custom_config = {}
 
     def validate_config(self, config):
         config = super().validate_config(config)
@@ -32,17 +24,12 @@ class ImageObjectClassifier(FolderBasedDataClassifier):
             raise ValueError("Image folder not specified. Go to settings tab.")
         return config
 
-    def get_config(self):
-        return self.custom_config
-
     def get_enriched_item_by_id(self, sid):
         self.logger.info('Reading image from: ' + str(sid))
         with self.folder.get_download_stream(sid) as s:
             data = b64encode(s.read())
         self.logger.info("Read: {0}, {1}".format(len(data), type(data)))
-        return {"img": data.decode('utf-8'),
-                "halting": self.halting_values_by_path and self.halting_values_by_path[sid]
-                }
+        return {"img": data.decode('utf-8')}
 
     def get_initial_df(self):
         return pd.DataFrame(self.folder.list_paths_in_partition(), columns=["path"])
