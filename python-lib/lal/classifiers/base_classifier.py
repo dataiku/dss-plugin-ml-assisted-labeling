@@ -1,12 +1,13 @@
+import hashlib
 import logging
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 import pandas as pd
 
 from lal import utils
 
 
-class BaseClassifier(object):
+class BaseClassifier(ABC):
     logger = logging.getLogger(__name__)
 
     def __init__(self, queries_df, config):
@@ -68,9 +69,10 @@ class BaseClassifier(object):
     def deserialize_label(self, label):
         return [label]
 
+    @staticmethod
     @abstractmethod
-    def raw_row_to_id(self, raw):
-        pass
+    def raw_row_to_id(raw):
+        raise NotImplementedError()
 
     def get_all_item_ids_list(self):
         return self.ordered_ids
@@ -87,3 +89,18 @@ class BaseClassifier(object):
     @staticmethod
     def format_labels_for_stats(raw_labels_series):
         return raw_labels_series
+
+
+class FolderBasedDataClassifier(BaseClassifier, ABC):
+    @staticmethod
+    def raw_row_to_id(raw):
+        return raw['path']
+
+    def get_raw_item_by_id(self, sid):
+        return {"path": sid}
+
+
+class TableBasedDataClassifier(BaseClassifier, ABC):
+    @staticmethod
+    def raw_row_to_id(raw):
+        return str(hashlib.sha256(pd.util.hash_pandas_object(raw).values).hexdigest())

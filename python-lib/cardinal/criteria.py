@@ -64,9 +64,9 @@ def get_halting_values(scores):
     low_values = sorted_scores[(binids <= 3)]
     low_thr = low_values.max() if low_values.size else sorted_scores.min()
     high_values = sorted_scores[(binids >= 8)]
-    high_thr = sorted_scored[:-20]
+    high_thr = sorted_scores[:-20]
     if high_values.size:
-        high_thr = min(high_values.min(), high_thr)
+        high_thr = min(high_values.min(), *high_thr)
     
     # Normalize scores from 0 to 1 for display
     vmin = scores.min()

@@ -1,17 +1,14 @@
 # This file is the code for the plugin Python step test
 
-import os, json
-from dataiku.customstep import *
 import dataiku
 import numpy as np
-import pandas as pd
+from dataiku.customstep import *
 
-from lal import utils
 from cardinal import uncertainty
-import hashlib
-
-
+from lal import utils
 # settings at the step instance level (set by the user creating a scenario step)
+from lal.classifiers.base_classifier import FolderBasedDataClassifier, TableBasedDataClassifier
+
 step_config = get_step_config()
 model = dataiku.Model(step_config['model'])
 unlabeled = step_config['unlabeled']
@@ -55,9 +52,9 @@ validation_ids = []
 for index, row in unlabeled_df.sample(frac=1).iterrows():
     # get the id of the sample
     if unlabeled_is_folder:
-        sid = row['path']
+        sid = FolderBasedDataClassifier.raw_row_to_id(row)
     else:
-        sid = str(hashlib.sha256(pd.util.hash_pandas_object(row).values).hexdigest())
+        sid = TableBasedDataClassifier.raw_row_to_id(row)
     if not sid in labeled_ids:
         labeled_ids.add(sid)
         validation_ids.append(index)

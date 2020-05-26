@@ -5,10 +5,10 @@ from base64 import b64encode
 import pandas as pd
 
 from cardinal.criteria import get_halting_values
-from lal.classifiers.base_classifier import BaseClassifier
+from lal.classifiers.base_classifier import FolderBasedDataClassifier
 
 
-class ImageObjectClassifier(BaseClassifier):
+class ImageObjectClassifier(FolderBasedDataClassifier):
     logger = logging.getLogger(__name__)
 
     def __init__(self, folder, queries_df, config):
@@ -39,17 +39,10 @@ class ImageObjectClassifier(BaseClassifier):
         self.logger.info('Reading image from: ' + str(sid))
         with self.folder.get_download_stream(sid) as s:
             data = b64encode(s.read())
-        import random
         self.logger.info("Read: {0}, {1}".format(len(data), type(data)))
         return {"img": data.decode('utf-8'),
                 "halting": self.halting_values_by_path and self.halting_values_by_path[sid]
                 }
-
-    def get_raw_item_by_id(self, sid):
-        return {"path": sid}
-
-    def raw_row_to_id(self, raw):
-        return raw['path']
 
     def get_initial_df(self):
         return pd.DataFrame(self.folder.list_paths_in_partition(), columns=["path"])
@@ -70,6 +63,5 @@ class ImageObjectClassifier(BaseClassifier):
         for v in raw_labels_series.values:
             if pd.notnull(v):
                 labels += [a['label'] for a in json.loads(v) if a['label']]
-        print("AAA", labels)
         return pd.Series(labels)
 
