@@ -142,6 +142,15 @@ export default new Vue({
                                             :thresholds="config.haltingThresholds"
                                             :colors="['#2AA876','#FFD265','#CE4D45']"
                                             :currentValue="item.data.halting"></halting-criterion-metric>
+                                    <div v-show="stoppingMessages?.length">
+                                        <span class="status">
+                                            <i class="icon-warning-sign" style="margin-right: 5px"></i>
+                                            <span style="flex: 1">Labeling may be stopped</span>
+                                        </span>
+                                        <ul>
+                                            <li v-for="msg in stoppingMessages">{{msg}}</li>
+                                        </ul>
+                                    </div>
                                 </div>
                                 <div slot="popover">
                                     <div v-if="config.isAlEnabled" style="text-align: left">

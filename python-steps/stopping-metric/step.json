@@ -1,0 +1,39 @@
+{
+    "meta" : {
+        "label": "Compute labeling metrics",
+        "description": "Compute contradiction metrics on the unlabeled data",
+        "icon": "icon-step-forward"
+    },
+
+    "params": [
+        {
+            "name": "model",
+            "label": "Deployed model",
+            "type": "SAVED_MODEL",
+            "description": "Some documentation for parameter1",
+            "mandatory": true
+        },
+        {
+            "name": "unlabeled",
+            "label": "Unlabeled dataset",
+            "type": "DATASET",
+            "description": "Unlabeled samples to compute the metrics on",
+            "mandatory": true
+        },
+        {
+            "name": "metadata",
+            "label": "Metadata dataset",
+            "type": "DATASET",
+            "description": "Metadata dataset associated to the labeling webapp",
+            "mandatory": true
+        },
+        {
+            "name": "n_samples",
+            "label": "Number of samples",
+            "type": "INT",
+            "description": "Size of the test set. Larger means better metrics but longer computation",
+            "defaultValue" : 1000
+        }
+    ]
+}
+

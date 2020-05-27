@@ -1,10 +1,9 @@
-import hashlib
 import logging
-import pandas as pd
-from lal.classifiers.base_classifier import BaseClassifier
+
+from lal.classifiers.base_classifier import TableBasedDataClassifier
 
 
-class TabularClassifier(BaseClassifier):
+class TabularClassifier(TableBasedDataClassifier):
     logger = logging.getLogger(__name__)
 
     def __init__(self, initial_df, queries_df, config=None):
@@ -13,9 +12,6 @@ class TabularClassifier(BaseClassifier):
 
     def get_initial_df(self):
         return self.__initial_df
-
-    def raw_row_to_id(self, raw):
-        return str(hashlib.sha256(pd.util.hash_pandas_object(raw).values).hexdigest())
 
     @property
     def type(self):
