@@ -1,5 +1,7 @@
 # This file is the code for the plugin Python step test
 
+import logging
+
 import dataiku
 import numpy as np
 from dataiku.customstep import *
@@ -9,13 +11,15 @@ from lal import utils
 # settings at the step instance level (set by the user creating a scenario step)
 from lal.classifiers.base_classifier import FolderBasedDataClassifier, TableBasedDataClassifier
 
+logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(message)s')
+
 step_config = get_step_config()
 model = dataiku.Model(step_config['model'])
 unlabeled = step_config['unlabeled']
 metadata = step_config['metadata']
 n_samples = int(step_config['n_samples'])
 
-versions = sorted(model.list_versions(), key=lambda x:int(x['snippet']['trainDate']), reverse=True)
+versions = sorted(model.list_versions(), key=lambda x: int(x['snippet']['trainDate']), reverse=True)
 
 if len(versions) < 2:
     exit()
@@ -38,9 +42,7 @@ if len(historical_metrics) != 0:
 
     samples_delta = curr_n_samples - last_metrics['n_samples']
     if samples_delta < 20:
-        print(
-            "Not enough newly labeled samples since the last model evaluation, required at least 20, obtained: {}".format(
-                samples_delta))
+        logging.info("Not enough newly labeled samples since the last model evaluation, required at least 20, obtained: {}".format(samples_delta))
         # Not enough samples to trigger computation
         exit()
     prev_version_id = last_metrics['versionId']
