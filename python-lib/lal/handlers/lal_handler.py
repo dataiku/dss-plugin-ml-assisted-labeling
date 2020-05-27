@@ -8,6 +8,7 @@ from typing import TypeVar, Dict
 import pandas as pd
 
 from lal.classifiers.base_classifier import BaseClassifier
+from lal.utils import get_local_categories
 
 logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(message)s')
 
@@ -95,6 +96,7 @@ class LALHandler(object):
         result = {"al_enabled": self.classifier.is_al_enabled}
         if self.classifier.is_al_enabled:
             result["halting_thr"] = sorted([self.classifier.halting_thr_low, self.classifier.halting_thr_high])
+        result['local_categories'] = get_local_categories()
         return result
 
     def label(self, data, user):

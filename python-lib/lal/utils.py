@@ -29,6 +29,10 @@ def prettify_error(s):
     return '\xa0' * 130 + ' \n' + s[:90].replace(' ', '\xa0') + s[90:]
 
 
+def get_local_categories():
+    return dataiku.Project().get_variables()['local'].get('ML-ASSISTED-LABELING__categories', [])
+
+
 def load_classifier(dss_model, version_id=None):
 
     logging.info("Trying to load model from {0}".format(dss_model))
@@ -104,3 +108,4 @@ def get_perf_metrics(metadata_name):
     variables = dataiku.Project().get_variables()
     standards = variables['standard']
     return standards.get(metrics_name, [])
+

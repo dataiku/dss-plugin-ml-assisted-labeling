@@ -1,3 +1,5 @@
+import {APIErrors, DKUApi} from "../../dku-api.js";
+
 export const UNDEFINED_COLOR = [220, 220, 220];
 
 function hexToRgb(hex) {
@@ -29,7 +31,9 @@ export function debounce(callback, wait) {
     };
 }
 
-export let config = (() => {
+export let config = undefined;
+
+export function loadConfig() {
     function getColorFromPreparedList(elIdx, totalCount) {
         let preset = null;
 
@@ -45,15 +49,27 @@ export let config = (() => {
 
     let webAppConfig = dataiku.getWebAppConfig();
     const categories = {};
-    if (webAppConfig.categories) {
-        webAppConfig.categories.forEach((el, idx) => {
-            categories[el.from] = {
-                caption: el.to || el.from,
-                color: getColorFromPreparedList(idx, webAppConfig.categories.length) || stringToRgb(el.from)
-            }
-        });
-        webAppConfig.categories = categories;
-    }
-    return webAppConfig;
-})();
+
+    return DKUApi.config().then(data => {
+        webAppConfig.isAlEnabled = data.al_enabled;
+        webAppConfig.haltingThresholds = data.halting_thr;
+        webAppConfig.stoppingMessages = data.stopping_messages;
+        let localCategories = data.local_categories;
+        let allCategories = (webAppConfig.categories ? webAppConfig.categories : []);
+        allCategories = allCategories.concat(localCategories);
+
+        if (allCategories) {
+            allCategories.forEach((el, idx) => {
+                categories[el.from] = {
+                    caption: el.to || el.from,
+                    color: getColorFromPreparedList(idx, allCategories.length) || stringToRgb(el.from)
+                }
+            });
+            webAppConfig.categories = categories;
+        }
+        config = webAppConfig;
+        return config;
+    });
+}
+
 
