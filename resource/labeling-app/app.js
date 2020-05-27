@@ -29,6 +29,7 @@ export default new Vue({
         savedAnnotation: undefined,
         config: config,
         haltingThresholds: undefined,
+        stoppingMessages: undefined,
         item: undefined,
         stats: undefined,
         type: undefined,

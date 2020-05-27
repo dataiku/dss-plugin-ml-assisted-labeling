@@ -31,19 +31,21 @@ curr_clf = utils.load_classifier(model)
 # even if there is a difference of 20, a is considered ignored because it is
 # too close to A.
 
-compare_with_version = 0
-ref_n_samples = versions[0]['snippet']['trainInfo']['trainRows']
-while compare_with_version < len(versions) - 1:
-    compare_with_version += 1
-    n_samples_i = versions[compare_with_version]['snippet']['trainInfo']['trainRows']
-    if ref_n_samples - n_samples_i >= 20:
-        break
+curr_n_samples = versions[0]['snippet']['trainInfo']['trainRows']
+historical_metrics = utils.get_perf_metrics(metadata)
+if len(historical_metrics) != 0:
+    last_metrics = sorted(historical_metrics, key=lambda x: int(x['n_samples']), reverse=True)[0]
 
-if versions[0]['snippet']['trainInfo']['trainRows'] - versions[compare_with_version]['snippet']['trainInfo']['trainRows'] < 20:
-    # Not enough samples to trigger computation
-    exit()
-
-prev_version_id = versions[compare_with_version]['versionId']
+    samples_delta = curr_n_samples - last_metrics['n_samples']
+    if samples_delta < 20:
+        print(
+            "Not enough newly labeled samples since the last model evaluation, required at least 20, obtained: {}".format(
+                samples_delta))
+        # Not enough samples to trigger computation
+        exit()
+    prev_version_id = last_metrics['versionId']
+else:
+    prev_version_id = versions[-1]['versionId']
 
 # To compute contradictions, select samples that are not labeled in the latest model
 unlabeled_df, unlabeled_is_folder = utils.load_data(unlabeled)
@@ -71,4 +73,4 @@ curr_preds = np.argmax(uncertainty._get_probability_classes(curr_clf, preprocess
 contradictions = (prev_preds != curr_preds).sum() / n_samples
 auc = versions[0]['snippet']['auc']
 
-utils.add_perf_metrics(metadata, contradictions.item(), auc)
+utils.add_perf_metrics(metadata, versions[0]['versionId'], curr_n_samples, contradictions.item(), auc)

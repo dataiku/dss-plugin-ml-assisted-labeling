@@ -1,11 +1,13 @@
-import numpy as np
 from itertools import combinations
+
 import dataiku
+import numpy as np
+
 lal = dataiku.import_from_plugin('ml-assisted-labeling', 'lal')
 from lal import utils
 
-def new_halting_score(data):
 
+def new_halting_score(data):
     values, bins = np.histogram(data)
     scores = values / values.sum()
 
@@ -80,21 +82,22 @@ def get_halting_values(scores):
 
 
 def get_stopping_warning(metadata_name, contradiction_tol=.01, auc_tol=.01, lookback=3):
-    hist_contradictions, hist_auc = utils.get_perf_metrics(metadata_name)
-
+    metric = utils.get_perf_metrics(metadata_name)
+    hist_contradictions = [x['contradictions'] for x in metric]
+    hist_auc = [x['auc'] for x in metric]
     warn = []
-    if len(hist_contradictions) >= lookback:
+    if len(metric) >= lookback:
         trigger = True
-        for con1, con2 in zip(hist_contradictions[-(lookback - 1):], hist_contradictions[-(lookback):-1]):
+        for con1, con2 in zip(hist_contradictions[-(lookback - 1):], hist_contradictions[-lookback:-1]):
             trigger = np.abs(con1 - con2) < contradiction_tol
             if not trigger:
                 break
         if trigger:
             warn.append('Contradictions have stalled for the past {} iterations.'.format(lookback))
 
-    if len(hist_auc) >= lookback:
+    if len(metric) >= lookback:
         trigger = True
-        for auc1, auc2 in zip(hist_auc[-(lookback - 1):], hist_auc[-(lookback):-1]):
+        for auc1, auc2 in zip(hist_auc[-(lookback - 1):], hist_auc[-lookback:-1]):
             trigger = np.abs(auc1 - auc2) < auc_tol
             if not trigger:
                 break

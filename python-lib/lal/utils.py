@@ -1,10 +1,8 @@
 import logging
-import dataiku
-
-import pandas as pd
-import numpy as np
-
 from pickle import PickleError
+
+import dataiku
+import pandas as pd
 
 
 def increment_queries_session(queries_ds_name):
@@ -19,7 +17,7 @@ def increment_queries_session(queries_ds_name):
 def get_current_session_id(queries_ds_name=None):
     if queries_ds_name is None:
         return 0
-    return dataiku.Project().get_variables()['standard'].get(f'ML-ASSISTED-LABELING__{queries_ds_name}__session')
+    return dataiku.Project().get_variables()['standard'].get(f'ML-ASSISTED-LABELING__{queries_ds_name}__session', 0)
 
 
 def prettify_error(s):
@@ -83,31 +81,26 @@ def preprocess_data(model, input_df, input_is_folder, version_id=None):
     return input_X
 
 
-def add_perf_metrics(metadata_name, contradictions, auc):
-
-    contradictions_name = f'ML-ASSISTED-LABELING__{metadata_name}__contradictions'
-    auc_name = f'ML-ASSISTED-LABELING__{metadata_name}__auc'
+def add_perf_metrics(metadata_name, model_version, n_samples, contradictions, auc):
+    metrics_name = f'ML-ASSISTED-LABELING__{metadata_name}__metrics'
 
     variables = dataiku.Project().get_variables()
     standards = variables['standard']
 
-    hist_contradictions = standards.get(contradictions_name, [])
-    hist_contradictions.append(contradictions)
-    standards[contradictions_name] = hist_contradictions
-
-    hist_auc = standards.get(auc_name, [])
-    hist_auc.append(auc)
-    standards[auc_name] = hist_auc
+    metrics = standards.get(metrics_name, [])
+    metrics.append({"n_samples": n_samples,
+                    "contradictions": contradictions,
+                    "auc": auc,
+                    "versionId": model_version})
+    standards[metrics_name] = metrics
 
     variables['standard'] = standards
     dataiku.Project().set_variables(variables)
 
 
 def get_perf_metrics(metadata_name):
-
-    contradictions_name = f'ML-ASSISTED-LABELING__{metadata_name}__contradictions'
-    auc_name = f'ML-ASSISTED-LABELING__{metadata_name}__auc'
+    metrics_name = f'ML-ASSISTED-LABELING__{metadata_name}__metrics'
 
     variables = dataiku.Project().get_variables()
     standards = variables['standard']
-    return standards.get(contradictions_name, []), standards.get(auc_name, [])
+    return standards.get(metrics_name, [])
