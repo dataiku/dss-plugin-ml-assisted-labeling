@@ -23,3 +23,7 @@ def prettify_error(s):
     unbreakable words. This enforces a newline in the DSS display and makes the error prettier.
     """
     return '\xa0' * 130 + ' \n' + s[:90].replace(' ', '\xa0') + s[90:]
+
+
+def get_local_categories():
+    return dataiku.Project().get_variables()['local'].get('ML-ASSISTED-LABELING__categories', [])

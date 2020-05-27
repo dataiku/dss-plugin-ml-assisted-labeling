@@ -1,3 +1,4 @@
+import {APIErrors, DKUApi} from "../../dku-api.js";
 export const UNDEFINED_COLOR = [220, 220, 220];
 
 function hexToRgb(hex) {
@@ -42,18 +43,30 @@ export let config = (() => {
         }
         return preset && preset[elIdx]
     }
-
+    
     let webAppConfig = dataiku.getWebAppConfig();
     const categories = {};
-    if (webAppConfig.categories) {
-        webAppConfig.categories.forEach((el, idx) => {
-            categories[el.from] = {
-                caption: el.to || el.from,
-                color: getColorFromPreparedList(idx, webAppConfig.categories.length) || stringToRgb(el.from)
-            }
+
+    DKUApi.config().then(data => {
+        webAppConfig.isAlEnabled = data.al_enabled;
+        webAppConfig.haltingThresholds = data.halting_thr;
+        let globalCategories = data.global_classes;
+        let allCategories = (webAppConfig.categories ? webAppConfig.categories : []);
+        allCategories = allCategories.concat(globalCategories);
+        
+        if (allCategories) {
+            allCategories.forEach((el, idx) => {
+                categories[el.from] = {
+                    caption: el.to || el.from,
+                    color: getColorFromPreparedList(idx, allCategories.length) || stringToRgb(el.from)
+                }
+            });
+            webAppConfig.categories = categories;
+        }
         });
-        webAppConfig.categories = categories;
-    }
+    console.log(webAppConfig.categories);
+
     return webAppConfig;
 })();
+
 
