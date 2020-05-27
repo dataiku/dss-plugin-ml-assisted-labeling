@@ -6,7 +6,7 @@ import {APIErrors, DKUApi} from "./dku-api.js";
 import {ErrorsComponent} from "./components/errors.js";
 import {ImageSample} from "./components/image-sample.js";
 import {ImageCanvas} from "./components/image-object-sample/ImageCanvas.js";
-import {config, debounce} from './components/utils/utils.js'
+import {loadConfig} from './components/utils/utils.js'
 import {HaltingCriterionMetric} from "./components/halting-criterion-metric.js";
 
 Vue.use(VTooltip);
@@ -25,9 +25,8 @@ export default new Vue({
     },
     data: {
         apiErrors: APIErrors,
-
+        config: undefined,
         savedAnnotation: undefined,
-        config: config,
         item: undefined,
         stats: undefined,
         type: undefined,
@@ -96,10 +95,14 @@ export default new Vue({
     },
     mounted: function () {
         this.assignNextItem();
+        loadConfig().then(config => {
+            this.config = config;
+        });
+
     },
     // language=HTML
     template: `
-        <div class="main">
+        <div class="main" v-if="config">
             <errors></errors>
             <div v-if="item && !isDone" class="ongoing-training-main">
                 <div class="sample-container">

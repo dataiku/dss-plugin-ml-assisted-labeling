@@ -8,6 +8,7 @@ from typing import TypeVar, Dict
 import pandas as pd
 
 from lal.classifiers.base_classifier import BaseClassifier
+from lal.utils import get_local_categories
 
 logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(message)s')
 
