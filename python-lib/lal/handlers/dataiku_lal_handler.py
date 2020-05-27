@@ -2,6 +2,7 @@ import logging
 
 import dataiku
 
+from cardinal.criteria import get_stopping_warning
 from lal.handlers.lal_handler import LALHandler
 
 
@@ -11,12 +12,18 @@ class DataikuLALHandler(LALHandler):
     def __init__(self, classifier, config):
         self.labels_ds = dataiku.Dataset(config["labels_ds"])
         self.meta_ds = dataiku.Dataset(config["metadata_ds"])
+        self.stopping_messages = get_stopping_warning(config["metadata_ds"])
         super().__init__(
             classifier=classifier,
             label_col_name=config['label_col_name'],
             meta_df=self.meta_ds.get_dataframe(),
             labels_df=self.labels_ds.get_dataframe()
         )
+
+    def get_config(self):
+        res = super().get_config()
+        res['stopping_messages'] = self.stopping_messages
+        return res
 
     # Saving should probably be optimized (currently it takes >90% of the response time)
     def save_item_meta(self, new_meta_df, new_meta=None):
