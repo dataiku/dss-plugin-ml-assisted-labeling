@@ -552,6 +552,9 @@ hr {
     border: 1px solid var(--grey-lighten-4);
     max-width: 1000px;
 }
+.tooltip .tooltip-inner p{
+    margin: 0;
+}
 
 .tooltip .tooltip-arrow {
     width: 0;
