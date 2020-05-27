@@ -50,9 +50,9 @@ export let config = (() => {
     DKUApi.config().then(data => {
         webAppConfig.isAlEnabled = data.al_enabled;
         webAppConfig.haltingThresholds = data.halting_thr;
-        let globalCategories = data.global_classes;
+        let localCategories = data.local_categories;
         let allCategories = (webAppConfig.categories ? webAppConfig.categories : []);
-        allCategories = allCategories.concat(globalCategories);
+        allCategories = allCategories.concat(localCategories);
         
         if (allCategories) {
             allCategories.forEach((el, idx) => {
