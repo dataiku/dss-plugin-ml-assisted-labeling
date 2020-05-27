@@ -27,9 +27,9 @@ else:
     next_session = utils.get_current_session_id(trigger_config['ds_queries'])
     n_labeling = (metadata_df['session'] == next_session).sum()
     trigger = (n_labeling >= labeling_count)
+    logger.info(
+        f"next_session: {next_session}; n_labeling: {n_labeling}; trigger: {trigger}; labeling_count: {labeling_count}")
 
-logger.info(
-    f"next_session: {next_session}; n_labeling: {n_labeling}; trigger: {trigger}; labeling_count: {labeling_count}")
 
 if trigger:
     t.fire()

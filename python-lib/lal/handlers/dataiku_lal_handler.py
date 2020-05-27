@@ -12,7 +12,7 @@ class DataikuLALHandler(LALHandler):
     def __init__(self, classifier, config):
         self.labels_ds = dataiku.Dataset(config["labels_ds"])
         self.meta_ds = dataiku.Dataset(config["metadata_ds"])
-        self.stopping_messages = get_stopping_warning(config["metadata_ds"])
+        self.config = config
         super().__init__(
             classifier=classifier,
             label_col_name=config['label_col_name'],
@@ -22,7 +22,7 @@ class DataikuLALHandler(LALHandler):
 
     def get_config(self):
         res = super().get_config()
-        res['stopping_messages'] = self.stopping_messages
+        res['stopping_messages'] = get_stopping_warning(self.config["metadata_ds"])
         return res
 
     # Saving should probably be optimized (currently it takes >90% of the response time)

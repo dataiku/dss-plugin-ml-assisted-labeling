@@ -150,7 +150,7 @@ class LALHandler(object):
         stats = self.calculate_stats(user)
         self.logger.info("Stats: {0}".format(stats))
         if self.is_stopping_criteria_met(user):
-            return {"isDone": True, "stats": stats}
+            return {"isDone": True, "stats": stats, "config": self.get_config()}
 
         remaining = self.get_remaining(user)
         ids_batch = remaining[-BATCH_SIZE:]
@@ -163,7 +163,8 @@ class LALHandler(object):
             "type": self.classifier.type,
             "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
             "isLastBatch": len(remaining) < BATCH_SIZE,
-            "stats": stats
+            "stats": stats,
+            "config": self.get_config()
         }
 
     def user_meta(self, user):

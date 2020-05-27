@@ -8,6 +8,7 @@ import {ImageSample} from "./components/image-sample.js";
 import {ImageCanvas} from "./components/image-object-sample/ImageCanvas.js";
 import {loadConfig} from './components/utils/utils.js'
 import {HaltingCriterionMetric} from "./components/halting-criterion-metric.js";
+import {savePerIterationConfig} from "./components/utils/utils.js";
 
 Vue.use(VTooltip);
 
@@ -88,6 +89,7 @@ export default new Vue({
                     this.canLabel = true;
                     this.isLastBatch = data.isLastBatch;
                     this.isDone = data.items.length === 0;
+                    savePerIterationConfig(data.config);
                 });
                 return batchPromise;
             }
