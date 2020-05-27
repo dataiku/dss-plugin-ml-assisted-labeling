@@ -64,7 +64,6 @@ export let config = (() => {
             webAppConfig.categories = categories;
         }
         });
-    console.log(webAppConfig.categories);
 
     return webAppConfig;
 })();
