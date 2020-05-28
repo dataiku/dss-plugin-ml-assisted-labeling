@@ -59,8 +59,8 @@ export function loadConfig() {
     const categories = {};
 
     return DKUApi.config().then(data => {
-        let localCategories = data.local_categories;
-        let allCategories = (webAppConfig.categories ? webAppConfig.categories : []);
+        let localCategories = data.local_categories || [];
+        let allCategories = webAppConfig.categories || [];
         allCategories = allCategories.concat(localCategories);
 
         if (allCategories) {
