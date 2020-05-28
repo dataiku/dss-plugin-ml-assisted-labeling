@@ -79,6 +79,7 @@ export default new Vue({
             this.canLabel = false;
             if (this.isLastBatch) {
                 this.isDone = true;
+                this.canLabel = true;
             } else {
                 let batchPromise = DKUApi.batch();
                 batchPromise.then(data => {
