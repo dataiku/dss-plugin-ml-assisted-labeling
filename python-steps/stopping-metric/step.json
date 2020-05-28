@@ -10,7 +10,7 @@
             "name": "model",
             "label": "Deployed model",
             "type": "SAVED_MODEL",
-            "description": "Some documentation for parameter1",
+            "description": "",
             "mandatory": true
         },
         {
