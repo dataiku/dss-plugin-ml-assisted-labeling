@@ -6,9 +6,8 @@ import {APIErrors, DKUApi} from "./dku-api.js";
 import {ErrorsComponent} from "./components/errors.js";
 import {ImageSample} from "./components/image-sample.js";
 import {ImageCanvas} from "./components/image-object-sample/ImageCanvas.js";
-import {loadConfig} from './components/utils/utils.js'
+import {loadConfig, savePerIterationConfig} from './components/utils/utils.js'
 import {HaltingCriterionMetric} from "./components/halting-criterion-metric.js";
-import {savePerIterationConfig} from "./components/utils/utils.js";
 
 Vue.use(VTooltip);
 
@@ -90,6 +89,8 @@ export default new Vue({
                     this.isLastBatch = data.isLastBatch;
                     this.isDone = data.items.length === 0;
                     savePerIterationConfig(data.config);
+                }, () => {
+                    this.canLabel = true;
                 });
                 return batchPromise;
             }
@@ -104,9 +105,9 @@ export default new Vue({
     },
     // language=HTML
     template: `
-        <div class="main" v-if="config">
+        <div class="main">
             <errors></errors>
-            <div v-if="item && !isDone" class="ongoing-training-main">
+            <div v-if="config && item && !isDone" class="ongoing-training-main">
                 <div class="sample-container">
                     <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
                     <image-sample v-if="type === 'image'" :item="item.data"/>
@@ -190,6 +191,7 @@ export default new Vue({
                                        :annotation="annotation"/>
                 </div>
             </div>
+            <div v-if="!canLabel" class="loading">Loading...</div>
             <div v-if="isDone">
                 <h3>All samples are labeled</h3>
             </div>

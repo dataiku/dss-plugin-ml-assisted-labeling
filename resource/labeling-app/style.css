@@ -761,3 +761,15 @@ select {
 * {
     text-decoration: none;
 }
+
+.loading {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: 999;
+    background-color: var(--grey-lighten-6);
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 10px 20px;
+}
