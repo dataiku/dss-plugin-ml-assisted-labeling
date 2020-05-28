@@ -30,29 +30,28 @@ def new_halting_score(data):
 
 def quantile_constant(data, B=11, halting=True):
 
-    quantiles = np.arange(0,1+1./B,1./B)
-    quants = np.quantile(data,quantiles) 
+    quantiles = np.arange(0, 1 + 1. / B, 1. / B)
+    quants = np.quantile(data, quantiles)
     tol = 0.1
     
-    #merging quantiles closer than tol - to merge locally uniform parts
+    # Merging quantiles closer than tol - to merge locally uniform parts
     diffs = quants[1:] - quants[:-1]
     for i, diff in enumerate(diffs):
         if diff < tol:
             quants[i+1] = quants[i] 
     
-    #assigning to each bins its mean uncertainty values
+    # Assigning to each bins its mean uncertainty values
     bins = np.zeros(data.shape[0])
-    binids = np.digitize(data,quants[:-1])-1
+    binids = np.digitize(data, quants[:-1])-1
     for i in np.unique(binids):    
-        bins[binids==i]= data[binids==i].mean()
+        bins[binids == i] = data[binids == i].mean()
         
-    #to detect distribution too uniform
+    # To detect distribution too uniform
     if halting:
         index = np.linspace(0, 1, num=binids.shape[0])
         uniq_binids = np.unique(binids)
         for i in uniq_binids[::-1]:
             score = new_halting_score(bins[binids <= i])
-            print("score:", np.sqrt(bins[binids == i].mean() / bins.max() * index[binids == i].mean()))
             if score < 0.2:
                 bins[binids <= i] = data.min()
                 break
@@ -61,24 +60,33 @@ def quantile_constant(data, B=11, halting=True):
 
 
 def get_halting_values(scores):
+    n = scores.shape[0]
     sorted_scores = np.sort(scores)
     _, binids = quantile_constant(sorted_scores)
-    low_values = sorted_scores[(binids <= 1)]
-    low_thr = low_values.max() if low_values.size else sorted_scores.min()
-    high_values = sorted_scores[(binids >= 8)]
-    high_thr = sorted_scores[:-20]
-    if high_values.size:
-        high_thr = min(high_values.min(), *high_thr)
+
+    # Because the data is sorted, the binids too. We can retrieve the index easily
+    low_indices = np.where(binids <= 1)[0]
+    low_index = low_indices[-1] if low_indices.size else 0
+
+    high_indices = np.where(binids >= 10)[0]
+    high_index = high_indices[0] if high_indices.size else n - 10
+    # Force at least 10 samples to be green
+    high_index = min(n - 10, high_index)
     
     # Normalize scores from 0 to 1 for display
     vmin = scores.min()
     vmax = scores.max()
-    
     scores = 1 - ((scores - vmin) / (vmax - vmin))
-    low_thr = 1 - ((low_thr - vmin) / (vmax - vmin))
-    high_thr = 1 - ((high_thr - vmin) / (vmax - vmin))
+    argsort = np.argsort(scores)
+
+    # Force a linear space between samples
+    scores *= argsort / n
+
+    # Because indices are reverted, we revert the thesholds
+    low_thr = scores[n - high_index - 1]
+    high_thr = scores[n - low_index - 1]
     
-    return scores, high_thr, low_thr  # Because of normalization we inverse low and high
+    return scores, low_thr, high_thr
 
 
 def get_stopping_warning(metadata_name, contradiction_tol=.01, auc_tol=.01, lookback=3):
