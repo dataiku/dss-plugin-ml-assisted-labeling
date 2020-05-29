@@ -43,5 +43,3 @@ app.directive('querySamplingSettings', function () {
         template: '<div ng-include="templateUrl"></div>'
     }
 });
-
-app.value()
