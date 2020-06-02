@@ -7,15 +7,24 @@ import numpy as np
 from dataiku.customstep import *
 
 from cardinal import uncertainty
-from lal import utils
+from lal import utils, gpu_utils
 # settings at the step instance level (set by the user creating a scenario step)
 from lal.classifiers.base_classifier import FolderBasedDataClassifier, TableBasedDataClassifier
 
 logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(message)s')
 
 step_config = get_step_config()
+
+# GPU set up
+gpu_opts = gpu_utils.load_gpu_options(step_config.get('should_use_gpu', False),
+                                      step_config.get('list_gpu', ''),
+                                      float(step_config.get('gpu_allocation', 0.)))
+
 model = dataiku.Model(step_config['model'])
-unlabeled = step_config['unlabeled']
+if step_config['unlabeled_select'] == 'dataset':
+    unlabeled = step_config['unlabeled_dataset']
+else:
+    unlabeled = step_config['unlabeled_folder']
 metadata = step_config['metadata']
 n_samples = int(step_config['n_samples'])
 
