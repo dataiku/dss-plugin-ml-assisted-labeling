@@ -36,14 +36,6 @@ def deactivate_gpu():
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
     
-def can_use_gpu():
-    """Check that system supports gpu."""
-    # Check that 'tensorflow-gpu' is installed on the current code-env
-    import pip
-    installed_packages = pip.get_installed_distributions()
-    return "tensorflow-gpu" in [p.project_name for p in installed_packages]
-
-
 def set_gpus(gpus):
     """Short method to set gpu configuration."""
     config = tf.ConfigProto()

@@ -1,13 +1,10 @@
 import os
-import glob
 
-import pandas as pd
-import numpy as np
-import tensorflow as tf
-from PIL import Image
 import dataiku
-from lal.utils import prettify_error
+import numpy as np
+from PIL import Image
 
+from lal.utils import prettify_error
 
 try:
     dataiku.use_plugin_libs('object-detection-cpu')
@@ -23,26 +20,26 @@ except:
 
 
 import dataiku
-import gpu_utils
-import misc_utils
-import constants
-
 
 def can_use_gpu(inputs):
     """Check that system supports gpu."""
     # Check that 'tensorflow-gpu' is installed on the current code-env
-    import pkg_resources 
+    import pkg_resources
     has_tf_gpu = "tensorflow-gpu" in [d.key for d in pkg_resources.working_set]
-    
+    if not has_tf_gpu:
+        return False
+
     # In the case of classification query sampler, check if the model is keras
     is_keras_model = True
-    saved_models = [inp for inp in inputs if inp["role"] == 'saved_model']
+    saved_models = [inp for inp in inputs if inp["type"] == 'SAVED_MODEL' and inp["role"] == 'saved_model']
     if len(saved_models) > 0:
         # We found a saved model, we are in the query sampling case
         model = dataiku.Model(saved_models[0]['fullName'])
         is_keras_model = (model.get_definition().get('contentType') == 'prediction/keras')
-    
-    return has_tf_gpu and is_keras_model
+        return is_keras_model
+    else:
+        return any([(inp["type"] == 'MANAGED_FOLDER' and inp["role"] == 'saved_model') for inp in inputs])
+
 
 
 def get_dataset_info(inputs):
@@ -73,8 +70,6 @@ def get_input_name_from_role(inputs, role):
 def do(payload, config, plugin_config, inputs):
     if 'method' not in payload:
         return {}
-
-    client = dataiku.api_client()
 
     if payload['method'] == 'get-dataset-info':
         response = get_dataset_info(inputs)
