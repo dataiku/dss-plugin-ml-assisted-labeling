@@ -10,15 +10,33 @@
             "name": "model",
             "label": "Deployed model",
             "type": "SAVED_MODEL",
-            "description": "",
             "mandatory": true
         },
         {
-            "name": "unlabeled",
+            "name": "unlabeled_select",
+            "label": "Type of unlabeled input",
+            "type": "SELECT",
+            "selectChoices" : [
+                { "value" : "dataset", "label" : "Dataset"},
+                { "value" : "folder", "label" : "Folder"}
+            ],
+            "mandatory": true
+        },
+        {
+            "name": "unlabeled_dataset",
             "label": "Unlabeled dataset",
             "type": "DATASET",
             "description": "Unlabeled samples to compute the metrics on",
-            "mandatory": true
+            "mandatory": false,
+            "visibilityCondition" : "model.unlabeled_select == 'dataset'"
+        },
+        {
+            "name": "unlabeled_folder",
+            "label": "Unlabeled folder",
+            "type": "MANAGED_FOLDER",
+            "description": "Unlabeled samples to compute the metrics on",
+            "mandatory": false,
+            "visibilityCondition" : "model.unlabeled_select == 'folder'"
         },
         {
             "name": "metadata",
@@ -33,6 +51,32 @@
             "type": "INT",
             "description": "Size of the test set. Larger means better metrics but longer computation",
             "defaultValue" : 1000
+        },
+        {
+            "name": "gpu",
+            "label": "GPU",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "should_use_gpu",
+            "label" : "Use GPU",
+            "type": "BOOLEAN"
+        },
+        {
+            "name": "list_gpu",
+            "label": "List of GPUs to use",
+            "type": "STRING",
+            "description": "Comma separated list of GPU indexes",
+            "visibilityCondition" : "model.should_use_gpu"
+        },
+        {
+            "name": "gpu_allocation",
+            "label": "Memory allocation rate per GPU",
+            "type": "DOUBLE",
+            "defaultValue" : 0.5,
+            "minD": 0.0,
+            "maxD": 1.0,
+            "visibilityCondition" : "model.should_use_gpu"
         }
     ]
 }
