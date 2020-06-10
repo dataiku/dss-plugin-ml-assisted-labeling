@@ -1,0 +1,13 @@
+// This file is the descriptor for the app template tabular-classification
+{
+    "meta": {
+        // label: name of the app template as displayed, should be short
+        "label": "App template tabular-classification",
+
+        // description: longer string to help end users understand what this app does
+        "description": "",
+
+        // icon: must be one of the FontAwesome 3.2.1 icons, complete list here at https://fontawesome.com/v3.2.1/icons/
+        "icon": "icon-puzzle-piece"
+    }
+}
