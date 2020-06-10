@@ -35,7 +35,7 @@ def get_local_categories():
 
 def load_classifier(dss_model, version_id=None):
 
-    logging.info("Trying to load model from {0}".format(dss_model))
+    logging.info("Trying to load model from {0}, version: {1}".format(dss_model, version_id))
     try:
         clf = dss_model.get_predictor(version_id=version_id)._clf
     except Exception as e:
