@@ -35,14 +35,16 @@ if len(versions) < 2:
 
 curr_clf = utils.load_classifier(model)
 
-# We do not want to look at the difference if 20 samples have not been sampled
+# We only look at the differences if 20 or more samples have been labeled
 # For example, if the number of labeled samples per model is:
 # [1, 8, 21, 29, 42, 54]
 #  ^  ^  ^   ^   ^
 #  A  a  B   b   C
 # Then we want to compare B against A, and C against B but not b against a:
-# even if there is a difference of 20, a is considered ignored because it is
-# too close to A.
+# even if there is a difference of 20, a is ignored because metrics has been
+# updated for B and |b-B| < 20.
+# For that, we only save the metrics for model that have been trained on at least
+# more than 20 samples than the previously saved model.
 
 curr_n_samples = versions[0]['snippet']['trainInfo']['trainRows']
 historical_metrics = utils.get_perf_metrics(metadata)
