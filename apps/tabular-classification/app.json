@@ -1,8 +1,8 @@
-// This file is the descriptor for the app template tabular-classification
+// This file is the descriptor for the app template image-classification
 {
     "meta": {
         // label: name of the app template as displayed, should be short
-        "label": "App template tabular-classification",
+        "label": "Tabular classification image-classification",
 
         // description: longer string to help end users understand what this app does
         "description": "",
