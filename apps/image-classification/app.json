@@ -2,7 +2,7 @@
 {
     "meta": {
         // label: name of the app template as displayed, should be short
-        "label": "App template image-classification",
+        "label": "Image classification - ML Assisted Labeling",
 
         // description: longer string to help end users understand what this app does
         "description": "",
