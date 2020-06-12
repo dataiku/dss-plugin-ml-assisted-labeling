@@ -1,7 +1,7 @@
 import os
 
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
+from keras.backend.tensorflow_backend import set_session, clear_session
 
 
 def load_gpu_options(should_use_gpu, list_gpu, gpu_allocation):
@@ -29,6 +29,10 @@ def load_gpu_options(should_use_gpu, list_gpu, gpu_allocation):
         gpu_options['n_gpu'] = 0
 
     return gpu_options
+
+
+def reset_session():
+    clear_session()
 
 
 def deactivate_gpu():

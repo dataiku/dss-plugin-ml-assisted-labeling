@@ -33,8 +33,6 @@ versions = sorted(model.list_versions(), key=lambda x: int(x['snippet']['trainDa
 if len(versions) < 2:
     exit()
 
-curr_clf = utils.load_classifier(model)
-
 # We only look at the differences if 20 or more samples have been labeled
 # For example, if the number of labeled samples per model is:
 # [1, 8, 21, 29, 42, 54]
@@ -80,6 +78,12 @@ index = np.asarray(validation_ids)
 prev_clf = utils.load_classifier(model, prev_version_id)
 preprocessed = utils.preprocess_data(model, unlabeled_df.iloc[index], unlabeled_is_folder, version_id=prev_version_id)
 prev_preds = np.argmax(uncertainty._get_probability_classes(prev_clf, preprocessed), axis=1)
+
+# Clear session to save memory
+if step_config.get('should_use_gpu', False):
+    gpu_utils.reset_session()
+
+curr_clf = utils.load_classifier(model)
 preprocessed = utils.preprocess_data(model, unlabeled_df.iloc[index], unlabeled_is_folder)
 curr_preds = np.argmax(uncertainty._get_probability_classes(curr_clf, preprocessed), axis=1)
 
