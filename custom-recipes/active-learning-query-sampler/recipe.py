@@ -37,11 +37,7 @@ clf = utils.load_classifier(model)
 unlabeled_df, unlabeled_is_folder = utils.load_data(unlabeled_samples_container)
 X = utils.preprocess_data(model, unlabeled_df, unlabeled_is_folder)
 func = strategy_mapper[config['strategy']]
-if isinstance(X, dict):
-    n_instances = X[list(X)[0]].shape[0]
-else:
-    n_instances = X.shape[0]
-index, uncertainty_scores = func(clf, X=X, n_instances=X.shape[0])
+index, uncertainty_scores = func(clf, X=X, n_instances=unlabeled_df.shape[0])
 utils.increment_queries_session(queries_ds.short_name)
 
 
