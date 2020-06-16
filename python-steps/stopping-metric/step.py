@@ -15,12 +15,21 @@ logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(messa
 
 step_config = get_step_config()
 
+client = dataiku.api_client()
+project = client.get_project(dataiku.Project().project_key)
+
 # GPU set up
 gpu_opts = gpu_utils.load_gpu_options(step_config.get('should_use_gpu', False),
                                       step_config.get('list_gpu', ''),
                                       float(step_config.get('gpu_allocation', 0.)))
 
-model = dataiku.Model(step_config['model'])
+if step_config['model'] in [m['id'] for m in project.list_saved_models()]:
+    model = dataiku.Model(step_config['model'])
+else:
+    # model_id could be set in a master project of a DKU APP, but the saved model was then recreated in an App
+    logging.info('Model {} was not found in project, trying to find a model by "Classifier" name'.format(step_config['model']))
+    model = dataiku.Model('Classifier')  # default name for ML Assisted labeling plugin DKU Apps
+
 if step_config['unlabeled_select'] == 'dataset':
     unlabeled = step_config['unlabeled_dataset']
 else:
