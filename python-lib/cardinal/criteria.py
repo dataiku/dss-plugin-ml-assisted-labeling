@@ -72,10 +72,14 @@ def get_halting_values(scores):
     high_index = high_indices[0] if high_indices.size else n - 10
     # Force at least 10 samples to be green
     high_index = min(n - 10, high_index)
-    
+
     # Normalize scores from 0 to 1 for display
     vmin = scores.min()
     vmax = scores.max()
+
+    if vmax == vmin:
+        return 1 - scores, vmin, vmax
+
     scores = 1 - ((scores - vmin) / (vmax - vmin))
     argsort = np.argsort(scores)
 
