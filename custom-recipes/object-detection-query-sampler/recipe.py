@@ -21,7 +21,7 @@ try:
     dataiku.use_plugin_libs('object-detection-cpu')
 except:
     try:
-        dataiku.use_plugin_libs('object-detection')
+        dataiku.use_plugin_libs('object-detection-gpu')
     except:
         raise ImportError(utils.prettify_error(
             'ML assisted labeling object detection relies on the DSS object detection '
