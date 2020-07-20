@@ -350,11 +350,11 @@ const ImageCanvas = {
             });
         });
         canvas.on('selection:updated', (o) => {
-            o.selected && o.selected.forEach(o => {
-                o.selected = true;
+            o.selected && o.selected.forEach(i => {
+                i.selected = true;
             });
-            o.deselected && o.deselected.forEach(o => {
-                o.selected = false;
+            o.deselected && o.deselected.forEach(i => {
+                i.selected = false;
             });
         });
         canvas.on('selection:created', (o) => {

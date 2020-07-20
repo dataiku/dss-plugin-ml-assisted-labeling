@@ -625,11 +625,16 @@ hr {
     margin-right: 0;
 }
 
-.tooltip.popover .popover-inner {
+.tooltip {
+    border-radius: 0;
+}
+
+.tooltip .tooltip-inner {
+    border-color: var(--grey-lighten-6);
+    border-radius: 0;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+
     color: var(--black);
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 5px 30px rgba(var(--black), .1);
 }
 
 .tooltip.popover .popover-arrow {

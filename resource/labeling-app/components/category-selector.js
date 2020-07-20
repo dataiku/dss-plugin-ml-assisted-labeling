@@ -66,6 +66,7 @@ let CategorySelector = {
             });
 
             annotation.selected = !annotation.selected;
+            this.selectedLabel = annotation.label;
             this.$emit('input', [...this.annotation.label]);
         },
         remove(annotation) {
@@ -78,6 +79,11 @@ let CategorySelector = {
         categoryClick(lbl) {
             this.selectedLabel = lbl;
             this.$emit('selectedLabel', this.selectedLabel);
+            this.annotation?.label?.forEach(a => {
+                if(a.selected){
+                    a.label = lbl;
+                }
+            });
         },
         initCatToKeyMapping() {
             const unmappedCats = [];
@@ -134,6 +140,12 @@ let CategorySelector = {
     },
 
     watch: {
+        "annotation.label": function (nv) {
+            let selection = nv?.filter(e=>e.selected);
+            if (selection?.length) {
+                this.selectedLabel = selection[0].label;
+            }
+        },
         "label.comment": function (nv) {
             let comments = this.$refs.comments;
             comments.style.height = "1px";
@@ -171,7 +183,8 @@ let CategorySelector = {
                             </div>
                             <code v-if="catToKeyMapping.hasOwnProperty(key)"
                                   class="keybind">{{catToKeyMapping[key]}}</code>
-                            <div class="progress-background">
+                            <div class="progress-background"
+                                v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
                                 <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
                             </div>
                         </div>
@@ -192,12 +205,8 @@ let CategorySelector = {
                         <div class="annotation-thumb-container">
                             <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
                         </div>
-                        <select v-model="a.label">
-                            <option :value="undefined" disabled selected>Select a category</option>
-                            <option v-for="(lbl, key, idx) in categories" :value="key">
-                                {{ lbl.caption }}
-                            </option>
-                        </select>
+                        <div v-if="!a.label">Assign a category</div>
+                        <div v-if="a.label">{{categories[a.label].caption}}</div>
                         <i @click="remove(a)" class="icon-trash"/>
                     </div>
 
@@ -210,7 +219,8 @@ let CategorySelector = {
                      :class="{ selected: annotation.label && annotation.label.includes(key) }">
                     <span>{{lbl.caption}}</span>
                     <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
-                    <div class="progress-background">
+                    <div class="progress-background" 
+                         v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
                         <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
                     </div>
                 </div>
