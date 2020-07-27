@@ -166,7 +166,7 @@ export default new Vue({
                                         <p>The colored bar is a halting criterion indicator. The indicator starts in
                                            the green area in which samples appears to be better than random sampling.
                                            In the orange zone, the sampling is not significantly better than random sampling.
-                                           Red samples are the ones for which the model is almost sure, it is probably
+                                           Red samples are the ones for which the model is almost sure, so it is probably
                                            not worth labeling them.</p>
                                         <p>The indicator is refreshed after each query generation. We advise the
                                            experimenter to retrain model and regenerate queries as often as possible
