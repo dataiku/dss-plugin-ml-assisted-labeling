@@ -165,7 +165,7 @@ export default new Vue({
                                            highest uncertainty scores, are displayed first. </p>
                                         <p>The colored bar is a halting criterion indicator. The indicator starts in
                                            the green area in which samples appears to be better than random sampling.
-                                           The orange zone are the zone we have determined are not better than random.
+                                           In the orange zone, the sampling is not significantly better than random sampling.
                                            Red samples are the ones for which the model is almost sure, it is probably
                                            not worth labeling them.</p>
                                         <p>The indicator is refreshed after each query generation. We advise the
@@ -200,4 +200,3 @@ export default new Vue({
             </div>
         </div>`
 });
-
