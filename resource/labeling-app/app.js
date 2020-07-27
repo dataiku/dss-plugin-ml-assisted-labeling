@@ -176,7 +176,7 @@ export default new Vue({
                                     <div v-if="!config.isAlEnabled">
                                         <p>Active learning is disabled so samples are shown in random order.</p>
                                         <p>You need to generate a queries dataset using the query sampler recipe and
-                                           define in the webapp settings to leverage Active learning.</p>
+                                           define it in the webapp settings to leverage Active learning.</p>
                                     </div>
 
                                 </div>
