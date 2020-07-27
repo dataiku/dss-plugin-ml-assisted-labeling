@@ -170,7 +170,7 @@ export default new Vue({
                                            not worth labeling them.</p>
                                         <p>The indicator is refreshed after each query generation. We advise the
                                            experimenter to retrain model and regenerate queries as often as possible
-                                           even though the indicator is still in the green area.
+                                           even if the indicator is still in the green area.
                                         </p>
                                     </div>
                                     <div v-if="!config.isAlEnabled">
