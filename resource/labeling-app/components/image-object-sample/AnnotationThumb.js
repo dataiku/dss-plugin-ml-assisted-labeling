@@ -14,8 +14,7 @@ let AnnotationThumb = {
         }
     },
     methods: {
-        colorStr: function (original, opacity) {
-            opacity = opacity || 1;
+        colorStr: function (original, opacity = 1) {
             return `rgb(${original[0]},${original[1]},${original[2]},${opacity})`
         },
         initializeScale: function (data) {

@@ -6,7 +6,7 @@ import {APIErrors, DKUApi} from "./dku-api.js";
 import {ErrorsComponent} from "./components/errors.js";
 import {ImageSample} from "./components/image-sample.js";
 import {ImageCanvas} from "./components/image-object-sample/ImageCanvas.js";
-import {config, debounce} from './components/utils/utils.js'
+import {loadConfig, savePerIterationConfig} from './components/utils/utils.js'
 import {HaltingCriterionMetric} from "./components/halting-criterion-metric.js";
 
 Vue.use(VTooltip);
@@ -23,44 +23,30 @@ export default new Vue({
         'errors': ErrorsComponent,
         'ImageCanvas': ImageCanvas
     },
-    watch: {
-        annotation: {
-            handler: function () {
-                this.annotation.label &&  this.saveImageObjectsDebounced(this.annotation)
-            },
-            deep: true
-        }
-    },
     data: {
-        config: config,
-        haltingThresholds: null,
-        item: null,
-        canLabel: true,
-        stats: null,
+        apiErrors: APIErrors,
+        config: undefined,
+        savedAnnotation: undefined,
+        item: undefined,
+        stats: undefined,
+        type: undefined,
+        annotation: undefined,
+        annotations: undefined,
+        selectedLabel: undefined,
+
         isDone: false,
         isFirst: false,
-        type: null,
-        annotation: null,
-        apiErrors: APIErrors,
-        currentALColor: null,
-        currentALValue: null,
-        annotations: null,
-        selectedLabel: null,
-        saveImageObjectsDebounced: null
+        canLabel: true,
     },
     methods: {
         isCurrentItemLabeled() {
+            const annotation = this.annotation;
             if (this.type === 'image-object') {
-                let annotation = this.annotation;
-                return !!this.item.labelId || (annotation.label && annotation.label.length > 0);
+                return annotation?.label?.filter(e => e.label).length > 0;
             } else {
-                return !!this.item.labelId;
+                return annotation?.label?.length;
             }
         },
-        labelSelected(selectedLabel) {
-            this.selectedLabel = selectedLabel;
-        },
-
         updateStatsAndProceedToNextItem: function (response) {
             this.stats = response.stats;
             this.assignNextItem();
@@ -93,6 +79,7 @@ export default new Vue({
             this.canLabel = false;
             if (this.isLastBatch) {
                 this.isDone = true;
+                this.canLabel = true;
             } else {
                 let batchPromise = DKUApi.batch();
                 batchPromise.then(data => {
@@ -102,109 +89,114 @@ export default new Vue({
                     this.canLabel = true;
                     this.isLastBatch = data.isLastBatch;
                     this.isDone = data.items.length === 0;
+                    savePerIterationConfig(data.config);
+                }, () => {
+                    this.canLabel = true;
                 });
                 return batchPromise;
             }
         }
     },
     mounted: function () {
-        this.saveImageObjectsDebounced = debounce.call(this, () => {
-            let mapLabelToSaveObject = a => {
-                return {top: a.top, left: a.left, label: a.label, width: a.width, height: a.height}
-            };
-            let annotation = this.annotation;
-            let annotationToSave = {
-                comment: annotation.comment,
-                label: annotation.label && annotation.label.map(mapLabelToSaveObject)
-            };
-            if (!_.isEqual(annotationToSave, this.savedAnnotation)) {
-                let annotationData = {...annotationToSave, ...{id: this.item.id}};
-                console.log("SAVE", annotationData);
-                DKUApi.label(annotationData).then(labelingResponse => {
-                    this.$emit('label', labelingResponse);
-                    this.stats = labelingResponse.stats;
-                    this.savedAnnotation = _.cloneDeep(annotationToSave);
-                });
-            }
-        }, 500);
-
-
-        DKUApi.config().then(data => {
-            this.isAlEnabled = data.al_enabled;
-            this.currentALValue = data.halting_score;
-            this.haltingThresholds = data.halting_thresholds;
+        this.assignNextItem();
+        loadConfig().then(config => {
+            this.config = config;
         });
 
-
-        this.assignNextItem();
     },
     // language=HTML
     template: `
         <div class="main">
             <errors></errors>
-            <div v-if="item && !isDone" class="ongoing-training-main">
+            <div v-if="config && item && !isDone" class="ongoing-training-main">
                 <div class="sample-container">
-                    <v-popover :trigger="'hover'"
-                               style="transform: translateX(-50%); position: absolute; top: 10px; left: 50%; border-radius: 4px">
-                        <div class="al-enabled-widget"
-                             :style="{backgroundColor: isAlEnabled && currentALColor}"
-                             v-bind:class="{ 'enabled': isAlEnabled }">
-                            <span>●</span> Active learning {{isAlEnabled ? 'enabled' : 'disabled'}}
-                        </div>
-                        <div slot="popover" class="al-status-popover">
-                            <div v-if="isAlEnabled">
-                                <p>When Active learning is enabled samples are ordered according to the uncertainty
-                                    score generated by query sampler recipe</p>
-                                <p>Efficiency of labeling using Active learning can be controlled by the halting
-                                    metric:</p>
-                                <halting-criterion-metric
-                                        :thresholds="haltingThresholds"
-                                        :colors="['#2AA876','#FFD265','#F19C65','#CE4D45']"
-                                        :currentValue="currentALValue"
-                                        @currentColor="currentALColor=$event"></halting-criterion-metric>
-                            </div>
-                            <div v-if="!isAlEnabled">
-                                <p>When Active learning is disabled samples are shown in random order</p>
-                                <p>You need to generate queries dataset using query sampler recipe to leverage Active
-                                    learning.</p>
-                            </div>
-                        </div>
-                    </v-popover>
                     <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
                     <image-sample v-if="type === 'image'" :item="item.data"/>
                     <sound-sample v-if="type === 'sound'" :item="item.data"/>
                     <ImageCanvas v-if="type === 'image-object'"
-                                 :base64source="item.data.enriched"
+                                 :base64source="item.data.enriched.img"
                                  :selectedLabel="selectedLabel"
-                                 v-bind:objects.sync="annotation.label"
+                                 :objects.sync="annotation.label"
                     />
-                    <!--                                 v-on:update:objects="saveImageObjectsDebounced"-->
 
                 </div>
-                <div class="right-pannel">
-                    <div class="right-pannel-top">
-                        <div class="stat-container" v-if="stats">
-                            <span class="stat"><span class="stat-count">{{stats.total}}</span> samples</span>
-                            <span class="stat"><span class="stat-count">{{stats.labeled}}</span> labeled</span>
-                            <span class="stat"><span class="stat-count">{{stats.skipped}}</span> skipped</span>
+                <div class="right-panel">
+                    <div class="section right-panel-top">
+                        <div style="display:flex; flex-direction: column; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 10px">
+                            <div class="stat-container" v-if="stats">
+                                <span class="stat"><span class="stat-count">{{stats.labeled}}</span> labeled</span>
+                                <span class="stat"><span class="stat-count">{{stats.skipped}}</span> skipped</span>
+                                <span class="stat"><span class="stat-count">{{stats.total}}</span> total</span>
+                            </div>
+                            <control-buttons :canSkip="!isDone"
+                                             :isFirst="isFirst || !(stats.labeled + stats.skipped)"
+                                             :isLabeled="isCurrentItemLabeled()"
+                                             :currentStatus="item.status"
+                            />
                         </div>
-                        <control-buttons :canSkip="!isDone"
-                                         :isFirst="isFirst || !(stats.labeled + stats.skipped)"
-                                         :isLabeled="isCurrentItemLabeled()"/>
+
+                        <div>
+                            <v-popover :trigger="'hover'" :placement="'left'">
+                                <div class="al-enabled-widget"
+                                     :class="{ 'enabled': config.isAlEnabled }">
+                                    <div class="status">
+                                        <span class="icon">●</span>
+                                        <span>Active learning {{config.isAlEnabled ? 'enabled' : 'unavailable'}}</span>
+                                        <i class="icon-info-sign" style="flex: 1; text-align: right"></i>
+                                    </div>
+                                    <halting-criterion-metric
+                                            v-if="config.isAlEnabled"
+                                            :thresholds="config.haltingThresholds"
+                                            :colors="['#2AA876','#FFD265','#CE4D45']"
+                                            :currentValue="item.data.halting"></halting-criterion-metric>
+                                    <div v-show="config.stoppingMessages?.length">
+                                        <span class="status">
+                                            <i class="icon-warning-sign" style="margin-right: 5px"></i>
+                                            <span style="flex: 1">Labeling may be stopped</span>
+                                        </span>
+                                        <ul>
+                                            <li v-for="msg in config.stoppingMessages">{{msg}}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div slot="popover" style="text-align: left; max-width: 500px">
+                                    <div v-if="config.isAlEnabled">
+                                        <p>When Active learning is enabled so the most informative examples, with
+                                           highest uncertainty scores, are displayed first. </p>
+                                        <p>The colored bar is a halting criterion indicator. The indicator starts in
+                                           the green area in which samples appears to be better than random sampling.
+                                           In the orange zone, the sampling is not significantly better than random sampling.
+                                           Red samples are the ones for which the model is almost sure, so it is probably
+                                           not worth labeling them.</p>
+                                        <p>The indicator is refreshed after each query generation. We advise the
+                                           experimenter to retrain model and regenerate queries as often as possible
+                                           even if the indicator is still in the green area.
+                                        </p>
+                                    </div>
+                                    <div v-if="!config.isAlEnabled">
+                                        <p>Active learning is disabled so samples are shown in random order.</p>
+                                        <p>You need to generate a queries dataset using the query sampler recipe and
+                                           define it in the webapp settings to leverage Active learning.</p>
+                                    </div>
+
+                                </div>
+                            </v-popover>
+                        </div>
+
                     </div>
 
-                    <category-selector v-on:label="updateStatsAndProceedToNextItem"
-                                       v-bind:enabled.sync="canLabel"
+                    <category-selector @label="updateStatsAndProceedToNextItem"
+                                       :enabled.sync="canLabel"
                                        :stats="stats"
+                                       :status="item.status"
                                        :type="type"
                                        @selectedLabel="selectedLabel = $event"
                                        :annotation="annotation"/>
                 </div>
             </div>
+            <div v-if="!canLabel" class="loading">Loading...</div>
             <div v-if="isDone">
                 <h3>All samples are labeled</h3>
             </div>
-
         </div>`
 });
-

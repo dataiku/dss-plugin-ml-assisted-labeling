@@ -8,30 +8,13 @@ from dataiku.customrecipe import *
 
 import pandas as pd
 import numpy as np
-import tensorflow as tf
 
-from sklearn.model_selection import train_test_split
-from keras.utils import multi_gpu_model
-from keras.models import load_model
-
-from keras_retinanet.models.resnet import resnet50_retinanet
 from keras_retinanet.models.retinanet import *
-from keras_retinanet.utils.model import freeze as freeze_model
 from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from keras_retinanet import backend
 from keras_retinanet.layers import FilterDetections
-
+from lal import utils
 from cardinal import uncertainty
-
-
-
-def prettify_error(s):
-    """Adds a blank and replaces regular spaces by non-breaking in the first 90 characters
-    
-    This function adds a big blank space and forces the first words to be a big block of
-    unbreakable words. This enforces a newline in the DSS display and makes the error prettier.
-    """
-    return '\xa0' * 130 + ' \n' + s[:90].replace(' ', '\xa0') + s[90:]
 
 
 try:
@@ -40,7 +23,7 @@ except:
     try:
         dataiku.use_plugin_libs('object-detection-gpu')
     except:
-        raise ImportError(prettify_error(
+        raise ImportError(utils.prettify_error(
             'ML assisted labeling object detection relies on the DSS object detection '
             'plugin. The plugin could not be found on this instance. Please insteall it '
             'to use this recipe. More information: https://www.dataiku.com/product/plugins/object-detection/'
@@ -48,7 +31,6 @@ except:
 
 
 from retinanet_model import get_model
-from dfgenerator import DfGenerator
 from gpu_utils import load_gpu_options
 
 
@@ -119,7 +101,7 @@ def proba_filter_detections(
         indices = _filter_detections(scores, labels)
 
     # select top k
-    cscores = keras.backend.gather(classification, indices[:, 0])
+    cscores             = keras.backend.gather(classification, indices[:, 0])
     scores              = backend.gather_nd(classification, indices)
     labels              = indices[:, 1]
     scores, top_indices = backend.top_k(scores, k=keras.backend.minimum(max_detections, keras.backend.shape(scores)[0]))
@@ -154,6 +136,9 @@ def proba_filter_detections(
 class ProbaFilterDetections(FilterDetections):
     """ Keras layer for filtering detections using score threshold and NMS.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def call(self, inputs, **kwargs):
         """ Constructs the NMS graph.
@@ -199,6 +184,7 @@ class ProbaFilterDetections(FilterDetections):
             List of tuples representing the output shapes:
             [filtered_boxes.shape, filtered_scores.shape, filtered_labels.shape, filtered_other[0].shape, filtered_other[1].shape, ...]
         """
+
         return [
             (input_shape[0][0], self.max_detections, 4),
             (input_shape[1][0], self.max_detections, input_shape[1][1]),
@@ -329,7 +315,7 @@ def find_objects(model, paths):
     """Find objects with bach size >= 1.
     To support batch size > 1, this method implements a naive ratio grouping
     where batch of images will be processed together solely if they have a
-    similar shape.
+    identical shape.
     Args:
         model: A retinanet model in inference mode.
         paths: Paths to all images to process. The *maximum* batch size is the
@@ -382,11 +368,12 @@ def find_objects(model, paths):
     return b_boxes, b_scores, b_labels
 
 
-logging.basicConfig(level=logging.INFO, format='[Object Detection] %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='[ML Assisted labeling] %(levelname)s - %(message)s')
 
 
 images_folder = dataiku.Folder(get_input_names_for_role('unlabeled_samples')[0])
 weights_folder = dataiku.Folder(get_input_names_for_role('saved_model')[0])
+queries_ds = dataiku.Dataset(get_output_names_for_role('queries')[0])
 
 weights = os.path.join(weights_folder.get_path(), 'weights.h5')
 labels_to_names = json.loads(open(os.path.join(weights_folder.get_path(), 'labels.json')).read())
@@ -413,14 +400,15 @@ gpu_opts = load_gpu_options(configs.get('should_use_gpu', False),
                                         configs.get('list_gpu', ''),
                                         configs.get('gpu_allocation', 0.))
 
-batch_size = 3  # int(configs['batch_size'])
-confidence = 0.1  # float(configs['confidence'])
+batch_size = int(configs['batch_size'])
+confidence = float(configs['confidence'])
 
 model = get_test_model(weights, len(labels_to_names))
 
-df = pd.DataFrame(columns=['path', 'uncertainty', 'session'])
+df = pd.DataFrame(columns=['path', 'uncertainty'])
 df_idx = 0
-session = 1
+
+utils.increment_queries_session(queries_ds.short_name)
 
 paths = images_folder.list_paths_in_partition()
 folder_path = images_folder.get_path()
@@ -437,22 +425,19 @@ for i in range(0, len(paths), batch_size):
     batch_paths = list(map(lambda x: os.path.join(folder_path, x[1:]), batch_paths))
 
     boxes, scores, labels = find_objects(model, batch_paths)
-    print('image', i)
     for batch_i in range(boxes.shape[0]):
         # For each image of the batch
-        cur_path = [batch_paths[batch_i].split('/')[-1]]
-            
+        cur_path = ["/"+os.path.relpath(os.path.relpath(batch_paths[batch_i], folder_path))]
+
         if len(boxes[batch_i]) and boxes[batch_i][0][0] >= 0.:
             # We take the box with highest probability
             best_row = scores[batch_i][np.argmax(np.max(scores[batch_i], axis=1))]
-            df.loc[df_idx] = cur_path + [scorer(NoClassifier(), [best_row])[1][0], session]
+            df.loc[df_idx] = cur_path + [scorer(NoClassifier(), [best_row])[1][0]]
         else:
-            df.loc[df_idx] = cur_path + [1., session]
+            df.loc[df_idx] = cur_path + [1.]
         df_idx += 1
 
     if i % 100 == 0:
         print_percent(i, total_paths)
 
-
-bb_ds = dataiku.Dataset(get_output_names_for_role('queries')[0])
-bb_ds.write_with_schema(df)
+queries_ds.write_with_schema(df)

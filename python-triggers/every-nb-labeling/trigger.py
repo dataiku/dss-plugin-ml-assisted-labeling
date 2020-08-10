@@ -1,7 +1,13 @@
+import logging
+
 import dataiku
 from dataiku.customtrigger import *
 from dataiku.scenario import Trigger
 
+from lal import utils
+logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(message)s')
+
+logger = logging.getLogger("EveryNLabelingTrigger")
 trigger_config = get_trigger_config()
 
 t = Trigger()
@@ -17,11 +23,13 @@ trigger = False
 if queries_df.empty:
     trigger = metadata_df['session'].shape[0] > labeling_count
 else:
-    next_session = queries_df['session'].max()
+
+    next_session = utils.get_current_session_id(trigger_config['ds_queries'])
     n_labeling = (metadata_df['session'] == next_session).sum()
     trigger = (n_labeling >= labeling_count)
+    logger.info(
+        f"next_session: {next_session}; n_labeling: {n_labeling}; trigger: {trigger}; labeling_count: {labeling_count}")
 
-print(next_session, n_labeling, trigger, labeling_count)
 
 if trigger:
     t.fire()

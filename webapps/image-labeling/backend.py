@@ -1,8 +1,10 @@
 import dataiku
 from dataiku.customwebapp import get_webapp_config
+
 from lal.api import define_endpoints
 from lal.app_configuration import prepare_datasets
 from lal.classifiers.image_classifier import ImageClassifier
+from lal.handlers.dataiku_lal_handler import DataikuLALHandler
 
 config = get_webapp_config()
 
@@ -15,4 +17,4 @@ unlabeled_mf = dataiku.Folder(config["unlabeled"])
 
 queries_df = dataiku.Dataset(config["queries_ds"]).get_dataframe() if "queries_ds" in config else None
 
-define_endpoints(app, ImageClassifier(unlabeled_mf, queries_df, config))
+define_endpoints(app, DataikuLALHandler(ImageClassifier(unlabeled_mf, queries_df, config), config))

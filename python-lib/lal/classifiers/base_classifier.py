@@ -1,10 +1,14 @@
+import hashlib
 import logging
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 import pandas as pd
 
+from cardinal.criteria import get_halting_values
+from lal import utils
 
-class BaseClassifier(object):
+
+class BaseClassifier(ABC):
     logger = logging.getLogger(__name__)
 
     def __init__(self, queries_df, config):
@@ -14,17 +18,23 @@ class BaseClassifier(object):
         self.initial_df = self.get_initial_df()
         self.id_to_index = {}
         self.ordered_ids = list()
+        self.df_to_label = self.get_df_to_label()
         for index, row in self.df_to_label.iterrows():
             row_id = self.raw_row_to_id(row)
             self.id_to_index[row_id] = index
             self.ordered_ids.append(row_id)
 
+        if self.is_al_enabled:
+            self.halting_values, self.halting_thr_low, self.halting_thr_high = get_halting_values(self.queries_df.sort_values('uncertainty', ascending=True).uncertainty)
+            self.halting_values_by_id = dict(zip(self.ordered_ids, self.halting_values))
+        else:
+            self.halting_values_by_id = None
+
     @property
     def is_al_enabled(self):
         return self.queries_df is not None and not self.queries_df.empty
 
-    @property
-    def df_to_label(self):
+    def get_df_to_label(self):
         if self.is_al_enabled:
             logging.info("Taking queries dataframe to label")
             df_to_label = self.queries_df.sort_values('uncertainty', ascending=True)
@@ -35,10 +45,9 @@ class BaseClassifier(object):
 
         return df_to_label
 
+
     def get_session(self):
-        if self.queries_df is None or self.queries_df.empty:
-            return 0
-        return self.queries_df.session[0]  # all session values are the same in queries, taking first
+        return utils.get_current_session_id(self.config.get('queries_ds'))
 
     def validate_config(self, config):
         self.logger.info("Webapp config: %s" % repr(config))
@@ -49,8 +58,13 @@ class BaseClassifier(object):
         return config
 
     def get_item_by_id(self, sid):
-        return {"raw": self.get_raw_item_by_id(sid),
-                "enriched": self.get_enriched_item_by_id(sid)}
+        result = {"raw": self.get_raw_item_by_id(sid)}
+        enriched = self.get_enriched_item_by_id(sid)
+        if enriched:
+            result["enriched"] = enriched
+        if self.is_al_enabled:
+            result["halting"] = self.halting_values_by_id[sid]
+        return result
 
     def get_enriched_item_by_id(self, sid):
         pass
@@ -65,9 +79,10 @@ class BaseClassifier(object):
     def deserialize_label(self, label):
         return [label]
 
+    @staticmethod
     @abstractmethod
-    def raw_row_to_id(self, raw):
-        pass
+    def raw_row_to_id(raw):
+        raise NotImplementedError()
 
     def get_all_item_ids_list(self):
         return self.ordered_ids
@@ -80,3 +95,22 @@ class BaseClassifier(object):
     @abstractmethod
     def type(self):
         pass
+
+    @staticmethod
+    def format_labels_for_stats(raw_labels_series):
+        return raw_labels_series
+
+
+class FolderBasedDataClassifier(BaseClassifier, ABC):
+    @staticmethod
+    def raw_row_to_id(raw):
+        return raw['path']
+
+    def get_raw_item_by_id(self, sid):
+        return {"path": sid}
+
+
+class TableBasedDataClassifier(BaseClassifier, ABC):
+    @staticmethod
+    def raw_row_to_id(raw):
+        return str(hashlib.sha256(pd.util.hash_pandas_object(raw).values).hexdigest())

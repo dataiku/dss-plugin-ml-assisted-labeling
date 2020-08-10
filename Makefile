@@ -5,4 +5,4 @@ all:
 	cat plugin.json|json_pp > /dev/null
 	rm -rf dist
 	mkdir dist
-	zip -r dist/dss-plugin-${PLUGIN_ID}-${PLUGIN_VERSION}.zip code-env custom-recipes python-lib python-triggers resource webapps plugin.json
+	zip -r dist/dss-plugin-${PLUGIN_ID}-${PLUGIN_VERSION}.zip apps code-env custom-recipes data js python-lib python-steps python-triggers resource webapps plugin.json

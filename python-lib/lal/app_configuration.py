@@ -16,7 +16,7 @@ metadata_required_schema = [
     {"name": "date", "type": "date"},
     {"name": "data_id", "type": "string"},
     {"name": lbl_col, "type": "string"},
-    {"name": lbl_id_col, "type": "string"},
+    {"name": lbl_id_col, "type": "int"},
     {"name": "comment", "type": "string"},
     {"name": "session", "type": "int"},
     {"name": "status", "type": "string"},
@@ -28,13 +28,13 @@ def prepare_datasets(unlabeled_schema=None):
     logging.info("Preparing datasets if needed")
     unlabeled_schema = unlabeled_schema or dataiku.Dataset(config["unlabeled"]).read_schema()
 
-    labels_schema = unlabeled_schema + [{"name": config['label_col_name'], 'type': 'string'},
-                                        {"name": config['label_col_name'] + "_id", 'type': 'string'}]
+    labels_schema = unlabeled_schema + [{"name": lbl_col, 'type': 'string'},
+                                        {"name": lbl_id_col, 'type': 'int'}]
 
     prepare_dataset(labels_schema, dataiku.Dataset(config['labels_ds']))
 
     if 'queries_ds' in config:
-        queries_schema = unlabeled_schema + [{"name": "uncertainty", "type": "float"}, {"name": "session", "type": "int"}]
+        queries_schema = unlabeled_schema + [{"name": "uncertainty", "type": "float"}]
         prepare_dataset(queries_schema, dataiku.Dataset(config['queries_ds']))
 
     prepare_dataset(metadata_required_schema, dataiku.Dataset(config['metadata_ds']))

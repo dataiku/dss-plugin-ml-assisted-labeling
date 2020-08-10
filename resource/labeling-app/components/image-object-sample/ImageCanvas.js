@@ -19,13 +19,12 @@ function modifyFabric() {
                 height: Math.round(this.height * this.scaleY),
                 selected: this.selected,
                 draft: this.draft,
-
             }
         };
     })(fabric.Rect.prototype.toObject);
 }
 
-let ImageCanvas = {
+const ImageCanvas = {
 
     name: 'ImageCanvas',
     props: {
@@ -98,7 +97,7 @@ let ImageCanvas = {
             });
         },
         toggleMode(mode) {
-            this.mode = (this.mode === mode ? 'normal' : mode);
+            this.mode = (this.mode === mode ? 'select' : mode);
         },
         convertObjectToCanvas(o) {
             return {
@@ -112,24 +111,24 @@ let ImageCanvas = {
             }
         },
         drawData(objects) {
-            let objectsToDraw = objects || this.objects;
-            let canvas = this.canvas;
+            const objectsToDraw = objects || this.objects;
+            const canvas = this.canvas;
 
             canvas.remove(...canvas.getObjects());
             canvas.discardActiveObject();
             objectsToDraw && objectsToDraw.forEach(s => {
                 this.addRectFromObject(s)
             });
-            let selectedObjects = canvas.getObjects().filter(o => o.selected);
+            const selectedObjects = canvas.getObjects().filter(o => o.selected);
             selectedObjects.length && canvas.setActiveObject(...selectedObjects);
             canvas.requestRenderAll();
         },
         addRectFromObject(o) {
-            let category = config.categories[o.label];
-            let color = category ? category.color : UNDEFINED_COLOR;
+            const category = config.categories[o.label];
+            const color = category ? category.color : UNDEFINED_COLOR;
             const colorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
             const strokeColorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.8)`;
-            let rect = new fabric.Rect({
+            const rect = new fabric.Rect({
                 left: o.left,
                 top: o.top,
                 originX: 'left',
@@ -153,10 +152,11 @@ let ImageCanvas = {
 
 
         addRect(left, top, width, height, selectedLabel, id) {
-            let color = config.categories[selectedLabel].color;
+            const category = config.categories[selectedLabel];
+            const color = category ? category.color : [255,255,255];
             const colorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
             const strokeColorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.8)`;
-            let rect = new fabric.Rect({
+            const rect = new fabric.Rect({
                 left: left,
                 top: top,
                 originX: 'left',
@@ -204,7 +204,7 @@ let ImageCanvas = {
             immediate: true,
             handler(nv) {
                 setTimeout(() => {
-                    this.canvas.selection = nv === 'normal';
+                    this.canvas.selection = nv === 'select';
                     this.canvas.defaultCursor = nv === 'draw' ? 'crosshair' : 'default';
                 })
             }
@@ -234,13 +234,13 @@ let ImageCanvas = {
         });
 
         canvas.on('mouse:down', (o) => {
-            if (this.mode !== 'draw' || !this.selectedLabel) {
+            if (this.mode !== 'draw') {
                 return;
             }
             isDown = true;
             isDrawing = o.target === null;
             if (isDrawing) {
-                let pointer = canvas.getPointer(o.e);
+                const pointer = canvas.getPointer(o.e);
                 origX = pointer.x;
                 origY = pointer.y;
             }
@@ -301,11 +301,11 @@ let ImageCanvas = {
 
         canvas.on('mouse:move', (o) => {
             if (!isDown) return;
-            let pointer = canvas.getPointer(o.e);
+            const pointer = canvas.getPointer(o.e);
             if (isDrawing) {
 
-                let pointerX = Math.max(Math.min(canvas.width - STROKE_WIDTH, pointer.x), 0);
-                let pointerY = Math.max(Math.min(canvas.height - STROKE_WIDTH, pointer.y), 0);
+                const pointerX = Math.max(Math.min(canvas.width - STROKE_WIDTH, pointer.x), 0);
+                const pointerY = Math.max(Math.min(canvas.height - STROKE_WIDTH, pointer.y), 0);
                 if (!rect) {
                     let width = pointerX - origX;
                     let height = pointerY - origY;
@@ -350,11 +350,11 @@ let ImageCanvas = {
             });
         });
         canvas.on('selection:updated', (o) => {
-            o.selected && o.selected.forEach(o => {
-                o.selected = true;
+            o.selected && o.selected.forEach(i => {
+                i.selected = true;
             });
-            o.deselected && o.deselected.forEach(o => {
-                o.selected = false;
+            o.deselected && o.deselected.forEach(i => {
+                i.selected = false;
             });
         });
         canvas.on('selection:created', (o) => {
@@ -384,14 +384,18 @@ let ImageCanvas = {
     template: `
         <div class="canvas-wrapper" ref="wrapper">
             <div>
-                <canvas ref="canvas" width="900" height="600"></canvas>
+                <canvas ref="canvas" width="900" height="600" class="main-area-element"></canvas>
             </div>
             <div class="canvas__button-wrapper">
-                <button @click="toggleMode('draw')">
-                    <span v-if="mode !== 'draw'"><i class="fas fa-pencil-alt"></i>Draw</span>
-                    <span v-if="mode === 'draw'"><i class="far fa-object-ungroup"></i>Select</span>
-                </button>
-                <button @click="deleteAll()"><i class="icon-trash"></i>Delete all</button>
+                <div class="main-area-element tool-selector">
+                    <button @click="mode='draw'" :class="{'active': mode==='draw'}" class="adjacent-from-right">
+                        <span><i class="fas fa-vector-square"></i>Create box</span>
+                    </button>
+                    <button @click="mode='select'" :class="{'active': mode==='select'}" class="adjacent-from-left">
+                        <span><i class="fas fa-mouse-pointer"></i>Select</span>
+                    </button>
+                </div>
+                <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>Delete all</button>
             </div>
         </div>`
 };
