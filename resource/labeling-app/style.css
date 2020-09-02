@@ -161,6 +161,15 @@ canvas {
 
 }
 
+.empty-annotations-placeholder div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.category-selector--categories .empty-annotations-placeholder{
+    position: absolute; top: 50%; transform: translateY(-50%)
+}
 .category-selector--categories {
     align-content: flex-start;
     margin-left: -5px;

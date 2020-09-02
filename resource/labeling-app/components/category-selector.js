@@ -190,12 +190,21 @@ let CategorySelector = {
                         </div>
                     </div>
                 </div>
-                <div class="empty-annotations-placeholder" v-if="!annotation?.label?.filter(e=>!e.draft).length">
-                    <div v-if="status !== 'SKIPPED'" class="circle"></div>
-                    <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                    <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
-                    <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
-                    <p>Select a label and draw a box around the target.</p>
+                <div class="empty-annotations-placeholder" v-if="!annotation?.label?.filter(e=>!e.draft).length || !Object.keys(categories).length">
+                    <div v-if="!Object.keys(categories).length && status !== 'SKIPPED'">
+                        <div class="circle"></div>
+                        <h2>Categories are not specified</h2>
+                        <p>Enter a list of categories in the webapp settings</p>
+                    </div>
+                    <div v-else-if="status === 'SKIPPED'">
+                        <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
+                        <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
+                    </div>
+                    <div v-else>
+                        <div v-if="status !== 'SKIPPED'" class="circle"></div>
+                        <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
+                        <p>Select a label and draw a box around the target.</p>
+                    </div>
                 </div>
                 <div v-if="annotation?.label?.filter(e=>!e.draft).length"
                      class="category-selector__annotations-wrapper">
@@ -214,12 +223,24 @@ let CategorySelector = {
             </div>
 
             <div class="category-selector--categories" v-if="!isObjectLabeling">
+                <div class="empty-annotations-placeholder"
+                     v-if="!Object.keys(categories).length || status === 'SKIPPED'">
+                    <div v-if="!Object.keys(categories).length && status !== 'SKIPPED'">
+                        <div class="circle"></div>
+                        <h2>Categories are not specified</h2>
+                        <p>Enter a list of categories in the webapp settings</p>
+                    </div>
+                    <div v-else-if="status === 'SKIPPED'">
+                        <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
+                        <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
+                    </div>
+                </div>
                 <div class="button category" v-for="(lbl,key) in categories"
                      @click="doLabel(key)"
                      :class="{ selected: annotation.label && annotation.label.includes(key) }">
                     <span>{{lbl.caption}}</span>
                     <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
-                    <div class="progress-background" 
+                    <div class="progress-background"
                          v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
                         <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
                     </div>
