@@ -1,0 +1,15 @@
+{
+  "actions": [
+    {
+      "ts": 1599050106128,
+      "action": "INSTALL",
+      "user": "admin"
+    }
+  ],
+  "gitState": {
+    "enabled": true,
+    "repository": "https://github.com/dataiku/dss-plugin-ml-assisted-labeling.git",
+    "path": "",
+    "checkout": ""
+  }
+}
