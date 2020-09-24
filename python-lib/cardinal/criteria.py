@@ -2,8 +2,12 @@ from itertools import combinations
 
 import dataiku
 import numpy as np
+import logging
 
-lal = dataiku.import_from_plugin('ml-assisted-labeling', 'lal')
+try:
+    lal = dataiku.import_from_plugin('ml-assisted-labeling', 'lal')
+except Exception as e:
+    logging.warning("Couldn't import lal from ml-assisted-labeling plugin, will assume it's already in PYTHONPATH")
 from lal import utils
 
 
