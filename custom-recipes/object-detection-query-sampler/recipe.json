@@ -6,6 +6,7 @@
     "supportLevel": "NOT_SUPPORTED"
   },
   "kind": "PYTHON",
+  "selectableFromDataset": "unlabeled_samples",
   "inputRoles": [
     {
       "name": "saved_model",
