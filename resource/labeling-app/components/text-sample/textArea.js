@@ -38,8 +38,8 @@ const TextArea = {
             txt.split('').forEach((letter) => {
                 const isWhiteSpace = letter === ' ';
                 const isSpecialChar = !letter.match(/^[a-zA-Z0-9]+$/i);
-                
-                if (!isSpecialChar && !isWhiteSpace) {
+
+                if (isSpecialChar && !isWhiteSpace) {
                     sanitizedWordList.push(currentWord);
                     currentWord = '';
                     isSpecialWord = true;
