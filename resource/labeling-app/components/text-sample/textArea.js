@@ -47,7 +47,7 @@ const TextArea = {
             return sanitizedWordList;
         },
         splitTextInSpan() {
-            const splittedText = splitText(this.text);
+            const splittedText = this.splitText(this.text);
             splittedText.forEach((w) => {
                 const newSpan = document.createElement('span');
                 newSpan.classList.add('word');
@@ -57,7 +57,7 @@ const TextArea = {
         }
     },
     mounted() {
-        splitTextInSpan()
+        this.splitTextInSpan();
     },
 
     // language=HTML
