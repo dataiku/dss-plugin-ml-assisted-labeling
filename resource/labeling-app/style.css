@@ -342,7 +342,7 @@ audio {
 }
 
 .textarea .word {
-    margin-right: 1px;
+    margin: 0 1px;
 }
 
 /* Text labeling :: End */
