@@ -39,7 +39,7 @@ const TextArea = {
                     if (letter.match(/^[a-zA-Z0-9]+$/i)) {
                         currentWord = currentWord + letter;
                     } else {
-                        sanitizedWordList.push(currentWord);
+                        currentWord && sanitizedWordList.push(currentWord);
                         sanitizedWordList.push(letter);
                         currentWord = '';
                     }
