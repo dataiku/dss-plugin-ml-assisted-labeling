@@ -341,6 +341,10 @@ audio {
     background-color: white;
 }
 
+.textarea .word {
+    margin-right: 1px;
+}
+
 /* Text labeling :: End */
 
 .image-sample {
