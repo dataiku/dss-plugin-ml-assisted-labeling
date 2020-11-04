@@ -46,10 +46,10 @@ const TextArea = {
             if (currentWord) sanitizedWordList.push(currentWord);
             return sanitizedWordList;
         },
-        splitTextInDiv() {
+        splitTextInSpan() {
             const splittedText = splitText(this.text);
             splittedText.forEach((w) => {
-                
+                const newSpan
                 document.getElementById('textarea').
             })
 
