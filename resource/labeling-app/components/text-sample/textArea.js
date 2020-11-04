@@ -37,7 +37,7 @@ const TextArea = {
             if (word.match(/^[a-zA-Z0-9]+$/i)) {
                 return [word]
             }
-            const splittedWord = word.split();
+            const splittedWord = word.split('');
             const sanitizedWordList = [];
             let currentWord = '';
             splittedWord.forEach((letter) => {
