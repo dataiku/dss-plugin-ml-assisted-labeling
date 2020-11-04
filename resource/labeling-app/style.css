@@ -352,11 +352,11 @@ audio {
     position: relative;
     border: 1px solid #ddd;
     margin-bottom: 10px;
+    white-space: pre-wrap;
 }
 
 .textarea {
     width: 100%;
-    white-space: pre-wrap;
     padding: 20px;
     line-height: 2;
 }
