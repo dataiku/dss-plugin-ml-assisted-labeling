@@ -350,6 +350,7 @@ audio {
     min-height: 100px;
     box-shadow: 1px 1px 5px #ddd;
     position: relative;
+    border: 1px solid #ddd;
 }
 
 .textarea {
