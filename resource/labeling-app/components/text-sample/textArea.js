@@ -56,6 +56,11 @@ const TextArea = {
             })
         }
     },
+    computed: {
+        splittedText: function () {
+            return this.splitText(this.text);
+        }
+    }
     mounted() {
         this.splitTextInSpan();
     },
@@ -64,7 +69,7 @@ const TextArea = {
     template: `
         <div clss="labeling-window">
             <div class="textarea-wrapper" ref="wrapper">
-                <div class="textarea" id="textarea">
+                <div v-for="(value, name, index) in this.splittedText" class="textarea" id="textarea">
                     
                 </div>
             </div>
