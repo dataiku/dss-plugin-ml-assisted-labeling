@@ -49,7 +49,8 @@ const TextArea = {
                     sanitizedWordList.push(letter);
                 }
             })
-            return sanitizedWordList
+            if (currentWord) sanitizedWordList.push(currentWord);
+            return sanitizedWordList;
         }
     },
 
