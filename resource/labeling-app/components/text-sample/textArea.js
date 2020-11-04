@@ -1,6 +1,12 @@
 import {config, UNDEFINED_COLOR} from "../utils/utils.js";
 
-const SPECIAL_CHARACTERS = ['.', ',', '-', ';', ':', ]
+const SPECIAL_CHARACTERS = {
+    leftWS: '([{"\\\\|,.<>\\/?]*$',
+    rightWS: '^[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]*$',
+    bothWS: '^[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]*$',
+    noWS: '^[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]*$',
+
+}
 
 const TextArea = {
     name: 'TextArea',
@@ -36,7 +42,7 @@ const TextArea = {
             let currentWord = '';
             word.split('').forEach((letter) => {
                 if (letter.match(/^[a-zA-Z0-9]+$/i)) {
-                    currentWord = currentWord + letter;
+                    currentWord += letter;
                 } else {
                     sanitizedWordList.push(currentWord);
                     sanitizedWordList.push(letter);
