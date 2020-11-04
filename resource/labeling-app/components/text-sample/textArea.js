@@ -30,7 +30,7 @@ const TextArea = {
         },
         sanitizeWord(word) {
             if (word.match(/^[a-zA-Z0-9]+$/i)) {
-                return [`{word}`]
+                return [`${word} `]
             }
             const sanitizedWordList = [];
             let currentWord = '';
