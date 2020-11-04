@@ -121,7 +121,7 @@ export default new Vue({
                                  :objects.sync="annotation.label"
                     />
                     <TextArea v-if="type === 'text'"
-                                 :text="item.data.raw.text"
+                                 :text="item.data.raw"
                                  :selectedLabel="selectedLabel"
                                  :objects.sync="annotation.label"
                     />
