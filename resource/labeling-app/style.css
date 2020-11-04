@@ -336,7 +336,6 @@ audio {
 
 /* Text labeling */
 .textarea {
-    user-select: none;
     text-align: left;
     font-size: large;
     background-color: white;
