@@ -57,7 +57,7 @@ const TextArea = {
     template: `
         <div clss="labeling-window">
             <div class="textarea-wrapper" ref="wrapper">
-                <div class="textarea" id="textarea">
+                <div class="textarea">
                     <div v-for="(item, index) in this.splittedText" class="word" :id="index">{{ item }}</div>
                 </div>
             </div>
