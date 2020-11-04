@@ -1,12 +1,6 @@
 import {config, UNDEFINED_COLOR} from "../utils/utils.js";
 
-const SPECIAL_CHARACTERS = {
-    leftWS: '([{"\\\\|,.<>\\/?]*$',
-    rightWS: '^[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]*$',
-    bothWS: '^[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]*$',
-    noWS: '^[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]*$',
-
-}
+const SPECIAL_CHARACTERS = ['.', ',', '-', ';', ':', ]
 
 const TextArea = {
     name: 'TextArea',
@@ -32,31 +26,24 @@ const TextArea = {
 
     methods: {
         splitText(txt) {
-            console.log(txt);
-            let isSpecialWord = false;
+            return txt.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
+        },
+        sanitizeWord(word) {
+            if (word.match(/^[a-zA-Z0-9]+$/i)) {
+                return [word]
+            }
             const sanitizedWordList = [];
             let currentWord = '';
-            txt.split('').forEach((letter) => {
-                const isWhiteSpace = letter === ' ';
-                const isSpecialChar = !letter.match(/^[a-zA-Z0-9]+$/i);
-
-                if (isSpecialWord && !isWhiteSpace) {
+            word.split('').forEach((letter) => {
+                if (letter.match(/^[a-zA-Z0-9]+$/i)) {
+                    currentWord = currentWord + letter;
+                } else {
                     sanitizedWordList.push(currentWord);
+                    sanitizedWordList.push(letter);
                     currentWord = '';
-                    isSpecialWord = false;
-                }
-                if (isSpecialChar && !isWhiteSpace) {
-                    sanitizedWordList.push(currentWord);
-                    currentWord = '';
-                    isSpecialWord = true;
-                }
-                currentWord += letter;
-                if (letter === ' ') {
-                    sanitizedWordList.push(currentWord);
-                    currentWord = '';
-                    isSpecialWord = false;
                 }
             })
+            if (currentWord) sanitizedWordList.push(currentWord);
             return sanitizedWordList;
         },
     },
