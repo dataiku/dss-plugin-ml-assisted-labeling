@@ -35,6 +35,11 @@ const TextArea = {
             })
 
         },
+        sanitizeWord(word) {
+            if ()
+            const splittedWord = word.split();
+
+        }
     }
 
     // language=HTML
