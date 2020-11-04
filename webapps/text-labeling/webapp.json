@@ -30,7 +30,7 @@
       "canCreateDataset": false
     },
     {
-      "type": "COLUMN",
+      "type": "DATASET_COLUMN",
       "name": "text_column",
       "label": "Text Column",
       "description": "Column containing the text to label",
