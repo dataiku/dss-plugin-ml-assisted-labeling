@@ -1,6 +1,5 @@
 import {config, UNDEFINED_COLOR} from "../utils/utils.js";
 
-const SPECIAL_CHARACTERS = ['.', ',', '-', ';', ':', ]
 
 const TextArea = {
     name: 'TextArea',
@@ -26,7 +25,6 @@ const TextArea = {
 
     methods: {
         splitText(txt) {
-            console.log(txt)
             return txt.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
         },
         sanitizeWord(word) {
@@ -49,6 +47,14 @@ const TextArea = {
             sanitizedWordList[sanitizedWordList.length - 1] += ' ';
             return sanitizedWordList;
         },
+        updateHighlightingColor(newColor) {
+            this.highlightingStyleCreated && document.head.removeChild(document.head.lastChild);
+            const css = document.createElement('style');
+            css.setAttribute('type', 'text/css')
+            css.appendChild(document.createTextNode(`#textarea *::selection {background: ${newColor};}`));
+            document.head.appendChild(css);
+            this.highlightingStyleCreated = true;
+        },
     },
     computed: {
         splittedText: function () {
@@ -60,12 +66,12 @@ const TextArea = {
     template: `
         <div clss="labeling-window">
             <div class="textarea-wrapper" ref="wrapper">
-                <div class="textarea">
-                    <div v-for="(item, index) in this.splittedText" class="word" :id="index">{{ item }}</div>
+                <div class="textarea" id="textarea">
+                    <span v-for="(item, index) in this.splittedText" class="word" :id="index">{{ item }}</span>
                 </div>
             </div>
             <div class="textarea__button-wrapper">
-                <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>Delete all</button>
+                <button @click="updateHighlightingColor('red')" class="main-area-element"><i class="icon-trash"></i>Delete all</button>
             </div>
         </div>`
 };
