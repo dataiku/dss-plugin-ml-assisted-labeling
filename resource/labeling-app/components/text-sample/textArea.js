@@ -26,6 +26,7 @@ const TextArea = {
 
     methods: {
         splitText(txt) {
+            console.log(txt)
             return txt.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
         },
         sanitizeWord(word) {
