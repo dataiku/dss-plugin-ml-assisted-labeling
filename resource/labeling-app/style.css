@@ -356,6 +356,8 @@ audio {
 .textarea {
     width: 100%;
     white-space: pre-wrap;
+    padding: 20px;
+    line-height: 2;
 }
 
 .textarea .word {
