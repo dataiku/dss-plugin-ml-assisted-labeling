@@ -13,7 +13,7 @@ class TextClassifier(TableBasedDataClassifier):
         super(TextClassifier, self).__init__(queries_df, config)
 
     def get_initial_df(self):
-        return pd.DataFrame(self.__initial_df[self.text_column])
+        return self.__initial_df[self.text_column].to_frame()
 
     def serialize_label(self, label):
         return json.dumps(label)
