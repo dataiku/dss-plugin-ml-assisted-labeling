@@ -54,19 +54,16 @@ const TextArea = {
                 newSpan.textContent = w;
                 document.getElementById('textarea').appendChild(newSpan)
             })
-
         }
     },
     mounted() {
-
+        splitTextInSpan()
     },
 
     // language=HTML
     template: `
         <div class="textarea-wrapper" ref="wrapper">
-            <div class="textarea">
-                <p ref="textarea" id="textarea" class="main-area-element">{{ text }}</p>
-            </div>
+            <div class="textarea" id="textarea"></div>
             <div class="textarea__button-wrapper">
                 <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>Delete all</button>
             </div>
