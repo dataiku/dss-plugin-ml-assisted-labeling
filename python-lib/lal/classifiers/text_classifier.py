@@ -1,6 +1,8 @@
 import json
 import logging
 
+import pandas as pd
+
 from lal.classifiers.base_classifier import TableBasedDataClassifier
 
 
