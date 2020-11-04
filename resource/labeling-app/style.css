@@ -349,6 +349,7 @@ audio {
     max-width: 675px;
     min-height: 100px;
     box-shadow: 1px 1px 5px #ddd;
+    position: relative;
 }
 
 .textarea {
