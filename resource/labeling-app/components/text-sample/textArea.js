@@ -48,7 +48,10 @@ const TextArea = {
                     isSpecialString = false;
                 }
                 currentWord += letter;
-                if (letter === ' ') sanitizedWordList.push(currentWord);
+                if (letter === ' ') {
+                    sanitizedWordList.push(currentWord);
+                    currentWord = '';
+                }
             })
             return sanitizedWordList;
         },
