@@ -347,14 +347,7 @@ audio {
 }
 
 .textarea {
-    text-align: left;
-    font-size: large;
-    background-color: white;
-    flex: 1;
-    display: flex;
-    align-content: space-between;
-    max-width: 675px;
-    min-height: 100px;
+    width: 100%
 }
 
 .textarea .word {
