@@ -30,10 +30,8 @@ const TextArea = {
             const splittedText = text.split(' ');
             const splittedTextSanitized = []
             splittedText.forEach((word) => {
-                if (word.includes(''))
-                splittedTextSanitized
+                splittedTextSanitized.push(this.sanitizeWord(word));
             })
-
         },
         sanitizeWord(word) {
             if (word.match(/^[a-zA-Z0-9]+$/i)) {
@@ -46,12 +44,14 @@ const TextArea = {
                 if (letter.match(/^[a-zA-Z0-9]+$/i)) {
                     currentWord = currentWord + letter;
                 } else {
-                    sanitizedWordList.
+                    sanitizedWordList.push(currentWord);
+                    currentWord = '';
+                    sanitizedWordList.push(letter);
                 }
             })
-
+            return sanitizedWordList
         }
-    }
+    },
 
     // language=HTML
     template: `
