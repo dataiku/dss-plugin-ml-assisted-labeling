@@ -29,21 +29,23 @@ const TextArea = {
             return txt.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
         },
         sanitizeWord(word) {
-            if (word.match(/^[a-zA-Z0-9]+$/i)) {
-                return [word]
-            }
             const sanitizedWordList = [];
-            let currentWord = '';
-            word.split('').forEach((letter) => {
-                if (letter.match(/^[a-zA-Z0-9]+$/i)) {
-                    currentWord = currentWord + letter;
-                } else {
-                    sanitizedWordList.push(currentWord);
-                    sanitizedWordList.push(letter);
-                    currentWord = '';
-                }
-            })
-            if (currentWord) sanitizedWordList.push(currentWord);
+            if (word.match(/^[a-zA-Z0-9]+$/i)) {
+                sanitizedWordList.push(word);
+            } else {
+                let currentWord = '';
+                word.split('').forEach((letter) => {
+                    if (letter.match(/^[a-zA-Z0-9]+$/i)) {
+                        currentWord = currentWord + letter;
+                    } else {
+                        sanitizedWordList.push(currentWord);
+                        sanitizedWordList.push(letter);
+                        currentWord = '';
+                    }
+                })
+                if (currentWord) sanitizedWordList.push(currentWord);
+            }
+            sanitizedWordList[sanitizedWordList.length - 1] += ' ';
             return sanitizedWordList;
         },
     },
