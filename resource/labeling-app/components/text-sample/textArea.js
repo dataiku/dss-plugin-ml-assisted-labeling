@@ -36,8 +36,19 @@ const TextArea = {
 
         },
         sanitizeWord(word) {
-            if (word.match())
+            if (word.match(/^[a-zA-Z0-9]+$/i)) {
+                return [word]
+            }
             const splittedWord = word.split();
+            const sanitizedWordList = [];
+            let currentWord = '';
+            splittedWord.forEach((letter) => {
+                if (letter.match(/^[a-zA-Z0-9]+$/i)) {
+                    currentWord = currentWord + letter;
+                } else {
+                    sanitizedWordList.
+                }
+            })
 
         }
     }
