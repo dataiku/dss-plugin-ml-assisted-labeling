@@ -351,6 +351,7 @@ audio {
     box-shadow: 1px 1px 5px #ddd;
     position: relative;
     border: 1px solid #ddd;
+    margin-bottom: 10px;
 }
 
 .textarea {
