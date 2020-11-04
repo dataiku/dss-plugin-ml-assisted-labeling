@@ -25,7 +25,7 @@ const TextArea = {
     // language=HTML
     template: `
         <div class="textarea-wrapper" ref="wrapper">
-            <div class="text-sample">
+            <div class="textarea">
                 <p ref="textarea" class="main-area-element">{{ text }}</p>
             </div>
             <div class="textarea__button-wrapper">
