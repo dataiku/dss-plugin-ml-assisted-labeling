@@ -26,7 +26,7 @@ const TextArea = {
         splitText() {
             const text = this.text;
             const splitted_text = text.split();
-            
+            splitted_text
 
         },
     }
