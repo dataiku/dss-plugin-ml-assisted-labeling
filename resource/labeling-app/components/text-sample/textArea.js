@@ -25,17 +25,16 @@ const TextArea = {
     },
 
     methods: {
-        splitText() {
-            return this.text.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
+        splitText(txt) {
+            return txt.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
         },
         sanitizeWord(word) {
             if (word.match(/^[a-zA-Z0-9]+$/i)) {
                 return [word]
             }
-            const splittedWord = word.split('');
             const sanitizedWordList = [];
             let currentWord = '';
-            splittedWord.forEach((letter) => {
+            word.split('').forEach((letter) => {
                 if (letter.match(/^[a-zA-Z0-9]+$/i)) {
                     currentWord = currentWord + letter;
                 } else {
@@ -46,14 +45,25 @@ const TextArea = {
             })
             if (currentWord) sanitizedWordList.push(currentWord);
             return sanitizedWordList;
+        },
+        splitTextInDiv() {
+            const splittedText = splitText(this.text);
+            splittedText.forEach((w) => {
+                
+                document.getElementById('textarea').
+            })
+
         }
+    },
+    mounted() {
+
     },
 
     // language=HTML
     template: `
         <div class="textarea-wrapper" ref="wrapper">
             <div class="textarea">
-                <p ref="textarea" class="main-area-element">{{ text }}</p>
+                <p ref="textarea" id="textarea" class="main-area-element">{{ text }}</p>
             </div>
             <div class="textarea__button-wrapper">
                 <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>Delete all</button>
