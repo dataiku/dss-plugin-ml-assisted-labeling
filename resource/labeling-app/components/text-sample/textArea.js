@@ -32,24 +32,24 @@ const TextArea = {
 
     methods: {
         splitText(txt) {
-            return txt.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
-        },
-        sanitizeWord(word) {
-            if (word.match(/^[a-zA-Z0-9]+$/i)) {
-                return [`${word} `]
-            }
+            let isSpecialString = false;
             const sanitizedWordList = [];
             let currentWord = '';
-            word.split('').forEach((letter) => {
-                if (letter.match(/^[a-zA-Z0-9]+$/i)) {
-                    currentWord += letter;
-                } else {
+            txt.split('').forEach((letter) => {
+                const isWhiteSpace = letter === ' ';
+                if (!letter.match(/^[a-zA-Z0-9]+$/i) && !isWhiteSpace) {
                     sanitizedWordList.push(currentWord);
-                    sanitizedWordList.push(letter);
                     currentWord = '';
+                    isSpecialString = true;
                 }
+                if (isSpecialString && !isWhiteSpace) {
+                    sanitizedWordList.push(currentWord);
+                    currentWord = '';
+                    isSpecialString = false;
+                }
+                currentWord += letter;
+                if (letter === ' ') sanitizedWordList.push(currentWord);
             })
-            if (currentWord) sanitizedWordList.push(currentWord);
             return sanitizedWordList;
         },
     },
