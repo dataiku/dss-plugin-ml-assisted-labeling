@@ -22,6 +22,13 @@ const TextArea = {
         selectedLabel: String,
     },
 
+    methods: {
+        splitText() {
+            const text = this.text;
+            
+        },
+    }
+
     // language=HTML
     template: `
         <div class="textarea-wrapper" ref="wrapper">
