@@ -335,7 +335,13 @@ audio {
 }
 
 /* Text labeling */
-.text-sample
+.textarea {
+    user-select: none;
+    text-align: left;
+    font-size: 3em;
+    
+}
+
 /* Text labeling :: End */
 
 .image-sample {
