@@ -338,8 +338,8 @@ audio {
 .textarea {
     user-select: none;
     text-align: left;
-    font-size: 3em;
-    
+    font-size: large;
+    background-color: white;
 }
 
 /* Text labeling :: End */
