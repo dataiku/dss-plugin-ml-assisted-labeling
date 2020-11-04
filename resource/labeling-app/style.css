@@ -334,6 +334,10 @@ audio {
     text-align: right;
 }
 
+/* Text labeling */
+.text-sample
+/* Text labeling :: End */
+
 .image-sample {
     max-height: 800px;
     display: flex;
