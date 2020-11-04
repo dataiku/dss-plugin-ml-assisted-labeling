@@ -32,6 +32,7 @@ const TextArea = {
 
     methods: {
         splitText(txt) {
+            console.log(txt);
             let isSpecialWord = false;
             const sanitizedWordList = [];
             let currentWord = '';
