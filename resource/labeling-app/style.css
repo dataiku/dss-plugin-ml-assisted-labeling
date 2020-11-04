@@ -335,6 +335,17 @@ audio {
 }
 
 /* Text labeling */
+.textarea-wrapper {
+    text-align: left;
+    font-size: large;
+    background-color: white;
+    flex: 1;
+    display: flex;
+    align-content: space-between;
+    max-width: 675px;
+    min-height: 100px;
+}
+
 .textarea {
     text-align: left;
     font-size: large;
@@ -344,9 +355,6 @@ audio {
     align-content: space-between;
     max-width: 675px;
     min-height: 100px;
-    flex-direction: row;
-
-
 }
 
 .textarea .word {
