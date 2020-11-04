@@ -32,25 +32,27 @@ const TextArea = {
 
     methods: {
         splitText(txt) {
-            let isSpecialString = false;
+            let isSpecialWord = false;
             const sanitizedWordList = [];
             let currentWord = '';
             txt.split('').forEach((letter) => {
                 const isWhiteSpace = letter === ' ';
-                if (!letter.match(/^[a-zA-Z0-9]+$/i) && !isWhiteSpace) {
+                const isSpecialChar = !letter.match(/^[a-zA-Z0-9]+$/i);
+                if (!isSpecialChar && !isWhiteSpace) {
                     sanitizedWordList.push(currentWord);
                     currentWord = '';
-                    isSpecialString = true;
+                    isSpecialWord = true;
                 }
-                if (isSpecialString && !isWhiteSpace) {
+                if (isSpecialWord && !isWhiteSpace) {
                     sanitizedWordList.push(currentWord);
                     currentWord = '';
-                    isSpecialString = false;
+                    isSpecialWord = false;
                 }
                 currentWord += letter;
                 if (letter === ' ') {
                     sanitizedWordList.push(currentWord);
                     currentWord = '';
+                    isSpecialWord = false;
                 }
             })
             return sanitizedWordList;
