@@ -26,7 +26,7 @@ const TextArea = {
 
     methods: {
         splitText() {
-            let splittedTextSanitized = this.text.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
+            return this.text.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
         },
         sanitizeWord(word) {
             if (word.match(/^[a-zA-Z0-9]+$/i)) {
@@ -40,8 +40,8 @@ const TextArea = {
                     currentWord = currentWord + letter;
                 } else {
                     sanitizedWordList.push(currentWord);
-                    currentWord = '';
                     sanitizedWordList.push(letter);
+                    currentWord = '';
                 }
             })
             if (currentWord) sanitizedWordList.push(currentWord);
