@@ -335,7 +335,11 @@ audio {
 }
 
 /* Text labeling */
-.textarea {
+.labeling-window {
+
+}
+
+.textarea-wrapper {
     text-align: left;
     font-size: large;
     background-color: white;
@@ -344,6 +348,11 @@ audio {
     align-content: space-between;
     max-width: 675px;
     min-height: 100px;
+}
+
+
+
+.textarea {
     width: 100%;
     white-space: pre-wrap;
 }
