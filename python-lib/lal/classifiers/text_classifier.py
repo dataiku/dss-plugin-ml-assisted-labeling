@@ -3,6 +3,9 @@ import logging
 
 import pandas as pd
 
+TEXT_COLUMN_LABEL = 'text'
+
+
 from lal.classifiers.base_classifier import TableBasedDataClassifier
 
 
@@ -15,7 +18,7 @@ class TextClassifier(TableBasedDataClassifier):
         super(TextClassifier, self).__init__(queries_df, config)
 
     def get_initial_df(self):
-        return self.__initial_df[self.text_column].to_frame()
+        return self.__initial_df[self.text_column].to_frame().rename(self.text_column, TEXT_COLUMN_LABEL)
 
     def serialize_label(self, label):
         return json.dumps(label)
