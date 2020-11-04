@@ -49,7 +49,7 @@ const TextArea = {
         splitTextInSpan() {
             const splittedText = splitText(this.text);
             splittedText.forEach((w) => {
-                const newSpan
+                const newSpan = document.createElement('span')
                 document.getElementById('textarea').
             })
 
