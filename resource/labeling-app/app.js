@@ -6,7 +6,7 @@ import {APIErrors, DKUApi} from "./dku-api.js";
 import {ErrorsComponent} from "./components/errors.js";
 import {ImageSample} from "./components/image-sample.js";
 import {ImageCanvas} from "./components/image-object-sample/ImageCanvas.js";
-import {TextArea} from "./components/text-sample/TextArea.js";
+import {TextArea} from "./components/text-sample/textArea.js";
 import {loadConfig, savePerIterationConfig} from './components/utils/utils.js'
 import {HaltingCriterionMetric} from "./components/halting-criterion-metric.js";
 
