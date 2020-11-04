@@ -1,5 +1,7 @@
 import {config, UNDEFINED_COLOR} from "../utils/utils.js";
 
+const SPECIAL_CHARACTERS = ['.', ',', '-', ';', ':', ]
+
 const TextArea = {
     name: 'TextArea',
     props: {
