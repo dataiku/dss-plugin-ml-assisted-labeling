@@ -9,7 +9,7 @@ class TextClassifier(TableBasedDataClassifier):
 
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
-        self.text_column = self.config["text_column"]
+        self.text_column = config["text_column"]
         super(TextClassifier, self).__init__(queries_df, config)
 
     def get_initial_df(self):
