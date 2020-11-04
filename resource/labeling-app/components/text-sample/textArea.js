@@ -25,8 +25,12 @@ const TextArea = {
     methods: {
         splitText() {
             const text = this.text;
-            const splitted_text = text.split();
-            splitted_text
+            const splittedText = text.split(' ');
+            const splittedTextSanitized = []
+            splittedText.forEach((word) => {
+                if (word.includes(''))
+                splittedTextSanitized
+            })
 
         },
     }
