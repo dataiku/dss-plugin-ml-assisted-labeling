@@ -39,15 +39,15 @@ const TextArea = {
                 const isWhiteSpace = letter === ' ';
                 const isSpecialChar = !letter.match(/^[a-zA-Z0-9]+$/i);
 
-                if (isSpecialChar && !isWhiteSpace) {
-                    sanitizedWordList.push(currentWord);
-                    currentWord = '';
-                    isSpecialWord = true;
-                }
                 if (isSpecialWord && !isWhiteSpace) {
                     sanitizedWordList.push(currentWord);
                     currentWord = '';
                     isSpecialWord = false;
+                }
+                if (isSpecialChar && !isWhiteSpace) {
+                    sanitizedWordList.push(currentWord);
+                    currentWord = '';
+                    isSpecialWord = true;
                 }
                 currentWord += letter;
                 if (letter === ' ') {
