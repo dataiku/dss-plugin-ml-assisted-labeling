@@ -21,7 +21,8 @@ export default new Vue({
         'halting-criterion-metric': HaltingCriterionMetric,
         'control-buttons': ControlButtons,
         'errors': ErrorsComponent,
-        'ImageCanvas': ImageCanvas
+        'ImageCanvas': ImageCanvas,
+        'TextArea': TextArea
     },
     data: {
         apiErrors: APIErrors,
@@ -115,6 +116,11 @@ export default new Vue({
                     <sound-sample v-if="type === 'sound'" :item="item.data"/>
                     <ImageCanvas v-if="type === 'image-object'"
                                  :base64source="item.data.enriched.img"
+                                 :selectedLabel="selectedLabel"
+                                 :objects.sync="annotation.label"
+                    />
+                    <TextArea v-if="type === 'text'"
+                                 :text="item.data"
                                  :selectedLabel="selectedLabel"
                                  :objects.sync="annotation.label"
                     />
