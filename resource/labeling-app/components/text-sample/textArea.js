@@ -62,8 +62,10 @@ const TextArea = {
 
     // language=HTML
     template: `
-        <div class="textarea-wrapper" ref="wrapper">
-            <div class="textarea" id="textarea"></div>
+        <div clss="labeling-window">
+            <div class="textarea-wrapper" ref="wrapper">
+                <div class="textarea" id="textarea"></div>
+            </div>
             <div class="textarea__button-wrapper">
                 <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>Delete all</button>
             </div>
