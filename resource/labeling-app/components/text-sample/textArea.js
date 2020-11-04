@@ -30,7 +30,7 @@ const TextArea = {
             const splittedText = text.split(' ');
             const splittedTextSanitized = []
             splittedText.forEach((word) => {
-                splittedTextSanitized.push(this.sanitizeWord(word));
+                splittedTextSanitized.concat(this.sanitizeWord(word));
             })
         },
         sanitizeWord(word) {
