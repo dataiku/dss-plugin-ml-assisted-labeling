@@ -25,6 +25,7 @@ const TextArea = {
     methods: {
         splitText() {
             const text = this.text;
+            const splitted_text = text.split();
             
 
         },
