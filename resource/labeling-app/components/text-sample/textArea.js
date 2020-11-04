@@ -36,7 +36,7 @@ const TextArea = {
 
         },
         sanitizeWord(word) {
-            if ()
+            if (re.test())
             const splittedWord = word.split();
 
         }
