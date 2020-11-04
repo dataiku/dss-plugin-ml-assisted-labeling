@@ -46,31 +46,19 @@ const TextArea = {
             if (currentWord) sanitizedWordList.push(currentWord);
             return sanitizedWordList;
         },
-        splitTextInSpan() {
-            const splittedText = this.splitText(this.text);
-            splittedText.forEach((w) => {
-                const newSpan = document.createElement('span');
-                newSpan.classList.add('word');
-                newSpan.textContent = w;
-                document.getElementById('textarea').appendChild(newSpan)
-            })
-        }
     },
     computed: {
         splittedText: function () {
             return this.splitText(this.text);
         }
-    }
-    mounted() {
-        this.splitTextInSpan();
     },
 
     // language=HTML
     template: `
         <div clss="labeling-window">
             <div class="textarea-wrapper" ref="wrapper">
-                <div v-for="(value, name, index) in this.splittedText" class="textarea" id="textarea">
-                    
+                <div v-for="(item, index) in this.splittedText" class="textarea" id="textarea">
+                    <div class="word" id="w-{{index}}">{{ item }}</div>
                 </div>
             </div>
             <div class="textarea__button-wrapper">
