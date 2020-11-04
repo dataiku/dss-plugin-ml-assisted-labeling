@@ -352,13 +352,13 @@ audio {
     position: relative;
     border: 1px solid #ddd;
     margin-bottom: 10px;
-    white-space: pre-wrap;
 }
 
 .textarea {
     width: 100%;
     padding: 20px;
     line-height: 2;
+    white-space: pre-wrap;
 }
 
 .textarea .word {
