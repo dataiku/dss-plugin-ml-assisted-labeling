@@ -50,8 +50,9 @@ const TextArea = {
             const splittedText = splitText(this.text);
             splittedText.forEach((w) => {
                 const newSpan = document.createElement('span');
-                newSpan.classList.add()
-                document.getElementById('textarea').
+                newSpan.classList.add('word');
+                newSpan.textContent = w;
+                document.getElementById('textarea').appendChild(newSpan)
             })
 
         }
