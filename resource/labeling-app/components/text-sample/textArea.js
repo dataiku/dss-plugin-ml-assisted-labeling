@@ -134,14 +134,21 @@ const TextArea = {
             let startSelect, endSelect;
             [startSelect, endSelect] = _.sortBy([anchorWord, focusWord]);
             const selectedWordIds = _.range(startSelect, endSelect + 1);
-            this.addSelection(selectedWordIds);
-            this.addObjectToObjectList(this.getLabeledText(selectedWordIds));
+            if (this.isLegitSelect(selectedWordIds)) {
+                this.addSelection(selectedWordIds);
+                this.addObjectToObjectList(this.getLabeledText(selectedWordIds));
+            }
         },
         deleteAll() {
             this.$emit("update:objects", []);
         },
         getSelectionId(wordsIds) {
             return wordsIds ? wordsIds.join("_") : "0";
+        },
+        isLegitSelect(selectedWordIds) {
+            return !this.objects || !this.objects.some((o) => {
+                return selectedWordIds.filter(value => o.wordsIds.includes(value)).length > 0;
+            })
         }
     },
     watch: {
