@@ -357,13 +357,44 @@ audio {
 .textarea {
     width: 100%;
     padding: 20px;
-    line-height: 2;
+    line-height: 3;
     white-space: pre-wrap;
 }
 
 .textarea .word {
     margin: 0 1px;
     display: inline-block;
+}
+
+.selection-wrapper {
+    cursor: pointer;
+    position: relative;
+    color: inherit;
+    margin: 0 0.15em;
+    display: inline;
+    padding: 0.25em 0.4em;
+    font-weight: bold;
+    line-height: 1;
+    border-radius: 5px;
+    user-select: none;
+}
+
+.selected-caption {
+    font-size: large;
+    font-weight: bold;
+    margin-left: 8px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.text-annotation-thumb {
+    padding: 8px;
+    cursor: help;
+    border-radius: 5px;
+}
+
+mark.selected {
+    border: solid 1px;
 }
 
 /* Text labeling :: End */

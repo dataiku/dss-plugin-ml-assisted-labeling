@@ -1,6 +1,7 @@
 import {DKUApi} from "../dku-api.js";
 import {config, UNDEFINED_COLOR} from '../components/utils/utils.js'
 import {AnnotationThumb} from "./image-object-sample/AnnotationThumb.js";
+import {TextAnnotationThumb} from "./text-sample/TextAnnotationThumb.js";
 
 const possibleKeys = new Set('abcdefghijklmnopqrstuvwxyz1234567890'.split(''));
 
@@ -22,11 +23,12 @@ let CategorySelector = {
         }
     },
     components: {
-        AnnotationThumb
+        AnnotationThumb,
+        TextAnnotationThumb
     },
     computed: {
-        isObjectLabeling() {
-            return this.type === 'image-object';
+        isDynamicLabeling() {
+            return ['image-object', 'text'].includes(this.type);
         },
     },
     directives: {
@@ -119,7 +121,7 @@ let CategorySelector = {
         },
 
         shortcutPressed: function (key) {
-            if (this.isObjectLabeling) {
+            if (this.isDynamicLabeling) {
                 this.categoryClick(this.keyToCatMapping[key]);
             } else {
                 this.doLabel(this.keyToCatMapping[key])
@@ -165,7 +167,7 @@ let CategorySelector = {
     // language=HTML
     template: `
         <div class="category-selector" :class="{ inactive: !enabled }" v-if="annotation">
-            <div v-if="isObjectLabeling" class="category-selector__image-object-wrapper">
+            <div v-if="isDynamicLabeling" class="category-selector__image-object-wrapper">
                 <div class="section" style="margin-bottom: 0">
                     <div class="category-selector--header">
                         <span style="  font-weight: 600; font-size: 13px;">Categories</span>
@@ -200,10 +202,20 @@ let CategorySelector = {
                         <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
                         <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
                     </div>
-                    <div v-else>
+                    <div v-else-if="type === 'image-object'">
                         <div v-if="status !== 'SKIPPED'" class="circle"></div>
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
                         <p>Select a label and draw a box around the target.</p>
+                    </div>
+                    <div v-else-if="type === 'text'">
+                        <div v-if="status !== 'SKIPPED'" class="circle"></div>
+                        <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
+                        <p>Select a label and select a group of words in the text.</p>
+                    </div>
+                    <div v-else>
+                        <div v-if="status !== 'SKIPPED'" class="circle"></div>
+                        <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
+                        <p>Nothing selected yet.</p>
                     </div>
                 </div>
                 <div v-if="annotation?.label?.filter(e=>!e.draft).length"
@@ -211,9 +223,14 @@ let CategorySelector = {
                     <div v-for="a in annotation.label.filter(e=>!e.draft)" class="annotation"
                          :class="{ selected: a.selected }"
                          @click="annotationClick(a)">
-                        <div class="annotation-thumb-container">
+                        
+                        <div class="annotation-thumb-container" v-if="type === 'image-object'" >
                             <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
                         </div>
+                        <div class="text-annotation-thumb-container" v-if="type === 'text'" >
+                            <TextAnnotationThumb :data="a" :color="labelColor(a.label)"></TextAnnotationThumb>
+                        </div>
+                        
                         <div v-if="!a.label">Assign a category</div>
                         <div v-if="a.label">{{categories[a.label].caption}}</div>
                         <i @click="remove(a)" class="icon-trash"/>
@@ -222,7 +239,7 @@ let CategorySelector = {
                 </div>
             </div>
 
-            <div class="category-selector--categories" v-if="!isObjectLabeling">
+            <div class="category-selector--categories" v-if="!isDynamicLabeling">
                 <div class="empty-annotations-placeholder"
                      v-if="!Object.keys(categories).length || status === 'SKIPPED'">
                     <div v-if="!Object.keys(categories).length && status !== 'SKIPPED'">
