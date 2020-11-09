@@ -33,7 +33,6 @@ class TextClassifier(TableBasedDataClassifier):
     @staticmethod
     def format_labels_for_stats(raw_labels_series):
         labels = []
-        return pd.Series()
         for v in raw_labels_series.values:
             if pd.notnull(v):
                 labels += [a['label'] for a in json.loads(v) if a['label']]

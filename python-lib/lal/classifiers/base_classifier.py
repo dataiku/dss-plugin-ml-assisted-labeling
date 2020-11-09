@@ -100,6 +100,10 @@ class BaseClassifier(ABC):
     def format_labels_for_stats(raw_labels_series):
         return raw_labels_series
 
+    @staticmethod
+    def prepare_data_for_saving(self, obj):
+        return obj
+
 
 class FolderBasedDataClassifier(BaseClassifier, ABC):
     @staticmethod

@@ -80,10 +80,14 @@ const TextArea = {
                 const newObjects = this.objects.filter((x) => this.getSelectionId(ids) !== this.getSelectionId(x.wordsIds));
                 this.$emit("update:objects", newObjects);
             });
-            selectionWrapper.addEventListener('click', () => {
-                const obj = this.objects.filter((x) => this.getSelectionId(ids) === this.getSelectionId(x.wordsIds))[0];
-                obj.selected = !obj.selected;
-                this.updateObjectToObjectList(obj);
+            selectionWrapper.addEventListener('click', (mEvent) => {
+                this.mapAndEmit((o) => {
+                    if (this.getSelectionId(ids) === this.getSelectionId(o.wordsIds)) {
+                        o.selected = !o.selected;
+                    } else {
+                        o.selected = (mEvent.ctrlKey || mEvent.metaKey) ? o.selected : false;
+                    }
+                })
             });
             selectionWrapper.style.background = colorStrTransparent
             selectedWords[0].parentNode.insertBefore(selectionWrapper, selectedWords[0]);
@@ -110,10 +114,11 @@ const TextArea = {
             this.objects.forEach((o) => {
                 newObjectList.push(this.getSelectionId(o.wordsIds) === this.getSelectionId(updatedObject.wordsIds) ? updatedObject : o)
             })
-            this.$emit("update:objects", newObjectList);
+            this.emitUpdateObjects(newObjectList);
         },
         addObjectToObjectList(newObject) {
-            this.$emit("update:objects", this.objects ? this.objects.concat([newObject]) : [newObject]);
+
+            this.emitUpdateObjects(this.objects ? this.objects.concat([newObject]) : [newObject]);
         },
         resetSelection() {
             const textarea = document.getElementById('textarea');
@@ -122,41 +127,67 @@ const TextArea = {
                 const newWord = document.createElement('span');
                 newWord.textContent = word;
                 newWord.classList.add('word');
-                newWord.id = index;
+                newWord.id = this.getWordId(index);
                 textarea.appendChild(newWord)
             })
         },
         handleMouseUp() {
             const selection = document.getSelection();
             if (selection.isCollapsed) return;
-            const focusWord = parseInt(selection.focusNode.parentElement.id);
-            const anchorWord = parseInt(selection.anchorNode.parentElement.id);
+            const focusWord = this.getWordIndex(selection.focusNode.parentElement.id);
+            const anchorWord = this.getWordIndex(selection.anchorNode.parentElement.id);
             let startSelect, endSelect;
             [startSelect, endSelect] = _.sortBy([anchorWord, focusWord]);
-            const selectedWordIds = _.range(startSelect, endSelect + 1);
+            const selectedWordIndexes = _.range(startSelect, endSelect + 1);
+            const selectedWordIds = selectedWordIndexes.map((ind) => this.getWordId(ind));
             if (this.isLegitSelect(selectedWordIds)) {
                 this.addSelection(selectedWordIds);
                 this.addObjectToObjectList(this.getLabeledText(selectedWordIds));
             }
         },
         deleteAll() {
-            this.$emit("update:objects", []);
+            this.emitUpdateObjects([]);
+        },
+        deselectAll() {
+            const newObjectList = _.cloneDeep(this.objects)
+            newObjectList.map((o) => {o.selected = false})
+            this.emitUpdateObjects(newObjectList);
         },
         getSelectionId(wordsIds) {
-            return wordsIds ? wordsIds.join("_") : "0";
+            return `sel_${wordsIds ? wordsIds.join("_") : "0"}`;
         },
         isLegitSelect(selectedWordIds) {
             return !this.objects || !this.objects.some((o) => {
                 return selectedWordIds.filter(value => o.wordsIds.includes(value)).length > 0;
             })
+        },
+        colorToCSS(color) {
+            return `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
+        },
+        mapAndEmit(fn) {
+            const newObjectList = _.cloneDeep(this.objects);
+            newObjectList.map(fn);
+            this.emitUpdateObjects(newObjectList);
+
+        },
+        emitUpdateObjects(newObjects) {
+            this.$emit("update:objects", newObjects);
+        },
+        getWordId(n) {
+            return `w_${n}`;
+        },
+        getWordIndex(wordId) {
+            return parseInt(wordId.split('_')[1]);
         }
     },
     watch: {
         selectedLabel: function (){
             const category = config.categories[this.selectedLabel];
             const color = category ? category.color : UNDEFINED_COLOR;
-            const colorStr = `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
-            this.updateHighlightingColor(colorStr);
+            this.updateHighlightingColor(this.colorToCSS(color));
+        },
+        text: function(nv){
+            this.resetSelection();
         },
         objects: {
             handler(nv) {
@@ -167,13 +198,14 @@ const TextArea = {
                 nv.map(this.addSelectionFromObject);
             },
             deep: true
-        },
+        }
     },
     mounted() {
         this.resetSelection();
         if (this.objects) {
             this.objects.map((o) => this.addSelectionFromObject(o));
         }
+        this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR));
     },
     // language=HTML
     template: `

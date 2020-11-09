@@ -43,7 +43,7 @@ export default new Vue({
     methods: {
         isCurrentItemLabeled() {
             const annotation = this.annotation;
-            if (this.type === 'image-object') {
+            if (this.type === 'image-object' || this.type === 'text') {
                 return annotation?.label?.filter(e => e.label).length > 0;
             } else {
                 return annotation?.label?.length;
