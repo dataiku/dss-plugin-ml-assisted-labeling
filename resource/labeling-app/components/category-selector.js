@@ -28,7 +28,7 @@ let CategorySelector = {
     },
     computed: {
         isDynamicLabeling() {
-            return ['image-object', 'text'].includes(this.type);
+            return this.$root.isDynamic;
         },
     },
     directives: {

@@ -7,23 +7,17 @@ export let ControlButtons = {
     },
     computed: {
         annotationToSave:function(){
-            let label;
-            if (this.$root.type === 'image-object') {
-                label = this.$root.annotation?.label && this.$root.annotation.label.filter(e => e.label).map(a => {
-                    return {top: a.top, left: a.left, label: a.label, width: a.width, height: a.height}
-                });
-            } else if (this.$root.type === 'text') {
-                label = this.$root.annotation?.label && this.$root.annotation.label.filter(e => e.label).map(a => {
-                    return {text: a.text, label: a.label, wordsIds: a.wordsIds}
-                });
-            }
+            const label = this.$root.annotation?.label;
             return {
                 comment: this.$root.annotation.comment || null,
                 label: label?.length ? label : null
             };
         },
+        isDynamicLabeling() {
+            return this.$root.isDynamic;
+        },
         isDirty: function () {
-            if (this.$root.type === 'image-object' || this.$root.type === 'text') {
+            if (this.isDynamicLabeling) {
                 return !_.isEqual(this.annotationToSave, this.$root.savedAnnotation)
             } else {
                 return false;
@@ -40,7 +34,7 @@ export let ControlButtons = {
 
         saveIfRequired: function () {
             return new Promise((resolve, reject) => {
-                if (this.$root.type === 'image-object' || this.$root.type === 'text') {
+                if (this.isDynamicLabeling) {
                     const annotationToSave = this.annotationToSave;
                     if (this.isSaveRequired()) {
                         if (!_.isEqual(annotationToSave.comment, this.$root.savedAnnotation.comment) && this.$root.item.status === 'SKIPPED') {

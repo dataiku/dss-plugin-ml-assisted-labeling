@@ -113,7 +113,7 @@ class LALHandler(object):
         lbl_id = self.create_label_id() if existing_meta_record.empty else existing_meta_record.iloc[0][self.lbl_id_col]
         raw_data = self.classifier.get_raw_item_by_id(data_id)
 
-        serialized_label = self.classifier.serialize_label(data.get('label')) if data.get('label') else None
+        serialized_label = self.classifier.format_for_saving(data.get('label')) if data.get('label') else None
         label = {**raw_data, **{self.lbl_col: serialized_label, self.lbl_id_col: lbl_id}}
         meta = {
             self.lbl_col: serialized_label,
@@ -160,11 +160,18 @@ class LALHandler(object):
                 self.sample_by_user_reservation[i] = ReservedSample(user, reserved_until)
         ids_batch.reverse()
         return {
+            "isDynamic": self.classifier.is_dynamic,
             "type": self.classifier.type,
             "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
             "isLastBatch": len(remaining) < BATCH_SIZE,
             "stats": stats,
             "config": self.get_config()
+        }
+
+    def get_labeled_text(self, user):
+        meta = self.user_meta(user)
+        return {
+            self.classifier.deserialize_label(meta["self.lbl_col"])
         }
 
     def user_meta(self, user):

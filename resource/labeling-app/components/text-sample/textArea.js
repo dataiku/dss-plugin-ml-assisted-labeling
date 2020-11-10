@@ -214,7 +214,7 @@ const TextArea = {
                 <div class="textarea" id="textarea"></div>
             </div>
             <div class="textarea__button-wrapper">
-                <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>Delete all</button>
+                <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>&nbsp;Delete all</button>
             </div>
         </div>`
 };

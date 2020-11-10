@@ -32,6 +32,7 @@ export default new Vue({
         item: undefined,
         stats: undefined,
         type: undefined,
+        isDynamic: undefined,
         annotation: undefined,
         annotations: undefined,
         selectedLabel: undefined,
@@ -43,7 +44,7 @@ export default new Vue({
     methods: {
         isCurrentItemLabeled() {
             const annotation = this.annotation;
-            if (this.type === 'image-object' || this.type === 'text') {
+            if (this.isDynamic) {
                 return annotation?.label?.filter(e => e.label).length > 0;
             } else {
                 return annotation?.label?.length;
@@ -87,6 +88,7 @@ export default new Vue({
                 batchPromise.then(data => {
                     this.stats = data.stats;
                     this.type = data.type;
+                    this.isDynamic = data.isDynamic;
                     this.items = data.items;
                     this.canLabel = true;
                     this.isLastBatch = data.isLastBatch;

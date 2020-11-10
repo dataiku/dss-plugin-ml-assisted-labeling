@@ -47,16 +47,9 @@
       "mandatory": true
     },
     {
-      "name": "pre_labeling",
-      "type": "boolean",
-      "label": "Use pre-labeling",
-      "description": "Category name → optional description",
-      "mandatory": true
-    },
-    {
       "type": "SEPARATOR",
       "name": "Output",
-      "label": "Output"
+      "label": " Output"
     },
     {
       "type": "DATASET",
