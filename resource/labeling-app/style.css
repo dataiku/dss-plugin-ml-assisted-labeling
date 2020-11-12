@@ -346,8 +346,9 @@ audio {
     flex: 1;
     display: flex;
     align-content: space-between;
-    max-width: 675px;
-    min-height: 100px;
+    max-width: 50vw;
+    min-height: 10vh;
+    max-height: 85vh;
     box-shadow: 1px 1px 5px #ddd;
     position: relative;
     border: 1px solid #ddd;
@@ -356,6 +357,7 @@ audio {
 
 .textarea {
     width: 100%;
+    overflow: scroll;
     padding: 20px;
     line-height: 3;
     white-space: pre-wrap;
@@ -374,7 +376,7 @@ audio {
     display: inline;
     padding: 0.25em 0.4em;
     font-weight: bold;
-    line-height: 1;
+    line-height: 3;
     border-radius: 5px;
     user-select: none;
 }
