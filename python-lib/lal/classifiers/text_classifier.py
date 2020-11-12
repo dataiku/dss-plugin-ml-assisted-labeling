@@ -18,7 +18,7 @@ class TextClassifier(TableBasedDataClassifier):
         super(TextClassifier, self).__init__(queries_df, config)
 
     def get_initial_df(self):
-        return self.__initial_df.rename({self.text_column: TEXT_COLUMN_DEFAULT_LABEL}, axis='columns')[TEXT_COLUMN_DEFAULT_LABEL].to_frame()
+        return self.__initial_df.rename({self.text_column: TEXT_COLUMN_DEFAULT_LABEL}, axis='columns')
 
     def clean_data_to_save(self, lab):
         return {
