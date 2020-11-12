@@ -5,7 +5,7 @@ const TextArea = {
     name: 'TextArea',
     props: {
         text: String,
-        objects: {
+        entities: {
             type: Array,
             default: () => {
                 return [];
@@ -30,7 +30,7 @@ const TextArea = {
                 let currentWord = '';
                 word.split('').forEach((letter) => {
                     if (letter.match(/^[a-zA-Z0-9]+$/i)) {
-                        currentWord = currentWord + letter;
+                        currentWord += letter;
                     } else {
                         currentWord && sanitizedWordList.push(currentWord);
                         sanitizedWordList.push(letter);
@@ -50,10 +50,10 @@ const TextArea = {
             document.head.appendChild(css);
             this.highlightingStyleCreated = true;
         },
-        addSelectionFromObject(o) {
-            const category = config.categories[o.label];
-            const ids = o.wordsIds;
-            const selected = o.selected;
+        addSelectionFromEntity(e) {
+            const category = config.categories[e.label];
+            const ids = e.wordsIds;
+            const selected = e.selected;
             this.makeSelected(ids, category, selected)
         },
         addSelection(ids) {
@@ -77,8 +77,8 @@ const TextArea = {
             selected && selectionWrapper.classList.add('selected');
             selectionWrapper.id = this.getSelectionId(ids);
             selectionWrapper.addEventListener('dblclick', () => {
-                const newObjects = this.objects.filter((x) => this.getSelectionId(ids) !== this.getSelectionId(x.wordsIds));
-                this.$emit("update:objects", newObjects);
+                const newEntities = this.entities.filter((x) => this.getSelectionId(ids) !== this.getSelectionId(x.wordsIds));
+                this.$emit("update:entities", newEntities);
             });
             selectionWrapper.addEventListener('click', (mEvent) => {
                 this.mapAndEmit((o) => {
@@ -106,19 +106,19 @@ const TextArea = {
                 text: this.getTextFromWordIds(wordsIds),
                 wordsIds: wordsIds,
                 draft: false,
-                selected: false
+                selected: true
             }
         },
         updateObjectToObjectList(updatedObject) {
             const newObjectList = [];
-            this.objects.forEach((o) => {
+            this.entities.forEach((o) => {
                 newObjectList.push(this.getSelectionId(o.wordsIds) === this.getSelectionId(updatedObject.wordsIds) ? updatedObject : o)
             })
-            this.emitUpdateObjects(newObjectList);
+            this.emitUpdateEntities(newObjectList);
         },
         addObjectToObjectList(newObject) {
 
-            this.emitUpdateObjects(this.objects ? this.objects.concat([newObject]) : [newObject]);
+            this.emitUpdateEntities(this.entities ? this.entities.concat([newObject]) : [newObject]);
         },
         resetSelection() {
             const textarea = document.getElementById('textarea');
@@ -146,32 +146,33 @@ const TextArea = {
             }
         },
         deleteAll() {
-            this.emitUpdateObjects([]);
+            this.emitUpdateEntities([]);
         },
         deselectAll() {
-            const newObjectList = _.cloneDeep(this.objects)
+            if (!this.entities) return;
+            const newObjectList = _.cloneDeep(this.entities)
             newObjectList.map((o) => {o.selected = false})
-            this.emitUpdateObjects(newObjectList);
+            this.emitUpdateEntities(newObjectList);
         },
         getSelectionId(wordsIds) {
             return `sel_${wordsIds ? wordsIds.join("_") : "0"}`;
         },
         isLegitSelect(selectedWordIds) {
-            return !this.objects || !this.objects.some((o) => {
+            return !this.entities || !this.entities.some((o) => {
                 return selectedWordIds.filter(value => o.wordsIds.includes(value)).length > 0;
             })
         },
-        colorToCSS(color) {
+        colorToCSS(color, transparency) {
             return `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
         },
         mapAndEmit(fn) {
-            const newObjectList = _.cloneDeep(this.objects);
+            const newObjectList = _.cloneDeep(this.entities);
             newObjectList.map(fn);
-            this.emitUpdateObjects(newObjectList);
+            this.emitUpdateEntities(newObjectList);
 
         },
-        emitUpdateObjects(newObjects) {
-            this.$emit("update:objects", newObjects);
+        emitUpdateEntities(newObjects) {
+            this.$emit("update:entities", newObjects);
         },
         getWordId(n) {
             return `w_${n}`;
@@ -189,23 +190,26 @@ const TextArea = {
         text: function(nv){
             this.resetSelection();
         },
-        objects: {
+        entities: {
             handler(nv) {
                 if (!nv) {
                     return;
                 }
                 this.resetSelection();
-                nv.map(this.addSelectionFromObject);
+                nv.map(this.addSelectionFromEntity);
             },
             deep: true
         }
     },
     mounted() {
         this.resetSelection();
-        if (this.objects) {
-            this.objects.map((o) => this.addSelectionFromObject(o));
+        if (this.entities) {
+            this.entities.map((e) => this.addSelectionFromEntity(e));
         }
         this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR));
+        document.getElementById('textarea').addEventListener('click', (mEvent) => {
+            !(mEvent.ctrlKey || mEvent.metaKey) && this.deselectAll();
+        }, true);
     },
     // language=HTML
     template: `
