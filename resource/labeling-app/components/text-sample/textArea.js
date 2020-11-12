@@ -52,37 +52,40 @@ const TextArea = {
         },
         addSelectionFromEntity(e) {
             const category = config.categories[e.label];
-            const ids = e.wordsIds;
             const selected = e.selected;
-            this.makeSelected(ids, category, selected)
+            this.makeSelected(e.startId, e.endId, category, selected)
         },
-        addSelection(ids) {
+        addSelection(startId, endId) {
             const category = config.categories[this.selectedLabel];
-            this.makeSelected(ids, category, false)
+            this.makeSelected(startId, endId, category, false)
         },
-        getTextFromWordIds(wordIds) {
+        getTextFromWordIds(startId, endId) {
+            const wordIds = this.getSelectedWordsFromBoundaries(startId, endId);
             const selectedWords = wordIds.map((x) => document.getElementById(x));
             return selectedWords.map((x) => x.innerText).reduce((x, y) => x + y);
         },
-        makeSelected(ids, category, selected) {
+        makeSelected(startId, endId, category, selected) {
+            const wordsIds = this.getSelectedWordsFromBoundaries(startId, endId);
             const color = category ? category.color : UNDEFINED_COLOR;
-            const colorStrTransparent = `rgb(${color[0]},${color[1]},${color[2]}, 0.25)`;
-            const colorStrOpaque = `rgb(${color[0]},${color[1]},${color[2]})`;
+            const colorStrTransparent = this.colorToCSS(color, 0.25);
+            const colorStrOpaque = this.colorToCSS(color)
 
             const caption = category ? category.caption : UNDEFINED_CAPTION;
 
-            const selectedWords = ids.map((x) => document.getElementById(x));
+            const selectedWords = wordsIds.map((x) => document.getElementById(x));
             const selectionWrapper = document.createElement('mark');
             selectionWrapper.classList.add('selection-wrapper');
             selected && selectionWrapper.classList.add('selected');
-            selectionWrapper.id = this.getSelectionId(ids);
+            const selectionId = this.getSelectionId(startId, endId);
+            selectionWrapper.id = selectionId;
             selectionWrapper.addEventListener('dblclick', () => {
-                const newEntities = this.entities.filter((x) => this.getSelectionId(ids) !== this.getSelectionId(x.wordsIds));
+                const newEntities = this.entities.filter(
+                    (x) => selectionId !== this.getSelectionId(x.startId, x.endId));
                 this.$emit("update:entities", newEntities);
             });
             selectionWrapper.addEventListener('click', (mEvent) => {
                 this.mapAndEmit((o) => {
-                    if (this.getSelectionId(ids) === this.getSelectionId(o.wordsIds)) {
+                    if (selectionId === this.getSelectionId(o.startId, o.endId)) {
                         o.selected = !o.selected;
                     } else {
                         o.selected = (mEvent.ctrlKey || mEvent.metaKey) ? o.selected : false;
@@ -100,24 +103,17 @@ const TextArea = {
             selectionWrapper.appendChild(captionSpan);
 
         },
-        getLabeledText(wordsIds) {
+        getLabeledText(startId, endId) {
             return {
                 label: this.selectedLabel,
-                text: this.getTextFromWordIds(wordsIds),
-                wordsIds: wordsIds,
+                text: this.getTextFromWordIds(startId, endId),
+                startId: startId,
+                endId: endId,
                 draft: false,
                 selected: true
             }
         },
-        updateObjectToObjectList(updatedObject) {
-            const newObjectList = [];
-            this.entities.forEach((o) => {
-                newObjectList.push(this.getSelectionId(o.wordsIds) === this.getSelectionId(updatedObject.wordsIds) ? updatedObject : o)
-            })
-            this.emitUpdateEntities(newObjectList);
-        },
         addObjectToObjectList(newObject) {
-
             this.emitUpdateEntities(this.entities ? this.entities.concat([newObject]) : [newObject]);
         },
         resetSelection() {
@@ -138,11 +134,9 @@ const TextArea = {
             const anchorWord = this.getWordIndex(selection.anchorNode.parentElement.id);
             let startSelect, endSelect;
             [startSelect, endSelect] = _.sortBy([anchorWord, focusWord]);
-            const selectedWordIndexes = _.range(startSelect, endSelect + 1);
-            const selectedWordIds = selectedWordIndexes.map((ind) => this.getWordId(ind));
-            if (this.isLegitSelect(selectedWordIds)) {
-                this.addSelection(selectedWordIds);
-                this.addObjectToObjectList(this.getLabeledText(selectedWordIds));
+            if (this.isLegitSelect(startSelect, endSelect)) {
+                this.addSelection(startSelect, endSelect);
+                this.addObjectToObjectList(this.getLabeledText(startSelect, endSelect));
             }
         },
         deleteAll() {
@@ -154,16 +148,16 @@ const TextArea = {
             newObjectList.map((o) => {o.selected = false})
             this.emitUpdateEntities(newObjectList);
         },
-        getSelectionId(wordsIds) {
-            return `sel_${wordsIds ? wordsIds.join("_") : "0"}`;
+        getSelectionId(startId, endId) {
+            return `sel_${startId}_${endId}`;
         },
-        isLegitSelect(selectedWordIds) {
+        isLegitSelect(startId, endId) {
             return !this.entities || !this.entities.some((o) => {
-                return selectedWordIds.filter(value => o.wordsIds.includes(value)).length > 0;
+                return _.intersection(_.range(startId, endId + 1), _.range(o.startId, o.endId + 1)).length > 0;
             })
         },
-        colorToCSS(color, transparency) {
-            return `rgb(${color[0]},${color[1]},${color[2]}, 0.5)`;
+        colorToCSS(color, transparency=1) {
+            return `rgb(${color[0]},${color[1]},${color[2]}, ${transparency})`;
         },
         mapAndEmit(fn) {
             const newObjectList = _.cloneDeep(this.entities);
@@ -179,13 +173,16 @@ const TextArea = {
         },
         getWordIndex(wordId) {
             return parseInt(wordId.split('_')[1]);
+        },
+        getSelectedWordsFromBoundaries(startId, endId) {
+            return _.range(startId, endId + 1).map(this.getWordId);
         }
     },
     watch: {
         selectedLabel: function (){
             const category = config.categories[this.selectedLabel];
             const color = category ? category.color : UNDEFINED_COLOR;
-            this.updateHighlightingColor(this.colorToCSS(color));
+            this.updateHighlightingColor(this.colorToCSS(color, 0.5));
         },
         text: function(nv){
             this.resetSelection();
@@ -206,7 +203,7 @@ const TextArea = {
         if (this.entities) {
             this.entities.map((e) => this.addSelectionFromEntity(e));
         }
-        this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR));
+        this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR, 0.5));
         document.getElementById('textarea').addEventListener('click', (mEvent) => {
             !(mEvent.ctrlKey || mEvent.metaKey) && this.deselectAll();
         }, true);

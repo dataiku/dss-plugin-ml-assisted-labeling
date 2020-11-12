@@ -23,7 +23,8 @@ class TextClassifier(TableBasedDataClassifier):
     def clean_data_to_save(self, lab):
         return {
             'text': lab['text'],
-            'wordsIds': lab['wordsIds'],
+            'startId': lab['startId'],
+            'endId': lab['endId'],
             'label': lab['label']
         }
 
