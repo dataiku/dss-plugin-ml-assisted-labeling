@@ -18,7 +18,7 @@ class TextClassifier(TableBasedDataClassifier):
         super(TextClassifier, self).__init__(queries_df, config)
 
     def get_initial_df(self):
-        return self.__initial_df.rename({self.text_column: TEXT_COLUMN_DEFAULT_LABEL}, axis='columns')
+        return self.__initial_df
 
     def clean_data_to_save(self, lab):
         return {
@@ -26,6 +26,9 @@ class TextClassifier(TableBasedDataClassifier):
             'wordsIds': lab['wordsIds'],
             'label': lab['label']
         }
+
+    def get_relevant_config(self):
+        return {"text_column": self.text_column}
 
     def format_for_saving(self, label):
         cleaned_labels = [self.clean_data_to_save(lab) for lab in label]

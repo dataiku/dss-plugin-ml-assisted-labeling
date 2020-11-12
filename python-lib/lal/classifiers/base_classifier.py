@@ -57,6 +57,9 @@ class BaseClassifier(ABC):
 
         return config
 
+    def get_relevant_config(self):
+        return {}
+
     def get_item_by_id(self, sid):
         result = {"raw": self.get_raw_item_by_id(sid)}
         enriched = self.get_enriched_item_by_id(sid)
