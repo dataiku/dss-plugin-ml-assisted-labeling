@@ -19,10 +19,10 @@ const TextArea = {
         }
     },
     methods: {
-        splitText(txt) {
-            return txt.split(' ').map(this.sanitizeWord).reduce((x, y) => x.concat(y));
+        splitText(txt, sep=' ') {
+            return txt.split(sep).map(this.sanitizeWord).reduce((x, y) => x.concat(y));
         },
-        sanitizeWord(word) {
+        sanitizeWord(word, sep=' ') {
             const sanitizedWordList = [];
             if (word.match(/^[a-zA-Z0-9]+$/i)) {
                 sanitizedWordList.push(word);
@@ -39,7 +39,7 @@ const TextArea = {
                 })
                 if (currentWord) sanitizedWordList.push(currentWord);
             }
-            sanitizedWordList[sanitizedWordList.length - 1] += ' ';
+            sanitizedWordList[sanitizedWordList.length - 1] += sep;
             return sanitizedWordList;
         },
         updateHighlightingColor(newColor) {
@@ -110,7 +110,7 @@ const TextArea = {
                 startId: startId,
                 endId: endId,
                 draft: false,
-                selected: true
+                selected: false
             }
         },
         addObjectToObjectList(newObject) {
