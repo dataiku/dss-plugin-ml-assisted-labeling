@@ -20,7 +20,7 @@ const TextArea = {
     },
     methods: {
         splitText(txt, sep=' ') {
-            return txt.split(sep).map(this.sanitizeWord).reduce((x, y) => x.concat(y));
+            return txt.split(sep).map((x) => this.sanitizeWord(x, sep)).reduce((x, y) => x.concat(y));
         },
         sanitizeWord(word, sep=' ') {
             const sanitizedWordList = [];
