@@ -2,6 +2,8 @@ import json
 import logging
 
 import pandas as pd
+import copy as cp
+import re
 
 TEXT_COLUMN_DEFAULT_LABEL = 'text'
 
@@ -14,7 +16,9 @@ class TextClassifier(TableBasedDataClassifier):
 
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
-        self.text_column = config["text_column"]
+        self.text_column = config.get("text_column")
+        self.token_sep = ' '#config.get("token_sep")
+        self.historical_labels = {}
         super(TextClassifier, self).__init__(queries_df, config)
 
     def get_initial_df(self):
@@ -23,13 +27,18 @@ class TextClassifier(TableBasedDataClassifier):
     def clean_data_to_save(self, lab):
         return {
             'text': lab['text'],
-            'startId': lab['startId'],
-            'endId': lab['endId'],
-            'label': lab['label']
+            'start': lab['start'],
+            'end': lab['end'],
+            'label': lab['label'],
+            'tokenStart': lab['tokenStart'],
+            'tokenEnd': lab['tokenEnd']
         }
 
     def get_relevant_config(self):
-        return {"text_column": self.text_column}
+        return {
+            "textColumn": self.text_column,
+            "tokenSep": self.token_sep
+        }
 
     def format_for_saving(self, label):
         cleaned_labels = [self.clean_data_to_save(lab) for lab in label]
@@ -40,6 +49,63 @@ class TextClassifier(TableBasedDataClassifier):
 
     def deserialize_label(self, label):
         return json.loads(label)
+
+    def add_prelabels(self, batch, user_meta):
+        history = self.build_history_from_meta(user_meta)
+        for item in batch:
+            item['prelabels'] = self.find_prelabels(history, item["data"]["raw"][self.text_column])
+
+    def build_history_from_meta(self, user_meta):
+        history = {}
+        for meta in user_meta:
+            for lab in self.deserialize_label(meta["label"]):
+                if lab["text"] in history and lab["label"] == history[lab["text"]]["label"]:
+                    history[lab["text"]]["cpt"] += 1
+                else:
+                    history[lab["text"]] = {
+                        "label": lab["label"],
+                        "cpt": 1
+                    }
+        return history
+
+    def find_prelabels(self, history, text):
+        prelabels = []
+        if not history:
+            return prelabels
+        regexp = '\\b({})\\b'.format('|'.join(list(history.keys())))
+        print('---------------- start -----------------')
+        print(history)
+        print(text)
+        print('---------------- end -----------------')
+        for match in re.finditer(regexp, text):
+            prelabels.append({
+                "text": match.group(),
+                "label": history[match.group()]['label'],
+                "start": match.start(),
+                "end": match.end()
+            })
+        prelabels.sort(key=(lambda x: x["start"]))
+        full_prelabels = self.insert_token_indexes(prelabels, text)
+        return full_prelabels
+
+    def insert_token_indexes(self, prelabels, text):
+        nprelabels = cp.deepcopy(prelabels)
+        separator_iter = re.finditer(self.token_sep, text)
+        try:
+            cur_sep = next(separator_iter)
+        except StopIteration:
+            return nprelabels
+        token_index = 0
+        for plab in nprelabels:
+            while 1:
+                if cur_sep.start() >= plab["start"] and not "token_start" in plab:
+                    plab["tokenStart"] = token_index
+                if cur_sep.start() >= plab["end"]:
+                    plab["tokenEnd"] = token_index
+                    break
+                token_index += 1
+                cur_sep = next(separator_iter)
+        return nprelabels
 
     @property
     def type(self):
@@ -54,6 +120,5 @@ class TextClassifier(TableBasedDataClassifier):
         labels = []
         for v in raw_labels_series.values:
             if pd.notnull(v):
-                print(v)
                 labels += [a['label'] for a in json.loads(v) if a['label']]
         return pd.Series(labels)

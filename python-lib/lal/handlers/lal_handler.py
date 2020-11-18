@@ -16,7 +16,7 @@ META_STATUS_LABELED = 'LABELED'
 META_STATUS_SKIPPED = 'SKIPPED'
 
 BLOCK_SAMPLE_BY_USER_FOR_MINUTES = 0.5
-BATCH_SIZE = 20
+BATCH_SIZE = 1
 
 C = TypeVar('C', bound=BaseClassifier)
 
@@ -138,6 +138,11 @@ class LALHandler(object):
             "stats": self.calculate_stats(user)
         }
 
+    def add_prelabels(self, batch, user):
+        self.logger.info("Retrieving prelabels")
+        labeled_user_meta = self.get_meta_by_status(user, status=META_STATUS_LABELED).to_dict(orient='records')
+        self.classifier.add_prelabels(batch, labeled_user_meta)
+
     def create_label_id(self):
         self.last_used_label_id += 1
         return self.last_used_label_id
@@ -159,10 +164,12 @@ class LALHandler(object):
             for i in ids_batch:
                 self.sample_by_user_reservation[i] = ReservedSample(user, reserved_until)
         ids_batch.reverse()
+        batch = [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch]
+        self.add_prelabels(batch, user)
         return {
             "isDynamic": self.classifier.is_dynamic,
             "type": self.classifier.type,
-            "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
+            "items": batch,
             "isLastBatch": len(remaining) < BATCH_SIZE,
             "stats": stats,
             "config": self.get_config()

@@ -1,4 +1,5 @@
 import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION} from "../utils/utils.js";
+import { PUNCTUATION_REGEX } from "./punctuation.js"
 
 
 const TextArea = {
@@ -12,35 +13,42 @@ const TextArea = {
             }
         },
         selectedLabel: String,
+        tokenSep: String,
+        prelabels: {
+            type: Array,
+            default: () => {
+                return [];
+            }
+        },
     },
     computed: {
         splittedText: function () {
-            return this.splitText(this.text);
+            return this.splitText(this.text, this.tokenSep);
         }
     },
     methods: {
-        splitText(txt, sep=' ') {
-            return txt.split(sep).map((x) => this.sanitizeWord(x, sep)).reduce((x, y) => x.concat(y));
+        splitText(txt, tokenSep=' ') {
+            return txt.split(tokenSep).map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
         },
-        sanitizeWord(word, sep=' ') {
-            const sanitizedWordList = [];
-            if (word.match(/^[a-zA-Z0-9]+$/i)) {
-                sanitizedWordList.push(word);
+        sanitizeToken(token) {
+            const sanitizedTokenList = [];
+            if (!token.match(PUNCTUATION_REGEX)) {
+                sanitizedTokenList.push({token});
             } else {
-                let currentWord = '';
-                word.split('').forEach((letter) => {
-                    if (letter.match(/^[a-zA-Z0-9]+$/i)) {
-                        currentWord += letter;
+                let currentToken = '';
+                token.split('').forEach((c) => {
+                    if (!c.match(PUNCTUATION_REGEX)) {
+                        currentToken += c;
                     } else {
-                        currentWord && sanitizedWordList.push(currentWord);
-                        sanitizedWordList.push(letter);
-                        currentWord = '';
+                        currentToken && sanitizedTokenList.push({token: currentToken});
+                        sanitizedTokenList.push({token: c});
+                        currentToken = '';
                     }
                 })
-                if (currentWord) sanitizedWordList.push(currentWord);
+                if (currentToken) sanitizedTokenList.push({token: currentToken});
             }
-            sanitizedWordList[sanitizedWordList.length - 1] += sep;
-            return sanitizedWordList;
+            sanitizedTokenList[sanitizedTokenList.length - 1].sepAtEnd = true;
+            return sanitizedTokenList;
         },
         updateHighlightingColor(newColor) {
             this.highlightingStyleCreated && document.head.removeChild(document.head.lastChild);
@@ -52,40 +60,37 @@ const TextArea = {
         },
         addSelectionFromEntity(e) {
             const category = config.categories[e.label];
-            const selected = e.selected;
-            this.makeSelected(e.startId, e.endId, category, selected)
+            this.makeSelected(e.tokenStart, e.tokenEnd, category, e.selected)
         },
-        addSelection(startId, endId) {
+        addSelection(tokenStart, tokenEnd) {
             const category = config.categories[this.selectedLabel];
-            this.makeSelected(startId, endId, category, false)
+            this.makeSelected(tokenStart, tokenEnd, category, false)
         },
-        getTextFromWordIds(startId, endId) {
-            const wordIds = this.getSelectedWordsFromBoundaries(startId, endId);
-            const selectedWords = wordIds.map((x) => document.getElementById(x));
-            return selectedWords.map((x) => x.innerText).reduce((x, y) => x + y);
+        getTextFromBoundaries(start, end) {
+            return this.text.slice(start, end)
         },
-        makeSelected(startId, endId, category, selected) {
-            const wordsIds = this.getSelectedWordsFromBoundaries(startId, endId);
+        makeSelected(tokenStart, tokenEnd, category, selected) {
+            const tokenIds = this.getSelectedTokensFromBoundaries(tokenStart, tokenEnd);
             const color = category ? category.color : UNDEFINED_COLOR;
             const colorStrTransparent = this.colorToCSS(color, 0.25);
             const colorStrOpaque = this.colorToCSS(color)
 
             const caption = category ? category.caption : UNDEFINED_CAPTION;
 
-            const selectedWords = wordsIds.map((x) => document.getElementById(x));
+            const selectedTokens = tokenIds.map((x) => document.getElementById(x));
             const selectionWrapper = document.createElement('mark');
             selectionWrapper.classList.add('selection-wrapper');
             selected && selectionWrapper.classList.add('selected');
-            const selectionId = this.getSelectionId(startId, endId);
+            const selectionId = this.getSelectionId(tokenStart, tokenEnd);
             selectionWrapper.id = selectionId;
             selectionWrapper.addEventListener('dblclick', () => {
                 const newEntities = this.entities.filter(
-                    (x) => selectionId !== this.getSelectionId(x.startId, x.endId));
+                    (x) => selectionId !== this.getSelectionId(x.tokenStart, x.tokenEnd));
                 this.$emit("update:entities", newEntities);
             });
             selectionWrapper.addEventListener('click', (mEvent) => {
                 this.mapAndEmit((o) => {
-                    if (selectionId === this.getSelectionId(o.startId, o.endId)) {
+                    if (selectionId === this.getSelectionId(o.tokenStart, o.tokenEnd)) {
                         o.selected = !o.selected;
                     } else {
                         o.selected = (mEvent.ctrlKey || mEvent.metaKey) ? o.selected : false;
@@ -93,8 +98,8 @@ const TextArea = {
                 })
             });
             selectionWrapper.style.background = colorStrTransparent
-            selectedWords[0].parentNode.insertBefore(selectionWrapper, selectedWords[0]);
-            selectedWords.forEach((x) => selectionWrapper.appendChild(x));
+            selectedTokens[0].parentNode.insertBefore(selectionWrapper, selectedTokens[0]);
+            selectedTokens.forEach((x) => selectionWrapper.appendChild(x));
 
             const captionSpan = document.createElement('span');
             captionSpan.classList.add('selected-caption');
@@ -103,12 +108,14 @@ const TextArea = {
             selectionWrapper.appendChild(captionSpan);
 
         },
-        getLabeledText(startId, endId) {
+        getLabeledText(start, end, tokenStart, tokenEnd) {
             return {
                 label: this.selectedLabel,
-                text: this.getTextFromWordIds(startId, endId),
-                startId: startId,
-                endId: endId,
+                text: this.getTextFromBoundaries(start, end),
+                start: start,
+                end: end,
+                tokenStart: tokenStart,
+                tokenEnd: tokenEnd,
                 draft: false,
                 selected: false
             }
@@ -119,24 +126,31 @@ const TextArea = {
         resetSelection() {
             const textarea = document.getElementById('textarea');
             textarea.innerHTML = "";
-            this.splittedText.forEach((word, index) => {
-                const newWord = document.createElement('span');
-                newWord.textContent = word;
-                newWord.classList.add('word');
-                newWord.id = this.getWordId(index);
-                textarea.appendChild(newWord)
+            let charCpt = 0;
+            this.splittedText.forEach((token, index) => {
+                const newToken = document.createElement('span');
+                newToken.textContent = token.token + (token.sepAtEnd ? this.tokenSep: '');
+                newToken.classList.add('token');
+                newToken.id = this.getTokenId(index);
+                newToken.setAttribute('data-start', charCpt);
+                newToken.setAttribute('data-end', (charCpt + token.token.length).toString());
+                charCpt += newToken.textContent.length;
+                textarea.appendChild(newToken)
             })
         },
         handleMouseUp() {
             const selection = document.getSelection();
             if (selection.isCollapsed) return;
-            const focusWord = this.getWordIndex(selection.focusNode.parentElement.id);
-            const anchorWord = this.getWordIndex(selection.anchorNode.parentElement.id);
-            let startSelect, endSelect;
-            [startSelect, endSelect] = _.sortBy([anchorWord, focusWord]);
-            if (this.isLegitSelect(startSelect, endSelect)) {
-                this.addSelection(startSelect, endSelect);
-                this.addObjectToObjectList(this.getLabeledText(startSelect, endSelect));
+            const { anchorNode, focusNode } = selection;
+            let startNode, endNode;
+            [startNode, endNode] = _.sortBy([anchorNode, focusNode], [(o) => {
+                return this.parseTokenId(o.parentElement).charStart
+            }]);
+            const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
+            let {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
+            if (this.isLegitSelect(tokenStart, tokenEnd)) {
+                this.addSelection(tokenStart, tokenEnd);
+                this.addObjectToObjectList(this.getLabeledText(charStart, charEnd, tokenStart, tokenEnd));
             }
         },
         deleteAll() {
@@ -153,7 +167,7 @@ const TextArea = {
         },
         isLegitSelect(startId, endId) {
             return !this.entities || !this.entities.some((o) => {
-                return _.intersection(_.range(startId, endId + 1), _.range(o.startId, o.endId + 1)).length > 0;
+                return _.intersection(_.range(startId, endId + 1), _.range(o.tokenStart, o.tokenEnd + 1)).length > 0;
             })
         },
         colorToCSS(color, transparency=1) {
@@ -168,14 +182,19 @@ const TextArea = {
         emitUpdateEntities(newObjects) {
             this.$emit("update:entities", newObjects);
         },
-        getWordId(n) {
-            return `w_${n}`;
+        parseTokenId(node) {
+            const splittedId = node.id.split('_');
+            return {
+                tokenIndex: parseInt(splittedId[1]),
+                charStart: parseInt(node.dataset.start),
+                charEnd: parseInt(node.dataset.end)
+            }
         },
-        getWordIndex(wordId) {
-            return parseInt(wordId.split('_')[1]);
+        getTokenId(n) {
+            return `tok_${n}`;
         },
-        getSelectedWordsFromBoundaries(startId, endId) {
-            return _.range(startId, endId + 1).map(this.getWordId);
+        getSelectedTokensFromBoundaries(startId, endId) {
+            return _.range(startId, endId + 1).map(this.getTokenId);
         }
     },
     watch: {
@@ -186,6 +205,7 @@ const TextArea = {
         },
         text: function(nv){
             this.resetSelection();
+            this.prelabels?.length && this.emitUpdateEntities(this.prelabels);
         },
         entities: {
             handler(nv) {
