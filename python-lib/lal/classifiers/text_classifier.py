@@ -7,7 +7,6 @@ import re
 
 TEXT_COLUMN_DEFAULT_LABEL = 'text'
 
-
 from lal.classifiers.base_classifier import TableBasedDataClassifier
 
 
@@ -17,7 +16,7 @@ class TextClassifier(TableBasedDataClassifier):
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
         self.text_column = config.get("text_column")
-        self.token_sep = ' '#config.get("token_sep")
+        self.token_sep = ' '  # config.get("token_sep")
         self.historical_labels = {}
         super(TextClassifier, self).__init__(queries_df, config)
 
@@ -59,10 +58,11 @@ class TextClassifier(TableBasedDataClassifier):
         history = {}
         for meta in user_meta:
             for lab in self.deserialize_label(meta["label"]):
-                if lab["text"] in history and lab["label"] == history[lab["text"]]["label"]:
-                    history[lab["text"]]["cpt"] += 1
+                txt = lab["text"].lower()
+                if txt in history and lab["label"] == history[txt]["label"]:
+                    history[txt]["cpt"] += 1
                 else:
-                    history[lab["text"]] = {
+                    history[txt] = {
                         "label": lab["label"],
                         "cpt": 1
                     }
@@ -73,14 +73,10 @@ class TextClassifier(TableBasedDataClassifier):
         if not history:
             return prelabels
         regexp = '\\b({})\\b'.format('|'.join(list(history.keys())))
-        print('---------------- start -----------------')
-        print(history)
-        print(text)
-        print('---------------- end -----------------')
-        for match in re.finditer(regexp, text):
+        for match in re.finditer(regexp, text, re.IGNORECASE):
             prelabels.append({
                 "text": match.group(),
-                "label": history[match.group()]['label'],
+                "label": history[match.group().lower()]['label'],
                 "start": match.start(),
                 "end": match.end()
             })
@@ -90,21 +86,32 @@ class TextClassifier(TableBasedDataClassifier):
 
     def insert_token_indexes(self, prelabels, text):
         nprelabels = cp.deepcopy(prelabels)
-        separator_iter = re.finditer(self.token_sep, text)
-        try:
-            cur_sep = next(separator_iter)
-        except StopIteration:
-            return nprelabels
+        separator_iter = re.finditer(self.token_sep, text + ' ')
         token_index = 0
+        cont = True
+        if self.token_sep not in text:
+            if nprelabels:
+                nprelabels[0]["tokenStart"] = token_index
+                nprelabels[0]["tokenEnd"] = token_index
+            return nprelabels
         for plab in nprelabels:
-            while 1:
-                if cur_sep.start() >= plab["start"] and not "token_start" in plab:
+            while cont:
+                try:
+                    cur_sep = next(separator_iter)
+                except StopIteration:
+                    cont = False
+                print('---------------- start -----------------')
+                print(nprelabels)
+                print(text)
+                print(plab)
+                print(cur_sep)
+                print('---------------- end -----------------')
+                if cur_sep.start() >= plab["start"] and "tokenStart" not in plab:
                     plab["tokenStart"] = token_index
                 if cur_sep.start() >= plab["end"]:
                     plab["tokenEnd"] = token_index
                     break
                 token_index += 1
-                cur_sep = next(separator_iter)
         return nprelabels
 
     @property
