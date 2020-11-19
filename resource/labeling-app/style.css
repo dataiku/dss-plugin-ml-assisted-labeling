@@ -346,7 +346,7 @@ audio {
     flex: 1;
     display: flex;
     align-content: space-between;
-    max-width: 50vw;
+    width: 50vw;
     min-height: 10vh;
     max-height: 85vh;
     box-shadow: 1px 1px 5px #ddd;
