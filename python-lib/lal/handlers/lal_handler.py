@@ -16,7 +16,9 @@ META_STATUS_LABELED = 'LABELED'
 META_STATUS_SKIPPED = 'SKIPPED'
 
 BLOCK_SAMPLE_BY_USER_FOR_MINUTES = 0.5
-BATCH_SIZE = 1
+
+DEFAULT_BATCH_SIZE = 20
+PRELABELING_BATCH_SIZE = 1
 
 C = TypeVar('C', bound=BaseClassifier)
 
@@ -45,6 +47,7 @@ class LALHandler(object):
         :type classifier: C
         """
         self.classifier = classifier
+        self.batch_size = PRELABELING_BATCH_SIZE if classifier.use_prelabeling else DEFAULT_BATCH_SIZE
         self.lbl_col = label_col_name
         self.lbl_id_col = label_col_name + "_id"
         self._skipped = {}
@@ -158,19 +161,20 @@ class LALHandler(object):
             return {"isDone": True, "stats": stats, "config": self.get_config()}
 
         remaining = self.get_remaining(user)
-        ids_batch = remaining[-BATCH_SIZE:]
+        ids_batch = remaining[-self.batch_size:]
         with LALHandler.lock:
-            reserved_until = datetime.now() + timedelta(minutes=int(BATCH_SIZE * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
+            reserved_until = datetime.now() + timedelta(minutes=int(self.batch_size * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
             for i in ids_batch:
                 self.sample_by_user_reservation[i] = ReservedSample(user, reserved_until)
         ids_batch.reverse()
         batch = [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch]
-        self.add_prelabels(batch, user)
+        if self.classifier.use_prelabeling:
+            self.add_prelabels(batch, user)
         return {
             "isDynamic": self.classifier.is_dynamic,
             "type": self.classifier.type,
             "items": batch,
-            "isLastBatch": len(remaining) < BATCH_SIZE,
+            "isLastBatch": len(remaining) < self.batch_size,
             "stats": stats,
             "config": self.get_config()
         }

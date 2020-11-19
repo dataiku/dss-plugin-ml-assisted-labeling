@@ -220,8 +220,12 @@ const TextArea = {
                 }
                 charCpt += (token.token + (token.sepAtEnd ? this.tokenSep: '')).length;
                 tokenIndex += 1
-                if (entityIndex >= entities.length) return;
             }
+        },
+        init_text() {
+        this.resetSelection();
+        this.addTokenIds(this.prelabels);
+        this.prelabels?.length && this.emitUpdateEntities(this.prelabels);
         }
     },
     watch: {
@@ -231,9 +235,7 @@ const TextArea = {
             this.updateHighlightingColor(this.colorToCSS(color, 0.5));
         },
         text: function(nv){
-            this.resetSelection();
-            this.addTokenIds(this.prelabels);
-            this.prelabels?.length && this.emitUpdateEntities(this.prelabels);
+            this.init_text()
         },
         entities: {
             handler(nv) {
@@ -247,7 +249,7 @@ const TextArea = {
         }
     },
     mounted() {
-        this.resetSelection();
+        this.init_text()
         if (this.entities) {
             this.entities.map((e) => this.addSelectionFromEntity(e));
         }

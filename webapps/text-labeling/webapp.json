@@ -92,6 +92,38 @@
       "mandatory": false,
       "canSelectForeign": false,
       "canCreateDataset": true
+    },
+    {
+      "type": "SEPARATOR",
+      "name": "Other settings",
+      "label": "Other settings"
+    },
+    {
+      "type": "BOOLEAN",
+      "name": "use_prelabeling",
+      "label": "Activate Prelabeling",
+      "default": false
+    },
+    {
+      "type": "SELECT",
+      "name": "prelabeling_engine",
+      "label": "Prelabeling engine",
+      "selectChoices": [
+        { "value": "classic", "label": "Classic (Re-use labeled data)"}
+      ],
+      "visibilityCondition": "model.use_prelabeling",
+      "defaultValue": "classic"
+    },
+    {
+      "type": "SELECT",
+      "name": "tokenisation_engine",
+      "label": "Tokenisation",
+      "selectChoices": [
+        { "value": "white_space", "label": "White Space (Split along white spaces)"},
+        { "value": "char", "label": "Character (Split along each character)"}
+      ],
+      "defaultValue": "white_space",
+      "required": true
     }
   ]
 }
