@@ -60,35 +60,25 @@ const TextArea = {
         },
         addSelectionFromEntity(e) {
             const category = config.categories[e.label];
-            this.makeSelected(e.tokenStart, e.tokenEnd, category, e.selected)
-        },
-        addSelection(tokenStart, tokenEnd) {
-            const category = config.categories[this.selectedLabel];
-            this.makeSelected(tokenStart, tokenEnd, category, false)
+            const newRange = document.createRange();
+            const startNode = document.getElementById(this.getTokenId(e.tokenStart));
+            const endNode = document.getElementById(this.getTokenId(e.tokenEnd));
+            newRange.setStart(startNode, 0);
+            newRange.setEnd(endNode, 1);
+            this.makeSelected(newRange, category, e.selected)
         },
         getTextFromBoundaries(start, end) {
             return this.text.slice(start, end)
         },
-        makeSelected(tokenStart, tokenEnd, category, selected) {
-            const tokenIds = this.getSelectedTokensFromBoundaries(tokenStart, tokenEnd);
-            const color = category ? category.color : UNDEFINED_COLOR;
-            const colorStrTransparent = this.colorToCSS(color, 0.25);
-            const colorStrOpaque = this.colorToCSS(color)
-
-            const caption = category ? category.caption : UNDEFINED_CAPTION;
-
-            const selectedTokens = tokenIds.map((x) => document.getElementById(x));
-            const selectionWrapper = document.createElement('mark');
-            selectionWrapper.classList.add('selection-wrapper');
-            selected && selectionWrapper.classList.add('selected');
-            const selectionId = this.getSelectionId(tokenStart, tokenEnd);
-            selectionWrapper.id = selectionId;
-            selectionWrapper.addEventListener('dblclick', () => {
+        handleDblClickOnSelection(selectionId) {
+            return () => {
                 const newEntities = this.entities.filter(
                     (x) => selectionId !== this.getSelectionId(x.tokenStart, x.tokenEnd));
                 this.$emit("update:entities", newEntities);
-            });
-            selectionWrapper.addEventListener('click', (mEvent) => {
+            }
+        },
+        handleClickOnSelection(selectionId) {
+            return (mEvent) => {
                 this.mapAndEmit((o) => {
                     if (selectionId === this.getSelectionId(o.tokenStart, o.tokenEnd)) {
                         o.selected = !o.selected;
@@ -96,11 +86,32 @@ const TextArea = {
                         o.selected = (mEvent.ctrlKey || mEvent.metaKey) ? o.selected : false;
                     }
                 })
-            });
-            selectionWrapper.style.background = colorStrTransparent
-            selectedTokens[0].parentNode.insertBefore(selectionWrapper, selectedTokens[0]);
-            selectedTokens.forEach((x) => selectionWrapper.appendChild(x));
+            }
+        },
+        makeSelected(range, category, selected) {
+            const [tokenStart, tokenEnd] = [range.startContainer, range.endContainer].map((t) => {
+                return this.parseTokenId(t).tokenIndex
+            })
+            const color = category ? category.color : UNDEFINED_COLOR;
+            const colorStrTransparent = this.colorToCSS(color, 0.25);
+            const colorStrOpaque = this.colorToCSS(color)
 
+            const caption = category ? category.caption : UNDEFINED_CAPTION;
+
+            const selectionWrapper = document.createElement('mark');
+            selectionWrapper.classList.add('selection-wrapper');
+            selected && selectionWrapper.classList.add('selected');
+            const selectionId = this.getSelectionId(tokenStart, tokenEnd);
+            selectionWrapper.id = selectionId;
+
+            selectionWrapper.addEventListener('dblclick', this.handleDblClickOnSelection(selectionId));
+            selectionWrapper.addEventListener('click', this.handleClickOnSelection(selectionId));
+
+            selectionWrapper.style.background = colorStrTransparent
+            range.startContainer.parentNode.insertBefore(selectionWrapper, range.startContainer);
+            selectionWrapper.appendChild(range.extractContents());
+
+            // We place a caption at the end of the mark tag
             const captionSpan = document.createElement('span');
             captionSpan.classList.add('selected-caption');
             captionSpan.textContent = caption;
@@ -141,15 +152,13 @@ const TextArea = {
         handleMouseUp() {
             const selection = document.getSelection();
             if (selection.isCollapsed) return;
-            const { anchorNode, focusNode } = selection;
-            let startNode, endNode;
-            [startNode, endNode] = _.sortBy([anchorNode, focusNode], [(o) => {
-                return this.parseTokenId(o.parentElement).charStart
-            }]);
+            const range = selection.getRangeAt(0);
+            const [startNode, endNode] = [range.startContainer, range.endContainer]
+            range.setStart(startNode, 0);
+            range.setEnd(endNode, endNode.length);
             const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
-            let {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
+            const {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
             if (this.isLegitSelect(tokenStart, tokenEnd)) {
-                this.addSelection(tokenStart, tokenEnd);
                 this.addObjectToObjectList(this.getLabeledText(charStart, charEnd, tokenStart, tokenEnd));
             }
         },
@@ -193,8 +202,26 @@ const TextArea = {
         getTokenId(n) {
             return `tok_${n}`;
         },
-        getSelectedTokensFromBoundaries(startId, endId) {
-            return _.range(startId, endId + 1).map(this.getTokenId);
+        addTokenIds(entities) {
+            if (!entities.length) return;
+            const sortedEntities = _.sortBy(entities, ['start']);
+            let charCpt = 0;
+            let entityIndex = 0;
+            let tokenIndex = 0;
+            let token;
+            while(entityIndex < entities.length) {
+                token = this.splittedText[tokenIndex];
+                if (sortedEntities[entityIndex].start <= charCpt) {
+                    sortedEntities[entityIndex].tokenStart = tokenIndex;
+                }
+                if (sortedEntities[entityIndex].end <= charCpt + token.token.length) {
+                    sortedEntities[entityIndex].tokenEnd = tokenIndex;
+                    entityIndex += 1;
+                }
+                charCpt += (token.token + (token.sepAtEnd ? this.tokenSep: '')).length;
+                tokenIndex += 1
+                if (entityIndex >= entities.length) return;
+            }
         }
     },
     watch: {
@@ -205,6 +232,7 @@ const TextArea = {
         },
         text: function(nv){
             this.resetSelection();
+            this.addTokenIds(this.prelabels);
             this.prelabels?.length && this.emitUpdateEntities(this.prelabels);
         },
         entities: {

@@ -81,38 +81,7 @@ class TextClassifier(TableBasedDataClassifier):
                 "end": match.end()
             })
         prelabels.sort(key=(lambda x: x["start"]))
-        full_prelabels = self.insert_token_indexes(prelabels, text)
-        return full_prelabels
-
-    def insert_token_indexes(self, prelabels, text):
-        nprelabels = cp.deepcopy(prelabels)
-        separator_iter = re.finditer(self.token_sep, text + ' ')
-        token_index = 0
-        cont = True
-        if self.token_sep not in text:
-            if nprelabels:
-                nprelabels[0]["tokenStart"] = token_index
-                nprelabels[0]["tokenEnd"] = token_index
-            return nprelabels
-        for plab in nprelabels:
-            while cont:
-                try:
-                    cur_sep = next(separator_iter)
-                except StopIteration:
-                    cont = False
-                print('---------------- start -----------------')
-                print(nprelabels)
-                print(text)
-                print(plab)
-                print(cur_sep)
-                print('---------------- end -----------------')
-                if cur_sep.start() >= plab["start"] and "tokenStart" not in plab:
-                    plab["tokenStart"] = token_index
-                if cur_sep.start() >= plab["end"]:
-                    plab["tokenEnd"] = token_index
-                    break
-                token_index += 1
-        return nprelabels
+        return prelabels
 
     @property
     def type(self):
