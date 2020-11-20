@@ -202,15 +202,15 @@ let CategorySelector = {
                     </div>
                     <div v-else style="width: 100%;">
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                        <p style="margin: auto;">Select a label and draw a box around the target.</p>
+                        <p style="margin: auto;">Select a label and draw a box around the target then...</p>
                         <div class="circles-container">
                             <div style="max-width: 110px;">
                                 <div class="circle cat-example"></div>
-                                <span>Clicking on the categories buttons</span>
+                                <span>Click on the categories buttons</span>
                             </div>
                             <div style="max-width: 110px;">
                                 <div class="circle shortcut-example"></div>
-                                <span>Using keyboard shortcuts</span>
+                                <span>Use keyboard shortcuts</span>
                             </div>
                         </div>
                     </div>

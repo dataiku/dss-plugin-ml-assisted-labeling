@@ -162,13 +162,13 @@ canvas {
     margin: 30px 0;
 }
 .cat-example {
-    background-image: url("../img/category-selection-example.png");
+    background-image: url("../img/category@2x.png");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
 }
 .shortcut-example {
-    background-image: url("../img/shortcut-example.png");
+    background-image: url("../img/shortcut@2x.png");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
