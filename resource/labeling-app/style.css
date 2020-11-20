@@ -268,8 +268,8 @@ audio {
 }
 
 .right-panel-top .right-panel-button {
-    height: 64px;
-    width: 64px;
+    min-height: 64px;
+    min-width: 64px;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
