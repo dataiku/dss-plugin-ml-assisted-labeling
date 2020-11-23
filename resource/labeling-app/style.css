@@ -511,7 +511,7 @@ audio {
 }
 
 .category-selector__image-object-wrapper {
-    overflow: hidden;
+    overflow: scroll;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -519,7 +519,6 @@ audio {
 
 .category-selector__annotations-wrapper {
     flex: 1;
-    overflow: auto;
     position: relative;
 }
 
