@@ -144,7 +144,7 @@ export default new Vue({
                             />
                         </div>
 
-                        <div>
+                        <div v-if="type != 'text'">
                             <v-popover :trigger="'hover'" :placement="'left'">
                                 <div class="al-enabled-widget"
                                      :class="{ 'enabled': config.isAlEnabled }">
