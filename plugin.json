@@ -1,15 +1,21 @@
 {
-    "id" : "ml-assisted-labeling",
-    "version" : "2.0.0",
-
-    "meta" : {
-        "label" : "ML-assisted Labeling",
-        "description" : "Label your data efficiently by leveraging webapps and active learning recipes.",
-        "author" : "Dataiku (Alexandre Abraham, Andrey Avtomonov)",
-        "icon" : "icon-tags",
-        "licenseInfo" : "Apache Software License",
-        "url" : "https://www.dataiku.com/product/plugins/ml-assisted-labeling/",
-        "tags" : ["Machine Learning", "Images", "Enrichment", "Productivity", "Audio", "Data Quality"],
+    "id": "ml-assisted-labeling",
+    "version": "2.0.0",
+    "meta": {
+        "label": "ML-assisted Labeling",
+        "description": "Label tabular, image, audio and text data efficiently with Active Learning",
+        "author": "Dataiku (Alexandre ABRAHAM, Andrey AVTOMONOV)",
+        "icon": "icon-tags",
+        "licenseInfo": "Apache Software License",
+        "url": "https://www.dataiku.com/product/plugins/ml-assisted-labeling/",
+        "tags": [
+            "Machine Learning",
+            "Image",
+            "Computer Vision",
+            "NLP",
+            "Audio",
+            "Labeling"
+        ],
         "supportLevel": "NOT_SUPPORTED"
     }
 }
