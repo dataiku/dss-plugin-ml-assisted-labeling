@@ -78,20 +78,6 @@
       "defaultValue": "label",
       "description": "Name of the label column in the Labels dataset",
       "mandatory": true
-    },
-    {
-      "type": "SEPARATOR",
-      "name": "Active learning specific (optional)",
-      "label": "Active learning specific (optional)"
-    },
-    {
-      "type": "DATASET",
-      "name": "queries_ds",
-      "label": "Queries",
-      "description": "The queries dataset is the output of the Query Sampler recipe of the Labeling and Active Learning plugin. Queries are the samples to be labeled in priority as proposed by an Active Learning strategy.",
-      "mandatory": false,
-      "canSelectForeign": false,
-      "canCreateDataset": true
     }
   ]
 }
