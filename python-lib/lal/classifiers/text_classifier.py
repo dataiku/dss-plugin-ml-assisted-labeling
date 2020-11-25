@@ -20,14 +20,6 @@ class TextClassifier(TableBasedDataClassifier):
     def get_initial_df(self):
         return self.__initial_df
 
-    def clean_data_to_save(self, lab):
-        return {
-            'text': lab['text'],
-            'startId': lab['startId'],
-            'endId': lab['endId'],
-            'label': lab['label']
-        }
-
     def get_relevant_config(self):
         return {"text_column": self.text_column}
 
@@ -45,6 +37,15 @@ class TextClassifier(TableBasedDataClassifier):
     @property
     def is_multi_label(self):
         return True
+
+    @staticmethod
+    def clean_data_to_save(lab):
+        return {
+            'text': lab['text'],
+            'startId': lab['startId'],
+            'endId': lab['endId'],
+            'label': lab['label']
+        }
 
     @staticmethod
     def format_labels_for_stats(raw_labels_series):
