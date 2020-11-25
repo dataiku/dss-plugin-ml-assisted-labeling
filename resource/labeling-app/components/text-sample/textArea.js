@@ -130,7 +130,7 @@ const TextArea = {
                 tokenStart: tokenStart,
                 tokenEnd: tokenEnd,
                 draft: false,
-                selected: false,
+                selected: !this.selectedLabel,
                 isPrelabel: false
             }
         },

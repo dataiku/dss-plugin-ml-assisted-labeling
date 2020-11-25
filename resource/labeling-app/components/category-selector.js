@@ -83,6 +83,7 @@ let CategorySelector = {
             this.$emit('selectedLabel', this.selectedLabel);
             this.annotation?.label?.forEach(a => {
                 if(a.selected){
+                    a.selected = !!a.label
                     a.label = lbl;
                     a.isPrelabel = false;
                 }
