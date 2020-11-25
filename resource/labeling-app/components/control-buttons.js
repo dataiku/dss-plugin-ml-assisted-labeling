@@ -13,11 +13,11 @@ export let ControlButtons = {
                 label: label?.length ? label : null
             };
         },
-        isDynamicLabeling() {
-            return this.$root.isDynamic;
+        isMultiLabel() {
+            return this.$root.isMultiLabel;
         },
         isDirty: function () {
-            if (this.isDynamicLabeling) {
+            if (this.isMultiLabel) {
                 return !_.isEqual(this.annotationToSave, this.$root.savedAnnotation)
             } else {
                 return false;
@@ -34,7 +34,7 @@ export let ControlButtons = {
 
         saveIfRequired: function () {
             return new Promise((resolve, reject) => {
-                if (this.isDynamicLabeling) {
+                if (this.isMultiLabel) {
                     const annotationToSave = this.annotationToSave;
                     if (this.isSaveRequired()) {
                         if (!_.isEqual(annotationToSave.comment, this.$root.savedAnnotation.comment) && this.$root.item.status === 'SKIPPED') {

@@ -116,7 +116,7 @@ class LALHandler(object):
 
         lbl_id = self.create_label_id() if existing_meta_record.empty else existing_meta_record.iloc[0][self.lbl_id_col]
         raw_data = self.classifier.get_raw_item_by_id(data_id)
-        serialized_label = self.classifier.format_for_saving(data.get('label')) if data.get('label') else None
+        serialized_label = self.classifier.serialize_label(data.get('label')) if data.get('label') else None
         label = {**raw_data, **{self.lbl_col: serialized_label, self.lbl_id_col: lbl_id}}
         meta = {
             self.lbl_col: serialized_label,
@@ -171,18 +171,12 @@ class LALHandler(object):
         if self.classifier.use_prelabeling:
             self.add_prelabels(batch, user)
         return {
-            "isDynamic": self.classifier.is_dynamic,
+            "isMultiLabel": self.classifier.is_multi_label,
             "type": self.classifier.type,
             "items": batch,
             "isLastBatch": len(remaining) < self.batch_size,
             "stats": stats,
             "config": self.get_config()
-        }
-
-    def get_labeled_text(self, user):
-        meta = self.user_meta(user)
-        return {
-            self.classifier.deserialize_label(meta["self.lbl_col"])
         }
 
     def user_meta(self, user):

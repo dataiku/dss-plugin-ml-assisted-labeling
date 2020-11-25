@@ -32,7 +32,7 @@ export default new Vue({
         item: undefined,
         stats: undefined,
         type: undefined,
-        isDynamic: undefined,
+        isMultiLabel: undefined,
         annotation: undefined,
         selectedLabel: undefined,
 
@@ -43,7 +43,7 @@ export default new Vue({
     methods: {
         isCurrentItemLabeled() {
             const annotation = this.annotation;
-            if (this.isDynamic) {
+            if (this.isMultiLabel) {
                 return annotation?.label?.filter(e => e.label).length > 0;
             } else {
                 return annotation?.label?.length;
@@ -87,7 +87,7 @@ export default new Vue({
                 batchPromise.then(data => {
                     this.stats = data.stats;
                     this.type = data.type;
-                    this.isDynamic = data.isDynamic;
+                    this.isMultiLabel = data.isMultiLabel;
                     this.items = data.items;
                     this.canLabel = true;
                     this.isLastBatch = data.isLastBatch;
@@ -145,7 +145,7 @@ export default new Vue({
                             />
                         </div>
 
-                        <div>
+                        <div v-if="type != 'text'">
                             <v-popover :trigger="'hover'" :placement="'left'">
                                 <div class="al-enabled-widget"
                                      :class="{ 'enabled': config.isAlEnabled }">

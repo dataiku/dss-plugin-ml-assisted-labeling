@@ -79,9 +79,6 @@ class BaseClassifier(ABC):
         df = self.df_to_label.where((pd.notnull(self.df_to_label)), None).astype('object')
         return df.loc[self.id_to_index[data_id]].to_dict()
 
-    def format_for_saving(self, label):
-        return self.serialize_label(label)
-
     def serialize_label(self, label):
         return str(label[0])
 
