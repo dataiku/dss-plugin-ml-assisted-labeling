@@ -108,7 +108,8 @@ const TextArea = {
             selectionWrapper.addEventListener('click', this.handleClickOnSelection(selectionId));
 
             if (!isPrelabel) selectionWrapper.style.background = colorStrTransparent;
-            if (isPrelabel && !selected) selectionWrapper.style.border = colorStrTransparent;
+            if (isPrelabel) selectionWrapper.style.border = `${selected ? 4 : 2}px solid ${colorStrOpaque}`
+
             range.startContainer.parentNode.insertBefore(selectionWrapper, range.startContainer);
             selectionWrapper.appendChild(range.extractContents());
 
@@ -129,7 +130,8 @@ const TextArea = {
                 tokenStart: tokenStart,
                 tokenEnd: tokenEnd,
                 draft: false,
-                selected: false
+                selected: false,
+                isPrelabel: false
             }
         },
         addObjectToObjectList(newObject) {

@@ -84,6 +84,7 @@ let CategorySelector = {
             this.annotation?.label?.forEach(a => {
                 if(a.selected){
                     a.label = lbl;
+                    a.isPrelabel = false;
                 }
             });
         },
@@ -228,7 +229,8 @@ let CategorySelector = {
                             <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
                         </div>
                         <div class="text-annotation-thumb-container" v-if="type === 'text'" >
-                            <TextAnnotationThumb :data="a" :color="labelColor(a.label)"></TextAnnotationThumb>
+                            <TextAnnotationThumb :data="a" :color="labelColor(a.label)"
+                                                 :isPrelabel="a.isPrelabel"></TextAnnotationThumb>
                         </div>
                         
                         <div v-if="!a.label">Assign a category</div>

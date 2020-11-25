@@ -3,12 +3,21 @@ const NB_CHARS = 5;
 let TextAnnotationThumb = {
     props: {
         data: Object,
-        color: Array
+        color: Array,
+        isPrelabel: Boolean
     },
     data() {
         return {
             thumbTxt: null,
             hover: false,
+        }
+    },
+    computed: {
+        thumbStyle: function () {
+            const style = {color: this.colorStr(this.color, 1)};
+            if (!this.isPrelabel) style.background = this.colorStr(this.color, 0.3);
+            if (this.isPrelabel) style.border = `2px solid ${this.colorStr(this.color, 1)}`;
+            return style
         }
     },
     watch: {
@@ -32,10 +41,7 @@ let TextAnnotationThumb = {
     // language=HTML
     template: `
         <div @mouseover="hover = true" @mouseleave="hover = false" class="annotation-thumb-wrapper">
-            <span v-bind:style="{
-                background: colorStr(color, 0.3),
-                color: colorStr(color, 1)
-                }" class="text-annotation-thumb">{{ hover ? this.data.text : thumbTxt }}</span>
+            <span v-bind:style="thumbStyle" class="text-annotation-thumb">{{ hover ? this.data.text : thumbTxt }}</span>
         </div>    `
 };
 
