@@ -168,12 +168,6 @@ class LALHandler(object):
             "config": self.get_config()
         }
 
-    def get_labeled_text(self, user):
-        meta = self.user_meta(user)
-        return {
-            self.classifier.deserialize_label(meta["self.lbl_col"])
-        }
-
     def user_meta(self, user):
         return self.meta_df[self.meta_df.annotator == user]
 
