@@ -342,7 +342,7 @@ audio {
 .textarea-wrapper {
     text-align: left;
     font-size: x-large;
-    background-color: white;
+    background-color: var(--white);
     flex: 1;
     display: flex;
     align-content: space-between;
