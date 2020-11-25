@@ -65,7 +65,7 @@ const TextArea = {
             const endNode = document.getElementById(this.getTokenId(e.tokenEnd));
             newRange.setStart(startNode, 0);
             newRange.setEnd(endNode, 1);
-            this.makeSelected(newRange, category, e.selected)
+            this.makeSelected(newRange, category, e.selected, e.isPrelabel)
         },
         getTextFromBoundaries(start, end) {
             return this.text.slice(start, end)
@@ -88,7 +88,7 @@ const TextArea = {
                 })
             }
         },
-        makeSelected(range, category, selected) {
+        makeSelected(range, category, selected, isPrelabel) {
             const [tokenStart, tokenEnd] = [range.startContainer, range.endContainer].map((t) => {
                 return this.parseTokenId(t).tokenIndex
             })
@@ -107,7 +107,8 @@ const TextArea = {
             selectionWrapper.addEventListener('dblclick', this.handleDblClickOnSelection(selectionId));
             selectionWrapper.addEventListener('click', this.handleClickOnSelection(selectionId));
 
-            selectionWrapper.style.background = colorStrTransparent
+            if (!isPrelabel) selectionWrapper.style.background = colorStrTransparent;
+            if (isPrelabel && !selected) selectionWrapper.style.border = colorStrTransparent;
             range.startContainer.parentNode.insertBefore(selectionWrapper, range.startContainer);
             selectionWrapper.appendChild(range.extractContents());
 
@@ -202,7 +203,7 @@ const TextArea = {
         getTokenId(n) {
             return `tok_${n}`;
         },
-        addTokenIds(entities) {
+        enrichPrelabels(entities) {
             if (!entities.length) return;
             const sortedEntities = _.sortBy(entities, ['start']);
             let charCpt = 0;
@@ -216,6 +217,7 @@ const TextArea = {
                 }
                 if (sortedEntities[entityIndex].end <= charCpt + token.token.length) {
                     sortedEntities[entityIndex].tokenEnd = tokenIndex;
+                    sortedEntities[entityIndex].isPrelabel = true;
                     entityIndex += 1;
                 }
                 charCpt += (token.token + (token.sepAtEnd ? this.tokenSep: '')).length;
@@ -223,9 +225,9 @@ const TextArea = {
             }
         },
         init_text() {
-        this.resetSelection();
-        this.addTokenIds(this.prelabels);
-        this.prelabels?.length && this.emitUpdateEntities(this.prelabels);
+            this.resetSelection();
+            this.enrichPrelabels(this.prelabels);
+            this.prelabels?.length && this.emitUpdateEntities(this.prelabels);
         }
     },
     watch: {
