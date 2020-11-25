@@ -27,9 +27,6 @@ class TextClassifier(TableBasedDataClassifier):
         cleaned_labels = [self.clean_data_to_save(lab) for lab in label]
         return json.dumps(cleaned_labels)
 
-    def deserialize_label(self, label):
-        return json.loads(label)
-
     @property
     def type(self):
         return 'text'
@@ -37,6 +34,10 @@ class TextClassifier(TableBasedDataClassifier):
     @property
     def is_multi_label(self):
         return True
+
+    @staticmethod
+    def deserialize_label(label):
+        return json.loads(label)
 
     @staticmethod
     def clean_data_to_save(lab):

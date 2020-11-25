@@ -34,21 +34,9 @@ class ImageObjectClassifier(FolderBasedDataClassifier):
     def get_initial_df(self):
         return pd.DataFrame(self.folder.list_paths_in_partition(), columns=["path"])
 
-    def clean_data_to_save(self, lab):
-        return {
-            'top': lab['top'],
-            'left': lab['left'],
-            'label': lab['label'],
-            'width': lab['width'],
-            'height': lab['height']
-        }
-
     def serialize_label(self, label):
         cleaned_labels = [self.clean_data_to_save(lab) for lab in label]
         return json.dumps(cleaned_labels)
-
-    def deserialize_label(self, label):
-        return json.loads(label)
 
     @property
     def type(self):
@@ -57,6 +45,20 @@ class ImageObjectClassifier(FolderBasedDataClassifier):
     @property
     def is_multi_label(self):
         return True
+
+    @staticmethod
+    def deserialize_label(self, label):
+        return json.loads(label)
+
+    @staticmethod
+    def clean_data_to_save(lab):
+        return {
+            'top': lab['top'],
+            'left': lab['left'],
+            'label': lab['label'],
+            'width': lab['width'],
+            'height': lab['height']
+        }
 
     @staticmethod
     def format_labels_for_stats(raw_labels_series):
