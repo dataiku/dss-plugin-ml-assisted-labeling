@@ -52,6 +52,5 @@ class TextClassifier(TableBasedDataClassifier):
         labels = []
         for v in raw_labels_series.values:
             if pd.notnull(v):
-                print(v)
                 labels += [a['label'] for a in json.loads(v) if a['label']]
         return pd.Series(labels)
