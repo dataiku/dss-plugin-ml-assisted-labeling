@@ -27,8 +27,8 @@ let CategorySelector = {
         TextAnnotationThumb
     },
     computed: {
-        isDynamicLabeling() {
-            return this.$root.isDynamic;
+        isMultiLabel() {
+            return this.$root.isMultiLabel;
         },
     },
     directives: {
@@ -121,7 +121,7 @@ let CategorySelector = {
         },
 
         shortcutPressed: function (key) {
-            if (this.isDynamicLabeling) {
+            if (this.isMultiLabel) {
                 this.categoryClick(this.keyToCatMapping[key]);
             } else {
                 this.doLabel(this.keyToCatMapping[key])
@@ -167,7 +167,7 @@ let CategorySelector = {
     // language=HTML
     template: `
         <div class="category-selector" :class="{ inactive: !enabled }" v-if="annotation">
-            <div v-if="isDynamicLabeling" class="category-selector__image-object-wrapper">
+            <div v-if="isMultiLabel" class="category-selector__image-object-wrapper">
                 <div class="section" style="margin-bottom: 0">
                     <div class="category-selector--header">
                         <span style="  font-weight: 600; font-size: 13px;">Categories</span>
@@ -239,7 +239,7 @@ let CategorySelector = {
                 </div>
             </div>
 
-            <div class="category-selector--categories" v-if="!isDynamicLabeling">
+            <div class="category-selector--categories" v-if="!isMultiLabel">
                 <div class="empty-annotations-placeholder"
                      v-if="!Object.keys(categories).length || status === 'SKIPPED'">
                     <div v-if="!Object.keys(categories).length && status !== 'SKIPPED'">
