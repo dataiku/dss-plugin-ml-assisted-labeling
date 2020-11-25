@@ -45,9 +45,6 @@ class TextClassifier(TableBasedDataClassifier):
         cleaned_labels = [self.clean_data_to_save(lab) for lab in label]
         return json.dumps(cleaned_labels)
 
-    def deserialize_label(self, label):
-        return json.loads(label)
-
     def add_prelabels(self, batch, user_meta):
         if self.prelabeling_engine == CLASSIC_PRELABEL_ENGINE:
             self.classic_prelabeling(batch, user_meta)
@@ -101,7 +98,11 @@ class TextClassifier(TableBasedDataClassifier):
         return True
 
     @staticmethod
-    def clean_data_to_save(self, lab):
+    def deserialize_label(label):
+        return json.loads(label)
+
+    @staticmethod
+    def clean_data_to_save(lab):
         return {
             'text': lab['text'],
             'start': lab['start'],
