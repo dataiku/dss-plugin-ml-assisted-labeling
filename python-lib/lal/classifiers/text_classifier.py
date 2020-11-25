@@ -31,12 +31,9 @@ class TextClassifier(TableBasedDataClassifier):
     def get_relevant_config(self):
         return {"text_column": self.text_column}
 
-    def format_for_saving(self, label):
-        cleaned_labels = [self.clean_data_to_save(lab) for lab in label]
-        return self.serialize_label(cleaned_labels)
-
     def serialize_label(self, label):
-        return json.dumps(label)
+        cleaned_labels = [self.clean_data_to_save(lab) for lab in label]
+        return json.dumps(cleaned_labels)
 
     def deserialize_label(self, label):
         return json.loads(label)
