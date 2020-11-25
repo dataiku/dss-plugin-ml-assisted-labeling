@@ -4,6 +4,8 @@ from pickle import PickleError
 import dataiku
 import pandas as pd
 
+LOCAL_VAR_PREFIX = ML-ASSISTED-LABELING
+
 
 def increment_queries_session(queries_ds_name):
     session_var_name = f'ML-ASSISTED-LABELING__{queries_ds_name}__session'
@@ -29,8 +31,16 @@ def prettify_error(s):
     return '\xa0' * 130 + ' \n' + s[:90].replace(' ', '\xa0') + s[90:]
 
 
+def get_local_var(var_name):
+    return dataiku.Project().get_variables()['local'].get('{}__{}'.format(LOCAL_VAR_PREFIX, var_name), [])
+
+
 def get_local_categories():
-    return dataiku.Project().get_variables()['local'].get('ML-ASSISTED-LABELING__categories', [])
+    return get_local_var("categories")
+
+
+def get_local_text_column_name():
+    return get_local_var("text_column_name")
 
 
 def load_classifier(dss_model, version_id=None):
