@@ -160,7 +160,7 @@ class LALHandler(object):
                 self.sample_by_user_reservation[i] = ReservedSample(user, reserved_until)
         ids_batch.reverse()
         return {
-            "isDynamic": self.classifier.is_dynamic,
+            "isMultiLabel": self.classifier.is_multi_label,
             "type": self.classifier.type,
             "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
             "isLastBatch": len(remaining) < BATCH_SIZE,

@@ -55,7 +55,7 @@ class ImageObjectClassifier(FolderBasedDataClassifier):
         return "image-object"
 
     @property
-    def is_dynamic(self):
+    def is_multi_label(self):
         return True
 
     @staticmethod
