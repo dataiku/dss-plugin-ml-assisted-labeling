@@ -4,7 +4,7 @@ from pickle import PickleError
 import dataiku
 import pandas as pd
 
-LOCAL_VAR_PREFIX = ML-ASSISTED-LABELING
+LOCAL_VAR_PREFIX = "ML-ASSISTED-LABELING"
 
 
 def increment_queries_session(queries_ds_name):
