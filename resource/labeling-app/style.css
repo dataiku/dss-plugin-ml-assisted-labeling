@@ -340,7 +340,6 @@ audio {
 }
 
 .textarea-wrapper {
-    text-align: left;
     font-size: x-large;
     background-color: var(--white);
     flex: 1;

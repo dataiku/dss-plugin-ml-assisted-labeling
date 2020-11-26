@@ -126,7 +126,7 @@ export default new Vue({
                                  :selectedLabel="selectedLabel"
                                  :entities.sync="annotation.label"
                                  :prelabels="item.prelabels"
-                                 :tokenSep="config.classifierConfig.tokenSep"
+                                 :classifierConfig="config.classifierConfig"
                     />
 
                 </div>

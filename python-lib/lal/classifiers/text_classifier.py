@@ -20,6 +20,7 @@ class TextClassifier(TableBasedDataClassifier):
         self.__initial_df = initial_df
         self.text_column = config.get("text_column")
         self.token_engine = config.get("tokenisation_engine")
+        self.text_direction = config.get("text_direction")
         self.token_sep = self.get_token_sep()
         self.historical_labels = {}
         super(TextClassifier, self).__init__(queries_df, config)
@@ -38,6 +39,7 @@ class TextClassifier(TableBasedDataClassifier):
     def get_relevant_config(self):
         return {
             "textColumn": self.text_column,
+            "textDirection": self.text_direction,
             "tokenSep": self.token_sep
         }
 

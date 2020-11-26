@@ -88,7 +88,7 @@
       "type": "BOOLEAN",
       "name": "use_prelabeling",
       "label": "Activate Prelabeling",
-      "default": false
+      "defaultValue": false
     },
     {
       "type": "SELECT",
@@ -99,6 +99,17 @@
       ],
       "visibilityCondition": "model.use_prelabeling",
       "defaultValue": "classic"
+    },
+    {
+      "type": "SELECT",
+      "name": "text_direction",
+      "label": "Text direction",
+      "selectChoices": [
+        { "value": "ltr", "label": "Left to Right"},
+        { "value": "rtl", "label": "Right to Left"}
+      ],
+      "defaultValue": "ltr",
+      "required": true
     },
     {
       "type": "SELECT",

@@ -13,7 +13,7 @@ const TextArea = {
             }
         },
         selectedLabel: String,
-        tokenSep: String,
+        classifierConfig: Object,
         prelabels: {
             type: Array,
             default: () => {
@@ -23,7 +23,7 @@ const TextArea = {
     },
     computed: {
         splittedText: function () {
-            return this.splitText(this.text, this.tokenSep);
+            return this.splitText(this.text, this.classifierConfig.tokenSep);
         }
     },
     methods: {
@@ -63,8 +63,8 @@ const TextArea = {
             const newRange = document.createRange();
             const startNode = document.getElementById(this.getTokenId(e.tokenStart));
             const endNode = document.getElementById(this.getTokenId(e.tokenEnd));
-            newRange.setStartAfter(startNode.previousSibling);
-            newRange.setEndBefore(endNode.nextSibling);
+            newRange.setStartBefore(startNode);
+            newRange.setEndAfter(endNode);
             this.makeSelected(newRange, category, e.selected, e.isPrelabel)
         },
         getTextFromBoundaries(start, end) {
@@ -142,7 +142,7 @@ const TextArea = {
             let charCpt = 0;
             this.splittedText.forEach((token, index) => {
                 const newToken = document.createElement('span');
-                newToken.textContent = token.token + (token.sepAtEnd ? this.tokenSep: '');
+                newToken.textContent = token.token + (token.sepAtEnd ? this.classifierConfig.tokenSep: '');
                 newToken.classList.add('token');
                 newToken.id = this.getTokenId(index);
                 newToken.setAttribute('data-start', charCpt);
@@ -219,7 +219,7 @@ const TextArea = {
                     sortedEntities[entityIndex].isPrelabel = true;
                     entityIndex += 1;
                 }
-                charCpt += (token.token + (token.sepAtEnd ? this.tokenSep: '')).length;
+                charCpt += (token.token + (token.sepAtEnd ? this.classifierConfig.tokenSep: '')).length;
                 tokenIndex += 1
             }
         },
@@ -261,8 +261,13 @@ const TextArea = {
     },
     // language=HTML
     template: `
-        <div clss="labeling-window">
-            <div class="textarea-wrapper" ref="wrapper" v-on:mouseup="handleMouseUp">
+        <div class="labeling-window">
+            <div v-bind:class="{
+            'textarea-wrapper': true,
+            'text-right': classifierConfig.textDirection === 'rtl',
+            'text-left': classifierConfig.textDirection === 'ltr'
+            }" ref="wrapper" v-on:mouseup="handleMouseUp"
+                 v-bind:dir="classifierConfig.textDirection">
                 <div class="textarea" id="textarea"></div>
             </div>
             <div class="textarea__button-wrapper">
