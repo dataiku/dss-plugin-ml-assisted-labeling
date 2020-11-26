@@ -204,15 +204,20 @@ let CategorySelector = {
                         <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
                         <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
                     </div>
-                    <div v-else-if="type === 'image-object'">
-                        <div v-if="status !== 'SKIPPED'" class="circle"></div>
+                    <div v-else-if="isMultiLabel" style="width: 100%;">
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                        <p>Select a label and draw a box around the target.</p>
-                    </div>
-                    <div v-else-if="type === 'text'">
-                        <div v-if="status !== 'SKIPPED'" class="circle"></div>
-                        <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                        <p>Select a label and select a group of words in the text.</p>
+                        <p v-if="type === 'image-object'" style="margin: auto;">Draw a box around the target then apply a category by...</p>
+                        <p v-if="type === 'text'" style="margin: auto;">Highlight the text to label then apply a category by...</p>
+                        <div class="circles-container">
+                            <div style="max-width: 110px;">
+                                <div class="circle cat-example"></div>
+                                <span>Clicking on the categories buttons</span>
+                            </div>
+                            <div style="max-width: 110px;">
+                                <div class="circle shortcut-example"></div>
+                                <span>Using keyboard shortcuts</span>
+                            </div>
+                        </div>
                     </div>
                     <div v-else>
                         <div v-if="status !== 'SKIPPED'" class="circle"></div>
