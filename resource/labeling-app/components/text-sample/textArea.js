@@ -63,8 +63,8 @@ const TextArea = {
             const newRange = document.createRange();
             const startNode = document.getElementById(this.getTokenId(e.tokenStart));
             const endNode = document.getElementById(this.getTokenId(e.tokenEnd));
-            newRange.setStart(startNode, 0);
-            newRange.setEnd(endNode, 1);
+            newRange.setStartAfter(startNode.previousSibling);
+            newRange.setEndBefore(endNode.nextSibling);
             this.makeSelected(newRange, category, e.selected, e.isPrelabel)
         },
         getTextFromBoundaries(start, end) {
@@ -89,7 +89,8 @@ const TextArea = {
             }
         },
         makeSelected(range, category, selected, isPrelabel) {
-            const [tokenStart, tokenEnd] = [range.startContainer, range.endContainer].map((t) => {
+            const textAreaNodes = range.startContainer.childNodes;
+            const [tokenStart, tokenEnd] = [textAreaNodes[range.startOffset], textAreaNodes[range.endOffset - 1]].map((t) => {
                 return this.parseTokenId(t).tokenIndex
             })
             const color = category ? category.color : UNDEFINED_COLOR;
@@ -109,9 +110,7 @@ const TextArea = {
 
             if (!isPrelabel) selectionWrapper.style.background = colorStrTransparent;
             if (isPrelabel) selectionWrapper.style.border = `${selected ? 4 : 2}px solid ${colorStrOpaque}`
-
-            range.startContainer.parentNode.insertBefore(selectionWrapper, range.startContainer);
-            selectionWrapper.appendChild(range.extractContents());
+            range.surroundContents(selectionWrapper);
 
             // We place a caption at the end of the mark tag
             const captionSpan = document.createElement('span');
@@ -157,8 +156,6 @@ const TextArea = {
             if (selection.isCollapsed) return;
             const range = selection.getRangeAt(0);
             const [startNode, endNode] = [range.startContainer, range.endContainer]
-            range.setStart(startNode, 0);
-            range.setEnd(endNode, endNode.length);
             const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
             const {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
             if (this.isLegitSelect(tokenStart, tokenEnd)) {
