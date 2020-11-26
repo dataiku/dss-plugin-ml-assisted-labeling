@@ -19,6 +19,7 @@ class BaseClassifier(ABC):
         self.id_to_index = {}
         self.ordered_ids = list()
         self.df_to_label = self.get_df_to_label()
+
         for index, row in self.df_to_label.iterrows():
             row_id = self.raw_row_to_id(row)
             self.id_to_index[row_id] = index
@@ -56,6 +57,9 @@ class BaseClassifier(ABC):
             raise ValueError("Labels dataset not specified. Go to settings tab.")
 
         return config
+
+    def get_relevant_config(self):
+        return {}
 
     def get_item_by_id(self, sid):
         result = {"raw": self.get_raw_item_by_id(sid)}
@@ -99,6 +103,10 @@ class BaseClassifier(ABC):
     @staticmethod
     def format_labels_for_stats(raw_labels_series):
         return raw_labels_series
+
+    @staticmethod
+    def prepare_data_for_saving(self, obj):
+        return obj
 
 
 class FolderBasedDataClassifier(BaseClassifier, ABC):

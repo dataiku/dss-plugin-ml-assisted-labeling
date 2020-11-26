@@ -97,6 +97,7 @@ class LALHandler(object):
         if self.classifier.is_al_enabled:
             result["halting_thr"] = sorted([self.classifier.halting_thr_low, self.classifier.halting_thr_high])
         result['local_categories'] = get_local_categories()
+        result['classifier_config'] = self.classifier.get_relevant_config()
         return result
 
     def label(self, data, user):
@@ -112,7 +113,6 @@ class LALHandler(object):
 
         lbl_id = self.create_label_id() if existing_meta_record.empty else existing_meta_record.iloc[0][self.lbl_id_col]
         raw_data = self.classifier.get_raw_item_by_id(data_id)
-
         serialized_label = self.classifier.serialize_label(data.get('label')) if data.get('label') else None
         label = {**raw_data, **{self.lbl_col: serialized_label, self.lbl_id_col: lbl_id}}
         meta = {
@@ -160,6 +160,7 @@ class LALHandler(object):
                 self.sample_by_user_reservation[i] = ReservedSample(user, reserved_until)
         ids_batch.reverse()
         return {
+            "isMultiLabel": self.classifier.is_multi_label,
             "type": self.classifier.type,
             "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
             "isLastBatch": len(remaining) < BATCH_SIZE,

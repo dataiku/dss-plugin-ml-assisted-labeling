@@ -1,6 +1,7 @@
 import {DKUApi} from "../../dku-api.js";
 
 export const UNDEFINED_COLOR = [220, 220, 220];
+export const UNDEFINED_CAPTION = 'missing';
 
 function hexToRgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -38,6 +39,7 @@ export function savePerIterationConfig(configResponse) {
         config.isAlEnabled = configResponse.al_enabled;
         config.haltingThresholds = configResponse.halting_thr;
         config.stoppingMessages = configResponse.stopping_messages;
+        config.classifierConfig = configResponse.classifier_config;
     }
 }
 

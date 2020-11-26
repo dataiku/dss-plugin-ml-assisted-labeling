@@ -6,6 +6,7 @@ import {APIErrors, DKUApi} from "./dku-api.js";
 import {ErrorsComponent} from "./components/errors.js";
 import {ImageSample} from "./components/image-sample.js";
 import {ImageCanvas} from "./components/image-object-sample/ImageCanvas.js";
+import {TextArea} from "./components/text-sample/textArea.js";
 import {loadConfig, savePerIterationConfig} from './components/utils/utils.js'
 import {HaltingCriterionMetric} from "./components/halting-criterion-metric.js";
 
@@ -21,7 +22,8 @@ export default new Vue({
         'halting-criterion-metric': HaltingCriterionMetric,
         'control-buttons': ControlButtons,
         'errors': ErrorsComponent,
-        'ImageCanvas': ImageCanvas
+        'ImageCanvas': ImageCanvas,
+        'TextArea': TextArea
     },
     data: {
         apiErrors: APIErrors,
@@ -30,6 +32,7 @@ export default new Vue({
         item: undefined,
         stats: undefined,
         type: undefined,
+        isMultiLabel: undefined,
         annotation: undefined,
         annotations: undefined,
         selectedLabel: undefined,
@@ -41,7 +44,7 @@ export default new Vue({
     methods: {
         isCurrentItemLabeled() {
             const annotation = this.annotation;
-            if (this.type === 'image-object') {
+            if (this.isMultiLabel) {
                 return annotation?.label?.filter(e => e.label).length > 0;
             } else {
                 return annotation?.label?.length;
@@ -85,6 +88,7 @@ export default new Vue({
                 batchPromise.then(data => {
                     this.stats = data.stats;
                     this.type = data.type;
+                    this.isMultiLabel = data.isMultiLabel;
                     this.items = data.items;
                     this.canLabel = true;
                     this.isLastBatch = data.isLastBatch;
@@ -118,6 +122,11 @@ export default new Vue({
                                  :selectedLabel="selectedLabel"
                                  :objects.sync="annotation.label"
                     />
+                    <TextArea v-if="type === 'text'"
+                                 :text="item.data.raw[config.classifierConfig.text_column]"
+                                 :selectedLabel="selectedLabel"
+                                 :entities.sync="annotation.label"
+                    />
 
                 </div>
                 <div class="right-panel">
@@ -135,7 +144,7 @@ export default new Vue({
                             />
                         </div>
 
-                        <div>
+                        <div v-if="type != 'text'">
                             <v-popover :trigger="'hover'" :placement="'left'">
                                 <div class="al-enabled-widget"
                                      :class="{ 'enabled': config.isAlEnabled }">

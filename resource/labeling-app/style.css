@@ -168,7 +168,7 @@ canvas {
 }
 
 .category-selector--categories .empty-annotations-placeholder{
-    position: absolute; top: 50%; transform: translateY(-50%)
+    top: 50%; transform: translateY(-50%)
 }
 .category-selector--categories {
     align-content: flex-start;
@@ -333,6 +333,73 @@ audio {
     padding-left: 50px;
     text-align: right;
 }
+
+/* Text labeling */
+.labeling-window {
+
+}
+
+.textarea-wrapper {
+    text-align: left;
+    font-size: x-large;
+    background-color: var(--white);
+    flex: 1;
+    display: flex;
+    align-content: space-between;
+    width: 50vw;
+    min-height: 10vh;
+    max-height: 85vh;
+    box-shadow: 1px 1px 5px #ddd;
+    position: relative;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+.textarea {
+    width: 100%;
+    overflow: scroll;
+    padding: 20px;
+    line-height: 3;
+    white-space: pre-wrap;
+}
+
+.textarea .word {
+    margin: 0 1px;
+    display: inline-block;
+}
+
+.selection-wrapper {
+    cursor: pointer;
+    position: relative;
+    color: inherit;
+    margin: 0 0.15em;
+    display: inline;
+    padding: 0.25em 0.4em;
+    font-weight: bold;
+    line-height: 3;
+    border-radius: 5px;
+    user-select: none;
+}
+
+.selected-caption {
+    font-size: large;
+    font-weight: bold;
+    margin-left: 8px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.text-annotation-thumb {
+    padding: 8px;
+    cursor: help;
+    border-radius: 5px;
+}
+
+mark.selected {
+    border: 2px solid rgba(0,0,0,0.25);
+}
+
+/* Text labeling :: End */
 
 .image-sample {
     max-height: 800px;

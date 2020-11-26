@@ -108,3 +108,4 @@ venv.bak/
 node_modules
 package.json
 package-lock.json
+*.DS_Store
