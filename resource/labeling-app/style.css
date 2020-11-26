@@ -340,7 +340,6 @@ audio {
 }
 
 .textarea-wrapper {
-    text-align: left;
     font-size: x-large;
     background-color: var(--white);
     flex: 1;
@@ -395,8 +394,12 @@ audio {
     border-radius: 5px;
 }
 
+mark {
+    background-color: var(--white);
+}
+
 mark.selected {
-    border: 2px solid rgba(0,0,0,0.25);
+    border: 4px solid rgba(0,0,0,0.25);
 }
 
 /* Text labeling :: End */
@@ -499,6 +502,7 @@ mark.selected {
 .annotation-thumb-wrapper > .main {
     border-width: 2px;
     border-style: solid;
+    border-style: solid;
 }
 
 .annotation-thumb-wrapper {
@@ -507,6 +511,7 @@ mark.selected {
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: transparent;
 }
 
 .canvas__button-wrapper button {

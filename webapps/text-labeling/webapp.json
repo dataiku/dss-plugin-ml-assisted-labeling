@@ -78,6 +78,49 @@
       "defaultValue": "label",
       "description": "Name of the label column in the Labels dataset",
       "mandatory": true
+    },
+    {
+      "type": "SEPARATOR",
+      "name": "Other settings",
+      "label": "Other settings"
+    },
+    {
+      "type": "BOOLEAN",
+      "name": "use_prelabeling",
+      "label": "Activate Prelabeling",
+      "defaultValue": false
+    },
+    {
+      "type": "SELECT",
+      "name": "prelabeling_engine",
+      "label": "Prelabeling engine",
+      "selectChoices": [
+        { "value": "classic", "label": "Classic (Re-use labeled data)"}
+      ],
+      "visibilityCondition": "model.use_prelabeling",
+      "defaultValue": "classic"
+    },
+    {
+      "type": "SELECT",
+      "name": "text_direction",
+      "label": "Text direction",
+      "selectChoices": [
+        { "value": "ltr", "label": "Left to Right"},
+        { "value": "rtl", "label": "Right to Left"}
+      ],
+      "defaultValue": "ltr",
+      "required": true
+    },
+    {
+      "type": "SELECT",
+      "name": "tokenisation_engine",
+      "label": "Tokenisation",
+      "selectChoices": [
+        { "value": "white_space", "label": "White Space (Split along white spaces)"},
+        { "value": "char", "label": "Character (Split along each character)"}
+      ],
+      "defaultValue": "white_space",
+      "required": true
     }
   ]
 }

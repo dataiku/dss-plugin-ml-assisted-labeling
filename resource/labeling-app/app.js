@@ -34,7 +34,6 @@ export default new Vue({
         type: undefined,
         isMultiLabel: undefined,
         annotation: undefined,
-        annotations: undefined,
         selectedLabel: undefined,
 
         isDone: false,
@@ -123,9 +122,11 @@ export default new Vue({
                                  :objects.sync="annotation.label"
                     />
                     <TextArea v-if="type === 'text'"
-                                 :text="item.data.raw[config.classifierConfig.text_column]"
+                                 :text="item.data.raw[config.classifierConfig.textColumn]"
                                  :selectedLabel="selectedLabel"
                                  :entities.sync="annotation.label"
+                                 :prelabels="item.prelabels"
+                                 :classifierConfig="config.classifierConfig"
                     />
 
                 </div>
