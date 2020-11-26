@@ -239,8 +239,8 @@ let CategorySelector = {
                                                  :isPrelabel="a.isPrelabel"></TextAnnotationThumb>
                         </div>
                         
-                        <div v-if="!a.label">Assign a category</div>
-                        <div v-if="a.label">{{categories[a.label].caption}}</div>
+                        <div v-if="a.label && categories[a.label]">{{categories[a.label].caption}}</div>
+                        <div v-else>Assign a category</div>
                         <i @click="remove(a)" class="icon-trash"/>
                     </div>
 

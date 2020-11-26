@@ -67,7 +67,7 @@ export function loadConfig() {
 
         if (allCategories) {
             allCategories.forEach((el, idx) => {
-                categories[el.from] = {
+                categories[el.from || "no_key"] = {
                     caption: el.to || el.from,
                     color: getColorFromPreparedList(idx, allCategories.length) || stringToRgb(el.from)
                 }
