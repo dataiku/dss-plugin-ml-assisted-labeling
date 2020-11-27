@@ -2,7 +2,6 @@ import json
 import logging
 
 import pandas as pd
-import copy as cp
 import re
 
 WHITESPACE_TOKEN_ENGINE = 'white_space'
@@ -76,11 +75,6 @@ class TextClassifier(TableBasedDataClassifier):
             return prelabels
         regexp = '({})'.format('|'.join(list(history.keys())))
         regexp = ('\\b{}\\b' if self.token_engine == WHITESPACE_TOKEN_ENGINE else '{}').format(regexp)
-        print('------------ start ------------')
-        print(history)
-        print(regexp)
-        print(re.match(regexp, text, re.IGNORECASE))
-        print('------------ end ------------')
         for match in re.finditer(regexp, text, re.IGNORECASE):
             prelabels.append({
                 "text": match.group(),
@@ -89,6 +83,7 @@ class TextClassifier(TableBasedDataClassifier):
                 "end": match.end()
             })
         prelabels.sort(key=(lambda x: x["start"]))
+        self.logger.debug(f"Prelabels : {prelabels}")
         return prelabels
 
     @property
