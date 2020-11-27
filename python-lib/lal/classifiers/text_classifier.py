@@ -84,7 +84,6 @@ class TextClassifier(TableBasedDataClassifier):
                 "end": match.end()
             })
         prelabels.sort(key=(lambda x: x["start"]))
-        self.logger.debug(f"Prelabels : {prelabels}")
         return prelabels
 
     @property
