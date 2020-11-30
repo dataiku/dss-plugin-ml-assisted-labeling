@@ -20,7 +20,7 @@ class BaseClassifier(ABC):
         self.ordered_ids = list()
         self.df_to_label = self.get_df_to_label()
         self.use_prelabeling = config.get('use_prelabeling', False)
-        self.prelabeling_engine = config.get('prelabeling_engine', None)
+        self.prelabeling_strategy = config.get('prelabeling_strategy', None)
 
         for index, row in self.df_to_label.iterrows():
             row_id = self.raw_row_to_id(row)

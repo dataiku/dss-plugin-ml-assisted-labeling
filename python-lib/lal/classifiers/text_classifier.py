@@ -19,7 +19,7 @@ class TextClassifier(TableBasedDataClassifier):
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
         self.text_column = config.get("text_column") or get_local_text_column_name()
-        self.token_engine = config.get("tokenisation_engine")
+        self.token_engine = config.get("tokenization_engine")
         self.text_direction = config.get("text_direction")
         self.token_sep = self.get_token_sep()
         self.historical_labels = {}
@@ -48,7 +48,7 @@ class TextClassifier(TableBasedDataClassifier):
         return json.dumps(cleaned_labels)
 
     def add_prelabels(self, batch, user_meta):
-        if self.prelabeling_engine == CLASSIC_PRELABEL_ENGINE:
+        if self.prelabeling_strategy == CLASSIC_PRELABEL_ENGINE:
             self.classic_prelabeling(batch, user_meta)
 
     def classic_prelabeling(self, batch, user_meta):
