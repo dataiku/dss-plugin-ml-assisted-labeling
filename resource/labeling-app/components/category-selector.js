@@ -257,7 +257,7 @@ let CategorySelector = {
             </div>
 
             <textarea name="" id="" cols="60" rows="2" placeholder="Comments..." :disabled="!enabled"
-                      ref="comments"
+                      ref="comments" style="min-height:70px"
                       v-model="annotation.comment" @keyup.stop v-autoexpand class="comments"></textarea>
         </div>`,
 };
