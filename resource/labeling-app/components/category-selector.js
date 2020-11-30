@@ -202,7 +202,7 @@ let CategorySelector = {
                     </div>
                     <div v-else style="width: 100%;">
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                        <p v-if="type === 'image-object'" style="margin: auto;">Draw a box around the target then apply a category by...</p>
+                        <p v-if="type === 'image-object'" style="margin: auto;">Select a category by ...</p>
                         <div class="circles-container">
                             <div style="max-width: 110px;">
                                 <div class="circle cat-example"></div>
@@ -213,6 +213,7 @@ let CategorySelector = {
                                 <span>Using keyboard shortcuts</span>
                             </div>
                         </div>
+                        <p v-if="type === 'image-object'" style="margin: auto;">... then draw a box around the target</p>
                     </div>
                 </div>
                 <div v-if="annotation?.label?.filter(e=>!e.draft).length"
