@@ -23,7 +23,7 @@
     {
       "type": "DATASET",
       "name": "unlabeled",
-      "label": "Unlabeled data",
+      "label": "Unlabeled dataset",
       "description": "Dataset containing data to label",
       "mandatory": true,
       "canSelectForeign": true,
@@ -33,7 +33,7 @@
       "type": "DATASET_COLUMN",
       "datasetParamName": "unlabeled",
       "name": "text_column",
-      "label": "Text Column",
+      "label": "Text column",
       "description": "Column containing the text to label",
       "mandatory": true,
       "canSelectForeign": true,
