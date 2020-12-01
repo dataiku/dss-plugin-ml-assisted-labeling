@@ -340,12 +340,15 @@ audio {
 }
 
 .textarea-wrapper {
+    resize: horizontal;
+    overflow: auto;
     font-size: x-large;
     background-color: var(--white);
     flex: 1;
     display: flex;
     align-content: space-between;
-    width: 50vw;
+    max-width: 80vw;
+    min-width: 10vw;
     min-height: 10vh;
     max-height: 85vh;
     box-shadow: 1px 1px 5px #ddd;
