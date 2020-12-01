@@ -5,18 +5,11 @@ import pandas as pd
 
 import dataiku
 from dataiku.core import schema_handling
-from dataiku.customwebapp import get_webapp_config
 
-config = get_webapp_config()
 
-lbl_col = config['label_col_name']
-lbl_id_col = config['label_col_name'] + "_id"
-
-metadata_required_schema = [
+metadata_required_schema_base = [
     {"name": "date", "type": "date"},
     {"name": "data_id", "type": "string"},
-    {"name": lbl_col, "type": "string"},
-    {"name": lbl_id_col, "type": "int"},
     {"name": "comment", "type": "string"},
     {"name": "session", "type": "int"},
     {"name": "status", "type": "string"},
@@ -24,12 +17,17 @@ metadata_required_schema = [
 ]
 
 
-def prepare_datasets(unlabeled_schema=None):
+def prepare_datasets(config, unlabeled_schema=None):
     logging.info("Preparing datasets if needed")
     unlabeled_schema = unlabeled_schema or dataiku.Dataset(config["unlabeled"]).read_schema()
 
-    labels_schema = unlabeled_schema + [{"name": lbl_col, 'type': 'string'},
-                                        {"name": lbl_id_col, 'type': 'int'}]
+    lbl_col = config.get('label_col_name')
+    lbl_id_col = "{}_id".format(lbl_col)
+
+    schema_extra = [{"name": lbl_col, 'type': 'string'}, {"name": lbl_id_col, 'type': 'int'}]
+
+    metadata_required_schema = metadata_required_schema_base + schema_extra
+    labels_schema = unlabeled_schema + schema_extra
 
     prepare_dataset(labels_schema, dataiku.Dataset(config['labels_ds']))
 
