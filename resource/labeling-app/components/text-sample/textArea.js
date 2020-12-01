@@ -119,6 +119,7 @@ const TextArea = {
             captionSpan.style.color = colorStrOpaque
             selectionWrapper.appendChild(captionSpan);
 
+            selected && selectionWrapper.scrollIntoView();
         },
         getLabeledText(start, end, tokenStart, tokenEnd) {
             return {
