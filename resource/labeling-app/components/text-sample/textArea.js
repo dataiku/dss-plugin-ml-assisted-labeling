@@ -1,5 +1,4 @@
 import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION} from "../utils/utils.js";
-import { PUNCTUATION_REGEX } from "./punctuation.js"
 
 
 const TextArea = {
@@ -32,12 +31,12 @@ const TextArea = {
         },
         sanitizeToken(token) {
             const sanitizedTokenList = [];
-            if (!token.match(PUNCTUATION_REGEX)) {
+            if (token.match(/^[\p{L}\p{N}]*$/gu)) {
                 sanitizedTokenList.push({token});
             } else {
                 let currentToken = '';
                 token.split('').forEach((c) => {
-                    if (!c.match(PUNCTUATION_REGEX)) {
+                    if (c.match(/^[\p{L}\p{N}]*$/gu)) {
                         currentToken += c;
                     } else {
                         currentToken && sanitizedTokenList.push({token: currentToken});
