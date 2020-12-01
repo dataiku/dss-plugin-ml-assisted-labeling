@@ -24,6 +24,9 @@ const TextArea = {
     computed: {
         splittedText: function () {
             return this.splitText(this.text, this.classifierConfig.tokenSep);
+        },
+        isFirefox: function () {
+            return navigator.userAgent.indexOf("Firefox") > -1;
         }
     },
     methods: {
@@ -71,7 +74,7 @@ const TextArea = {
             return this.text.slice(start, end)
         },
         handleDblClickOnSelection(selectionId) {
-            return () => {
+            return (ev) => {
                 const newEntities = this.entities.filter(
                     (x) => selectionId !== this.getSelectionId(x.tokenStart, x.tokenEnd));
                 this.$emit("update:entities", newEntities);
@@ -79,13 +82,17 @@ const TextArea = {
         },
         handleClickOnSelection(selectionId) {
             return (mEvent) => {
-                this.mapAndEmit((o) => {
-                    if (selectionId === this.getSelectionId(o.tokenStart, o.tokenEnd)) {
-                        o.selected = !o.selected;
-                    } else {
-                        o.selected = (mEvent.ctrlKey || mEvent.metaKey) ? o.selected : false;
-                    }
-                })
+                if (mEvent.detail > 1) {
+                    this.handleDblClickOnSelection(selectionId)(mEvent);
+                } else {
+                    this.mapAndEmit((o) => {
+                        if (selectionId === this.getSelectionId(o.tokenStart, o.tokenEnd)) {
+                            o.selected = !o.selected;
+                        } else {
+                            o.selected = (mEvent.ctrlKey || mEvent.metaKey) ? o.selected : false;
+                        }
+                    })
+                }
             }
         },
         makeSelected(range, category, selected, isPrelabel) {
@@ -136,6 +143,21 @@ const TextArea = {
         addObjectToObjectList(newObject) {
             this.emitUpdateEntities(this.entities ? this.entities.concat([newObject]) : [newObject]);
         },
+        addTokenEventListeners(tokenNode) {
+            if(this.isFirefox) {
+                 tokenNode.addEventListener('mousedown', (ev) => {
+                    if (ev.detail > 1) {
+                        ev.preventDefault();
+                        const newRange = document.createRange();
+                        const startNode = ev.target.childNodes[0];
+                        const endNode = ev.target.childNodes[0];
+                        newRange.setStart(startNode, 0);
+                        newRange.setEnd(endNode, endNode.length);
+                        document.getSelection().addRange(newRange);
+                    }
+                 }, false)
+            }
+        },
         resetSelection() {
             const textarea = document.getElementById('textarea');
             textarea.innerHTML = "";
@@ -148,14 +170,17 @@ const TextArea = {
                 newToken.setAttribute('data-start', charCpt);
                 newToken.setAttribute('data-end', (charCpt + token.token.length).toString());
                 charCpt += newToken.textContent.length;
+                this.addTokenEventListeners(newToken);
                 textarea.appendChild(newToken)
             })
         },
-        handleMouseUp() {
+        handleMouseUp(ev) {
+            console.log(ev);
             const selection = document.getSelection();
             if (selection.isCollapsed) return;
-            const range = selection.getRangeAt(0);
-            const [startNode, endNode] = [range.startContainer, range.endContainer]
+            const range = selection.getRangeAt(selection.rangeCount - 1);
+            // const startNode = range.startContainer.length === range.startOffset ?
+            const [startNode, endNode] = [range.startContainer, range.endContainer];
             const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
             const {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
             if (this.isLegitSelect(tokenStart, tokenEnd)) {
@@ -167,8 +192,8 @@ const TextArea = {
         },
         deselectAll() {
             if (!this.entities) return;
-            const newObjectList = _.cloneDeep(this.entities)
-            newObjectList.map((o) => {o.selected = false})
+            const newObjectList = _.cloneDeep(this.entities);
+            newObjectList.map((o) => {o.selected = false});
             this.emitUpdateEntities(newObjectList);
         },
         getSelectionId(startId, endId) {
@@ -197,7 +222,7 @@ const TextArea = {
                 tokenIndex: parseInt(splittedId[1]),
                 charStart: parseInt(node.dataset.start),
                 charEnd: parseInt(node.dataset.end)
-            }
+            };
         },
         getTokenId(n) {
             return `tok_${n}`;
@@ -258,6 +283,7 @@ const TextArea = {
         document.getElementById('textarea').addEventListener('click', (mEvent) => {
             !(mEvent.ctrlKey || mEvent.metaKey) && this.deselectAll();
         }, true);
+
     },
     // language=HTML
     template: `
