@@ -158,6 +158,7 @@ const TextArea = {
             const [startNode, endNode] = [range.startContainer, range.endContainer]
             const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
             const {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
+            if (!charStart || !charEnd) return;
             if (this.isLegitSelect(tokenStart, tokenEnd)) {
                 this.addObjectToObjectList(this.getLabeledText(charStart, charEnd, tokenStart, tokenEnd));
             }
