@@ -148,9 +148,30 @@ canvas {
 
 .circle {
     background-color: #f9f9f9; /*No equivalent in variable list*/
-    width: 117px;
-    height: 117px;
+    width: 95px;
+    height: 95px;
     border-radius: 100%;
+    border: 1px solid #DDDDDD;
+    margin: auto;
+}
+
+.circles-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 30px 0;
+}
+.cat-example {
+    background-image: url("../img/category@2x.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.shortcut-example {
+    background-image: url("../img/shortcut@2x.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .category-selector {
@@ -161,7 +182,7 @@ canvas {
 
 }
 
-.empty-annotations-placeholder div {
+.empty-annotations-placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -247,7 +268,11 @@ audio {
 }
 
 .right-panel-top .right-panel-button {
-    height: 30px;
+    min-height: 64px;
+    min-width: 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
     white-space: nowrap;
 }
 
@@ -279,11 +304,12 @@ audio {
     text-transform: capitalize;
     font-family: arial, sans-serif;
     color: var(--grey-lighten-3);
+    background-color: var(--grey-lighten-7);
     border-radius: 2px;
     font-size: 13px;
     height: 19px;
     line-height: 19px;
-    /*width: 19px;*/
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 0.25);
     min-width: 19px;
     padding: 0 3px;
     display: inline-block;
@@ -551,7 +577,7 @@ mark.selected {
 }
 
 .category-selector__image-object-wrapper {
-    overflow: hidden;
+    overflow: scroll;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -559,7 +585,6 @@ mark.selected {
 
 .category-selector__annotations-wrapper {
     flex: 1;
-    overflow: auto;
     position: relative;
 }
 
@@ -799,7 +824,6 @@ button.adjacent-from-right {
 }
 
 button.skip-button {
-    min-width: 75px;
     display: flex;
     justify-content: center;
 }
