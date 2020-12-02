@@ -1,7 +1,7 @@
 import {DKUApi} from "../../dku-api.js";
 
 export const UNDEFINED_COLOR = [102, 102, 102];
-export const UNDEFINED_CAPTION = 'missing';
+export const UNDEFINED_CAPTION = 'missing ?';
 
 function hexToRgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
