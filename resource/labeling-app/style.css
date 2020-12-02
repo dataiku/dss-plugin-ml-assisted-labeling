@@ -586,6 +586,10 @@ mark.selected {
     flex-direction: column;
 }
 
+.category-selector__image-object-wrapper .section {
+    border-bottom: solid 2px var(--border-color);
+}
+
 .category-selector__annotations-wrapper {
     flex: 1;
     position: relative;
