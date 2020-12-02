@@ -384,7 +384,7 @@ audio {
 .textarea {
     width: 100%;
     overflow: scroll;
-    padding: 20px;
+    padding: 24px;
     line-height: 3;
     white-space: pre-wrap;
 }
