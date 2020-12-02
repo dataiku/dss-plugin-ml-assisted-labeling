@@ -463,7 +463,7 @@ mark.selected {
 }
 
 .right-panel-button.category-button {
-    padding: 10px 10px 15px;
+    padding: 10px;
 }
 
 .right-panel-button.category-button.active {
