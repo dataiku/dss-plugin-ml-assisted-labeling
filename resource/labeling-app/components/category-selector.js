@@ -201,6 +201,7 @@ let CategorySelector = {
                     <div v-else-if="status === 'SKIPPED'">
                         <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
                         <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
+                    </div>
                     <div v-else style="width: 100%;">
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
                         <p v-if="type === 'image-object'" style="margin: auto;">Select a category by ...</p>
