@@ -59,12 +59,40 @@ def create_dku_config(config):
         value=config.get('label_col_name'),
         required=True
     )
+    dku_config.add_param(
+        name='use_prelabeling',
+        value=config.get('use_prelabeling'),
+        required=True
+    )
+    dku_config.add_param(
+        name='prelabeling_strategy',
+        value=config.get('prelabeling_strategy'),
+        required=True
+    )
+    dku_config.add_param(
+        name='text_direction',
+        value=config.get('text_direction'),
+        checks=[{
+            'type': 'in',
+            'op': ['rtl', 'ltr']
+        }],
+        required=True
+    )
+    dku_config.add_param(
+        name='tokenization_engine',
+        value=config.get('tokenization_engine'),
+        checks=[{
+            'type': 'in',
+            'op': ['white_space', 'char']
+        }],
+        required=True
+    )
     return dku_config
 
 
 config = get_webapp_config()
+print(config)
 dku_config = create_dku_config(config)
-print(dku_config['unlabeled'])
 prepare_datasets(dku_config)
 initial_df = dataiku.Dataset(config["unlabeled"]).get_dataframe()
 queries_df = None
