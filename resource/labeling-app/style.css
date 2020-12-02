@@ -509,6 +509,10 @@ mark.selected {
     border-bottom: 2px solid var(--border-color);
 }
 
+.annotation i:hover {
+    color: var(--error-red);
+}
+
 .annotation.selected,
 .annotation:hover {
     background-color: var(--blue-lighten-5);
