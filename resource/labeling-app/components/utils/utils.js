@@ -80,4 +80,16 @@ export function loadConfig() {
     });
 }
 
+export function shortcut(event) {
+    const shortcuts = {
+        'multi-selection': [event.ctrlKey, event.metaKey, event.shiftKey],
+        'delete': [event.key === "Delete", event.key === "Backspace"],
+        'back': [event.code === 'ArrowLeft'],
+        'next': [event.code === 'ArrowRight']
+    }
+    return (action) => {
+        return shortcuts[action].some(x => x);
+    }
+}
+
 
