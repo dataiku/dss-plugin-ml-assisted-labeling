@@ -88,7 +88,7 @@
       "type": "BOOLEAN",
       "name": "use_prelabeling",
       "label": "Activate Prelabeling",
-      "description": "Enable/disable prelabeling. Labels calculated from what you already labeled will be added to new samples",
+      "description": "Labels calculated from what you already labeled will be added to new samples",
       "defaultValue": false
     },
     {
@@ -99,7 +99,7 @@
         { "value": "classic", "label": "Classic (Re-use labeled data)"}
       ],
       "visibilityCondition": "model.use_prelabeling",
-      "description": "The prelabeling strategy you want to use",
+      "description": "Only supported strategies",
       "defaultValue": "classic"
     },
     {
@@ -110,7 +110,7 @@
         { "value": "ltr", "label": "Left to Right"},
         { "value": "rtl", "label": "Right to Left"}
       ],
-      "description": "Select whether the langage of your text is Right-to-Left or Left-to-Right based",
+      "description": "If all samples do not have same text direction, use a prepare recipe before",
       "defaultValue": "ltr",
       "required": true
     },
@@ -119,10 +119,10 @@
       "name": "tokenization_engine",
       "label": "Tokenization",
       "selectChoices": [
-        { "value": "white_space", "label": "White Space (Split along white spaces and punctuation)"},
-        { "value": "char", "label": "Character (Split along each character)"}
+        { "value": "white_space", "label": "Split along white spaces and punctuation"},
+        { "value": "char", "label": "Split along each character"}
       ],
-      "description": "Choose how you want your text to be split out",
+      "description": "If all samples do not have same tokenization, use a prepare recipe before",
       "defaultValue": "white_space",
       "required": true
     }
