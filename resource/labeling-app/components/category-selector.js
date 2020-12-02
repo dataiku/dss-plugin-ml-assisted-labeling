@@ -204,7 +204,7 @@ let CategorySelector = {
                     </div>
                     <div v-else style="width: 100%;">
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                        <p v-if="type === 'image-object'" style="margin: auto;">Select a category by ...</p>
+                        <p v-if="isMultiLabel" style="margin: auto;">Select a category by ...</p>
                         <div class="circles-container">
                             <div style="max-width: 110px;">
                                 <div class="circle cat-example"></div>
@@ -216,6 +216,7 @@ let CategorySelector = {
                             </div>
                         </div>
                         <p v-if="type === 'image-object'" style="margin: auto;">... then draw a box around the target</p>
+                        <p v-if="type === 'text'" style="margin: auto;">... then select a word or a group of words</p>
                     </div>
                     <div v-else-if="type === 'text'">
                         <div v-if="status !== 'SKIPPED'" class="circle"></div>
