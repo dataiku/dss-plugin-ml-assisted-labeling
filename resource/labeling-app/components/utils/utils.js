@@ -1,6 +1,6 @@
 import {DKUApi} from "../../dku-api.js";
 
-export const UNDEFINED_COLOR = [220, 220, 220];
+export const UNDEFINED_COLOR = [102, 102, 102];
 export const UNDEFINED_CAPTION = 'missing';
 
 function hexToRgb(hex) {
