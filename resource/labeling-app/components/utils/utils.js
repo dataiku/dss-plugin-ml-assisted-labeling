@@ -85,7 +85,8 @@ export function shortcut(event) {
         'multi-selection': [event.ctrlKey, event.metaKey, event.shiftKey],
         'delete': [event.key === "Delete", event.key === "Backspace"],
         'back': [event.code === 'ArrowLeft'],
-        'next': [event.code === 'ArrowRight', event.code === 'Space']
+        'next': [event.code === 'ArrowRight', event.code === 'Enter'],
+        'skip': [event.code === 'Space']
     }
     return (action) => {
         return shortcuts[action].some(x => x);
