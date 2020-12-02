@@ -93,6 +93,14 @@
     font-weight: bold;
 }
 
+.counter-container {
+    margin-top: 10px;
+}
+
+.sample-counter {
+    font-weight: bold;
+}
+
 .sample-container {
     position: relative;
     flex: 1;

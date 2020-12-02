@@ -91,7 +91,6 @@ def create_dku_config(config):
 
 
 config = get_webapp_config()
-print(config)
 dku_config = create_dku_config(config)
 prepare_datasets(dku_config)
 initial_df = dataiku.Dataset(config["unlabeled"]).get_dataframe()

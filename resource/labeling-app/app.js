@@ -49,6 +49,9 @@ export default new Vue({
                 return annotation?.label?.length;
             }
         },
+        countUserAnnotations() {
+            return this.stats.labeled + this.stats.skipped + 1
+        },
         updateStatsAndProceedToNextItem: function (response) {
             this.stats = response.stats;
             this.assignNextItem();
@@ -65,6 +68,7 @@ export default new Vue({
                     this.items.shift();
                 }
                 this.item = this.items[0];
+                this.item.labelIndex = this.countUserAnnotations()
             };
             if (!this.items || doRemoveHead && this.items.length === 1) {
                 const fetchBatchPromise = this.fetchBatch();
@@ -143,6 +147,9 @@ export default new Vue({
                                              :isLabeled="isCurrentItemLabeled()"
                                              :currentStatus="item.status"
                             />
+                            <div class="counter-container" v-if="stats">
+                                <span class="stat">sample {{item.labelIndex}} / <span class=sample-counter>{{countUserAnnotations()}}</span></span>
+                            </div>
                         </div>
 
                         <div v-if="type != 'text'">
