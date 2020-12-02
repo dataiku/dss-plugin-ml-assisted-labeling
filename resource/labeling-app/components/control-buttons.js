@@ -1,4 +1,5 @@
 import {DKUApi} from "../dku-api.js";
+import {shortcut} from "./utils/utils.js";
 
 export let ControlButtons = {
     props: ['isFirst', 'canSkip', 'isLabeled', 'currentStatus'],
@@ -106,10 +107,10 @@ export let ControlButtons = {
     },
     mounted: function () {
         window.addEventListener("keyup", (event) => {
-            if (event.code === 'ArrowLeft') {
+            if (shortcut(event)('back')) {
                 this.back();
             }
-            if (event.code === 'ArrowRight' || event.code === 'Space') {
+            if (shortcut(event)('next')) {
                 this.next();
             }
         }, false);
