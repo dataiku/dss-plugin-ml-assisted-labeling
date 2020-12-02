@@ -115,10 +115,10 @@ export let ControlButtons = {
     },
     template: `<div class="control-buttons">
     <button class="right-panel-button" :disabled="isFirst" @click="first()"><i class="fas fa-step-backward"></i></button>
-    <button style="min-width: 75px" class="right-panel-button" :disabled="isFirst" @click="back()"><code class="keybind" style="margin-right: 10px"><i class="fas fa-arrow-left"></i></code><span>back</span></button>
+    <button class="right-panel-button" :disabled="isFirst" @click="back()"><span>back</span><code class="keybind"><i class="fas fa-arrow-left"></i></code></button>
     <button class="right-panel-button skip-button" @click="skip()"><span>skip</span></button>
     <v-popover :trigger="'hover'" :placement="'bottom'">
-        <button style="min-width: 75px" class="right-panel-button" @click="next()" :disabled="!currentStatus && !isLabeled"><span>{{isSaveRequired() ? 'save & next' : 'next'}}</span><code class="keybind" style="margin-left: 10px"><i class="fas fa-arrow-right"></i></code></button>
+        <button class="right-panel-button" @click="next()" :disabled="!currentStatus && !isLabeled"><span>{{isSaveRequired() ? 'save & next' : 'next'}}</span><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
         <div slot="popover">
             Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Space</code>
         </div>

@@ -200,10 +200,20 @@ let CategorySelector = {
                         <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
                         <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
                     </div>
-                    <div v-else>
-                        <div v-if="status !== 'SKIPPED'" class="circle"></div>
+                    <div v-else style="width: 100%;">
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                        <p>Select a label and draw a box around the target.</p>
+                        <p v-if="type === 'image-object'" style="margin: auto;">Select a category by ...</p>
+                        <div class="circles-container">
+                            <div style="max-width: 110px;">
+                                <div class="circle cat-example"></div>
+                                <span>Clicking on the categories buttons</span>
+                            </div>
+                            <div style="max-width: 110px;">
+                                <div class="circle shortcut-example"></div>
+                                <span>Using keyboard shortcuts</span>
+                            </div>
+                        </div>
+                        <p v-if="type === 'image-object'" style="margin: auto;">... then draw a box around the target</p>
                     </div>
                 </div>
                 <div v-if="annotation?.label?.filter(e=>!e.draft).length"
@@ -248,7 +258,7 @@ let CategorySelector = {
             </div>
 
             <textarea name="" id="" cols="60" rows="2" placeholder="Comments..." :disabled="!enabled"
-                      ref="comments"
+                      ref="comments" style="min-height:70px"
                       v-model="annotation.comment" @keyup.stop v-autoexpand class="comments"></textarea>
         </div>`,
 };
