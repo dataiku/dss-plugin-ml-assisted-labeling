@@ -148,7 +148,7 @@ export default new Vue({
                                              :currentStatus="item.status"
                             />
                             <div class="counter-container" v-if="stats">
-                                <span class="stat">sample {{item.labelIndex}} / <span class=sample-counter>{{countUserAnnotations()}}</span></span>
+                                <span class="stat">Sample {{item.labelIndex}} / <span class=sample-counter>{{countUserAnnotations()}}</span></span>
                             </div>
                         </div>
 

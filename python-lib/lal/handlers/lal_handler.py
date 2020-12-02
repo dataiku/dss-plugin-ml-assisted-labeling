@@ -186,7 +186,7 @@ class LALHandler(object):
         return self.create_annotation_response(self.user_meta(user).sort_values(self.lbl_id_col).iloc[0],
                                                is_first=True,
                                                is_last=len(self.user_meta(user)) == 1,
-                                               annnotation_index=0),
+                                               annnotation_index=0)
 
     def next(self, label_id, user):
         if not label_id:
