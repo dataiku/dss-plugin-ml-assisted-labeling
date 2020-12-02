@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(messa
 
 META_STATUS_LABELED = 'LABELED'
 META_STATUS_SKIPPED = 'SKIPPED'
-EMPTY_KEY = "no_key"
+EMPTY_KEY = "no_key"  # Must be changed on front as well
 
 BLOCK_SAMPLE_BY_USER_FOR_MINUTES = 0.5
 BATCH_SIZE = 20

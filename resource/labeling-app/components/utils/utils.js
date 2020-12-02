@@ -1,7 +1,7 @@
 import {DKUApi} from "../../dku-api.js";
 
 export const UNDEFINED_COLOR = [220, 220, 220];
-const EMPTY_KEY = "no_key"
+const EMPTY_KEY = "no_key"  // Must be changed on back as well
 
 function hexToRgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
