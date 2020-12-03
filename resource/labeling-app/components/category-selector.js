@@ -174,7 +174,7 @@ let CategorySelector = {
                         <span style="  font-size: 10px; color: var(--grey-lighten-3);">Select category to apply</span>
                     </div>
                     <div class="categories-container">
-                        <div v-for="(lbl,key) in categories" class="right-panel-button category-button"
+                        <button v-for="(lbl,key) in categories" class="right-panel-button category-button"
                              :class="{ 'active': selectedLabel === key }"
                              @click="categoryClick(key)">
                             <div :style="{ backgroundColor: color(lbl, 0.3), borderColor: color(lbl, 0.3) }"
@@ -189,7 +189,7 @@ let CategorySelector = {
                                 v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
                                 <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
                             </div>
-                        </div>
+                        </button>
                     </div>
                 </div>
                 <div class="empty-annotations-placeholder" v-if="!annotation?.label?.filter(e=>!e.draft).length || !Object.keys(categories).length">

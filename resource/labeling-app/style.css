@@ -480,6 +480,8 @@ mark.selected {
     justify-content: space-between;
     margin-bottom: 15px;
     cursor: pointer;
+    text-transform: none;
+    font-weight: normal;
 }
 
 .right-panel-button {
