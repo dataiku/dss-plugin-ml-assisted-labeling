@@ -3,7 +3,6 @@ import logging
 
 import pandas as pd
 import re
-from lal.utils import get_local_text_column_name
 
 WHITESPACE_TOKEN_ENGINE = 'white_space'
 CHARACTER_TOKEN_ENGINE = 'char'
@@ -18,7 +17,7 @@ class TextClassifier(TableBasedDataClassifier):
 
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
-        self.text_column = config.get("text_column") or get_local_text_column_name()
+        self.text_column = config.get("text_column")
         self.token_engine = config.get("tokenization_engine")
         self.text_direction = config.get("text_direction")
         self.token_sep = self.get_token_sep()

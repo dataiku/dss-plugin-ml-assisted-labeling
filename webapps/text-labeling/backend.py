@@ -6,6 +6,7 @@ from lal.app_configuration import prepare_datasets
 from lal.classifiers.text_classifier import TextClassifier
 from lal.handlers.dataiku_lal_handler import DataikuLALHandler
 from lal.config.dku_config import DkuConfig
+from lal.utils import get_local_text_column_name
 
 
 def create_dku_config(config):
@@ -18,7 +19,7 @@ def create_dku_config(config):
     )
     dku_config.add_param(
         name='text_column',
-        value=config.get('text_column'),
+        value=config.get('text_column') or get_local_text_column_name(),
         required=True
     )
     categories = config.get('categories')

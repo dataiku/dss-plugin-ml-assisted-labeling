@@ -40,7 +40,6 @@ export function savePerIterationConfig(configResponse) {
         config.isAlEnabled = configResponse.al_enabled;
         config.haltingThresholds = configResponse.halting_thr;
         config.stoppingMessages = configResponse.stopping_messages;
-        config.classifierConfig = configResponse.classifier_config;
     }
 }
 
@@ -65,6 +64,10 @@ export function loadConfig() {
         let localCategories = data.local_categories || [];
         let allCategories = webAppConfig.categories || [];
         allCategories = allCategories.concat(localCategories);
+
+        for (const [key, value] of Object.entries(data.classifier_config || [])) {
+            webAppConfig[key] = value
+        }
 
         if (allCategories) {
             allCategories.forEach((el, idx) => {
