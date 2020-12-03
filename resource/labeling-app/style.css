@@ -462,7 +462,7 @@ mark.selected {
 }
 
 .right-panel-button.category-button {
-    padding: 10px;
+    padding: 10px 10px 15px;
 }
 
 .right-panel-button.category-button.active {
@@ -472,7 +472,7 @@ mark.selected {
 .category-button {
     position: relative;
     overflow: hidden;
-    width: 160px;
+    width: 170px;
     text-align: center;
     display: flex;
     align-items: center;
@@ -883,4 +883,16 @@ select {
     border-radius: 10px;
     font-size: 20px;
     padding: 10px 20px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(34, 34, 34, 0.4);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 5px;
+    height: 7px;
 }
