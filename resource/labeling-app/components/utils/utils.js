@@ -1,6 +1,7 @@
 import {DKUApi} from "../../dku-api.js";
 
 export const UNDEFINED_COLOR = [220, 220, 220];
+const EMPTY_KEY = "no_key"  // Must be changed on back as well
 
 function hexToRgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -65,7 +66,7 @@ export function loadConfig() {
 
         if (allCategories) {
             allCategories.forEach((el, idx) => {
-                categories[el.from] = {
+                categories[el.from || EMPTY_KEY] = {
                     caption: el.to || el.from,
                     color: getColorFromPreparedList(idx, allCategories.length) || stringToRgb(el.from)
                 }
