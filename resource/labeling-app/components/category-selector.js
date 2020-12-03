@@ -184,7 +184,7 @@ let CategorySelector = {
                                 <div>{{lbl.caption}}</div>
                             </div>
                             <code v-if="catToKeyMapping.hasOwnProperty(key)"
-                                  class="keybind">{{catToKeyMapping[key]}}</code>
+                                  class="keybind category-key">{{catToKeyMapping[key]}}</code>
                             <div class="progress-background"
                                 v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
                                 <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>

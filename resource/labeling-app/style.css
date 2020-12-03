@@ -260,6 +260,11 @@ audio {
     margin-bottom: 10px;
 }
 
+.right-panel-top {
+    background: #f8f8f8;
+    margin-bottom: 0 !important;
+}
+
 .right-panel-top .right-panel-button > i {
     margin-left: 5px;
     margin-right: 5px;
@@ -315,6 +320,10 @@ audio {
     align-content: center;
     vertical-align: middle;
     text-align: center;
+}
+
+.category-key {
+    margin-left: auto !important;
 }
 
 .tabular-sample {
@@ -411,12 +420,13 @@ audio {
     text-transform: uppercase;
     vertical-align: middle;
 }
-
 .text-annotation-thumb {
     padding: 8px;
     cursor: help;
     border-radius: 5px;
 }
+
+
 
 mark.selected {
     box-shadow: inset 0 0 1px 3px rgba(0,0,0,0.2);
@@ -448,6 +458,7 @@ mark.selected {
     box-sizing: border-box;
     border: 2px solid;
     border-radius: 100%;
+    margin-right: 10px;
 }
 
 .right-panel-button .keybind {
@@ -469,6 +480,11 @@ mark.selected {
     background-color: var(--blue-lighten-5);
 }
 
+.category-caption-wrapper {
+    display: flex;
+    align-items: center;
+}
+
 .category-button {
     position: relative;
     overflow: hidden;
@@ -476,7 +492,7 @@ mark.selected {
     text-align: center;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: left;
     margin-bottom: 15px;
     cursor: pointer;
     text-transform: none;
@@ -485,7 +501,7 @@ mark.selected {
 
 .right-panel-button {
     display: flex;
-    justify-content: space-between;
+    justify-content: left;
     align-items: center;
     border-radius: 3px;
     padding: 5px;
@@ -504,12 +520,15 @@ mark.selected {
     padding: 24px;
     display: flex;
     align-content: center;
-    justify-content: space-between;
+    justify-content: left;
     cursor: pointer;
     align-items: center;
     border-bottom: 2px solid var(--border-color);
 }
 
+.annotation i {
+    margin-left: auto;
+}
 .annotation i:hover {
     color: var(--error-red);
 }
@@ -535,8 +554,9 @@ mark.selected {
     height: 100%;
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
+    margin-right: 20px;
 }
 
 .canvas__button-wrapper button {
@@ -590,6 +610,7 @@ mark.selected {
 
 .category-selector__image-object-wrapper .section {
     border-bottom: solid 2px var(--border-color);
+    background: #f8f8f8;
 }
 
 .category-selector__annotations-wrapper {
