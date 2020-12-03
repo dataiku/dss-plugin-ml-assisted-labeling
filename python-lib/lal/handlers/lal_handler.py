@@ -113,7 +113,7 @@ class LALHandler(object):
         if self.classifier.is_al_enabled:
             result["halting_thr"] = sorted([self.classifier.halting_thr_low, self.classifier.halting_thr_high])
         result['local_categories'] = get_local_categories()
-        result['classifier_config'] = self.classifier.get_relevant_config()
+        result['classifier_config'] = self.classifier.get_relevant_config() or {}
         return result
 
     def label(self, data, user):

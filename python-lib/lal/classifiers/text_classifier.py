@@ -2,7 +2,6 @@ import json
 import logging
 
 import pandas as pd
-from lal.utils import get_local_text_column_name
 
 TEXT_COLUMN_DEFAULT_LABEL = 'text'
 
@@ -15,7 +14,7 @@ class TextClassifier(TableBasedDataClassifier):
 
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
-        self.text_column = config.get("text_column") or get_local_text_column_name()
+        self.text_column = config.get('text_column')
         super(TextClassifier, self).__init__(queries_df, config)
 
     def get_initial_df(self):
