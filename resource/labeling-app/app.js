@@ -132,6 +132,18 @@ export default new Vue({
                                  :prelabels="item.prelabels"
                                  :classifierConfig="config.classifierConfig"
                     />
+                    <v-popover :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
+                        <i class="fas fa-keyboard"></i>
+                        <div slot="popover" style="text-align: left">
+                            <ul>
+                                <li>Back: <code class="keybind" style="vertical-align: baseline">Space</code></li>
+                                <li>Next: <code class="keybind" style="vertical-align: baseline"><i class="fas fa-arrow-right"></i></code></li>
+                                <li>Skip: <code class="keybind" style="vertical-align: baseline"><i class="fas fa-arrow-left"></i></code></li>
+                                <li>Multi-select: <code class="keybind" style="vertical-align: baseline">Shift + Click</code></li>
+                                <li>Delete: <code class="keybind" style="vertical-align: baseline"><i class="fas fa-backspace"></i></code></li>
+                            </ul>
+                        </div>
+                    </v-popover>
 
                 </div>
                 <div class="right-panel">
