@@ -71,8 +71,9 @@ let CategorySelector = {
             this.selectedLabel = annotation.label;
             this.$emit('input', [...this.annotation.label]);
         },
-        remove(annotation) {
+        remove(annotation, event) {
             this.annotation.label.splice(this.annotation.label.indexOf(annotation), 1);
+            event.stopPropagation();
         },
         color: function (label, opacity) {
             const rgb = label.color;
@@ -243,7 +244,7 @@ let CategorySelector = {
                         
                         <div v-if="!a.label">Assign a category</div>
                         <div v-if="a.label">{{categories[a.label].caption}}</div>
-                        <i @click="remove(a)" class="icon-trash"/>
+                        <i @click="remove(a, $event)" class="icon-trash"/>
                     </div>
 
                 </div>
