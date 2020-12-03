@@ -28,15 +28,18 @@ const TextArea = {
     },
     methods: {
         splitText(txt, tokenSep=' ') {
-            return txt.split(tokenSep).map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
+            const splitter = new GraphemeSplitter();
+            const splitted_text = tokenSep === '' ? splitter.splitGraphemes(txt) : txt.split(tokenSep)
+            return splitted_text.map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
         },
         sanitizeToken(token) {
+            const splitter = new GraphemeSplitter();
             const sanitizedTokenList = [];
             if (token.match(/^[\p{L}\p{N}]*$/gu)) {
                 sanitizedTokenList.push({token});
             } else {
                 let currentToken = '';
-                token.split('').forEach((c) => {
+                splitter.splitGraphemes(token).forEach((c) => {
                     if (c.match(/^[\p{L}\p{N}]*$/gu)) {
                         currentToken += c;
                     } else {
@@ -210,15 +213,16 @@ const TextArea = {
             let charCpt = 0;
             let entityIndex = 0;
             let tokenIndex = 0;
-            let token;
+            let token, entity;
             while(entityIndex < entities.length) {
                 token = this.splittedText[tokenIndex];
-                if (sortedEntities[entityIndex].start <= charCpt) {
-                    sortedEntities[entityIndex].tokenStart = tokenIndex;
+                entity = sortedEntities[entityIndex];
+                if (!entity.tokenStart && entity.start <= charCpt) {
+                    entity.tokenStart = tokenIndex;
                 }
-                if (sortedEntities[entityIndex].end <= charCpt + token.token.length) {
-                    sortedEntities[entityIndex].tokenEnd = tokenIndex;
-                    sortedEntities[entityIndex].isPrelabel = true;
+                if (entity.end <= charCpt + token.token.length) {
+                    entity.tokenEnd = tokenIndex;
+                    entity.isPrelabel = true;
                     entityIndex += 1;
                 }
                 charCpt += (token.token + (token.sepAtEnd ? this.tokenSep: '')).length;
