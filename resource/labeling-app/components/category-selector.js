@@ -242,7 +242,7 @@ let CategorySelector = {
                             <TextAnnotationThumb :data="a" :color="labelColor(a.label)"></TextAnnotationThumb>
                         </div>
                         
-                        <div v-if="!a.label">Assign a category</div>
+                        <div v-if="!a.label" style="color: var(--grey-lighten-3);">Assign a category</div>
                         <div v-if="a.label">{{categories[a.label].caption}}</div>
                         <i @click="remove(a)" class="icon-trash"/>
                     </div>
