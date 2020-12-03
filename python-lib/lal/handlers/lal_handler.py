@@ -83,6 +83,10 @@ class LALHandler(object):
 
     @staticmethod
     def replace_empty_keys(label):
+        """
+        Replaces an empty label when its saved/loaded
+        When loaded an empty key is represented by EMPTY_KEY, when saved it becomes None
+        """
         clean_label = cp.deepcopy(label)
         for lab in clean_label:
             if not lab['label']:
