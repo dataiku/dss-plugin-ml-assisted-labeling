@@ -136,13 +136,47 @@ export default new Vue({
                     <v-popover :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
                         <i class="fas fa-keyboard"></i>
                         <div slot="popover" style="text-align: left">
-                            <ul>
-                                <li>Back: <code class="keybind" style="vertical-align: baseline">Space</code></li>
-                                <li>Next: <code class="keybind" style="vertical-align: baseline"><i class="fas fa-arrow-right"></i></code></li>
-                                <li>Skip: <code class="keybind" style="vertical-align: baseline"><i class="fas fa-arrow-left"></i></code></li>
-                                <li>Multi-select: <code class="keybind" style="vertical-align: baseline">Shift + Click</code></li>
-                                <li>Delete: <code class="keybind" style="vertical-align: baseline"><i class="fas fa-backspace"></i></code></li>
-                            </ul>
+                            <table class="shortcuts-table">
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="keybind"><i class="fas fa-arrow-right"></div>
+                                        /
+                                        <div class="keybind">Enter</div>
+                                    </td>
+                                    <td>Next</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="keybind"><i class="fas fa-arrow-left"></div>
+                                    </td>
+                                    <td>Back</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="keybind">Space bar</div>
+                                    </td>
+                                    <td>Skip</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="keybind">⌘</div>
+                                        /
+                                        <div class="keybind">shift</div>
+                                        +
+                                        <div class="keybind">click</div>
+                                    <td>Multi-select</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="keybind ng-binding">⌫</div>
+                                        /
+                                        <div class="keybind">␡</div>
+                                    </td>
+                                    <td>Delete</td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </v-popover>
 
