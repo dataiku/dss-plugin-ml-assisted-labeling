@@ -1,4 +1,5 @@
 import {DKUApi} from "../dku-api.js";
+import {shortcut} from "./utils/utils.js";
 
 export let ControlButtons = {
     props: ['isFirst', 'canSkip', 'isLabeled', 'currentStatus'],
@@ -106,22 +107,30 @@ export let ControlButtons = {
     },
     mounted: function () {
         window.addEventListener("keyup", (event) => {
-            if (event.code === 'ArrowLeft') {
+            if (shortcut(event)('back')) {
                 this.back();
             }
-            if (event.code === 'ArrowRight' || event.code === 'Space') {
+            if (shortcut(event)('next')) {
                 this.next();
+            }
+            if (shortcut(event)('skip')) {
+                this.skip();
             }
         }, false);
     },
     template: `<div class="control-buttons">
     <button class="right-panel-button" :disabled="isFirst" @click="first()"><i class="fas fa-step-backward"></i></button>
     <button class="right-panel-button" :disabled="isFirst" @click="back()"><span>back</span><code class="keybind"><i class="fas fa-arrow-left"></i></code></button>
-    <button class="right-panel-button skip-button" @click="skip()"><span>skip</span></button>
+    <v-popover :trigger="'hover'" :placement="'bottom'">
+        <button class="right-panel-button skip-button" @click="skip()"><span>skip</span></button>
+        <div slot="popover">
+            Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Space</code>
+        </div>
+    </v-popover>
     <v-popover :trigger="'hover'" :placement="'bottom'">
         <button class="right-panel-button" @click="next()" :disabled="!currentStatus && !isLabeled"><span>{{isSaveRequired() ? 'save & next' : 'next'}}</span><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
         <div slot="popover">
-            Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Space</code>
+            Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Enter</code>
         </div>
     </v-popover>
     <button class="right-panel-button" :disabled="!$root.item.labelId" @click="unlabeled()" style="margin-right: 0"><i class="fas fa-step-forward"></i></button></div>

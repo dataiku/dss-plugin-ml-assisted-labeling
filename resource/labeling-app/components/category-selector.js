@@ -176,7 +176,7 @@ let CategorySelector = {
                         <span style="  font-size: 10px; color: var(--grey-lighten-3);">Select category to apply</span>
                     </div>
                     <div class="categories-container">
-                        <div v-for="(lbl,key) in categories" class="right-panel-button category-button"
+                        <button v-for="(lbl,key) in categories" class="right-panel-button category-button"
                              :class="{ 'active': selectedLabel === key }"
                              @click="categoryClick(key)">
                             <div :style="{ backgroundColor: color(lbl, 0.3), borderColor: color(lbl, 0.3) }"
@@ -186,12 +186,12 @@ let CategorySelector = {
                                 <div>{{lbl.caption}}</div>
                             </div>
                             <code v-if="catToKeyMapping.hasOwnProperty(key)"
-                                  class="keybind">{{catToKeyMapping[key]}}</code>
+                                  class="keybind category-key">{{catToKeyMapping[key]}}</code>
                             <div class="progress-background"
                                 v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
                                 <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
                             </div>
-                        </div>
+                        </button>
                     </div>
                 </div>
                 <div class="empty-annotations-placeholder" v-if="!annotation?.label?.filter(e=>!e.draft).length || !Object.keys(categories).length">
@@ -206,7 +206,7 @@ let CategorySelector = {
                     </div>
                     <div v-else style="width: 100%;">
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                        <p v-if="type === 'image-object'" style="margin: auto;">Select a category by ...</p>
+                        <p v-if="isMultiLabel" style="margin: auto;">Select a category by ...</p>
                         <div class="circles-container">
                             <div style="max-width: 110px;">
                                 <div class="circle cat-example"></div>
@@ -218,6 +218,7 @@ let CategorySelector = {
                             </div>
                         </div>
                         <p v-if="type === 'image-object'" style="margin: auto;">... then draw a box around the target</p>
+                        <p v-if="type === 'text'" style="margin: auto;">... then select a word or a group of words</p>
                     </div>
                     <div v-else-if="type === 'text'">
                         <div v-if="status !== 'SKIPPED'" class="circle"></div>
@@ -245,7 +246,7 @@ let CategorySelector = {
                         </div>
                         
                         <div v-if="a.label && categories[a.label]">{{categories[a.label].caption}}</div>
-                        <div v-else>Assign a category</div>
+                        <div v-else style="color: var(--grey-lighten-3);">Assign a category</div>
                         <i @click="remove(a, $event)" class="icon-trash"/>
                     </div>
 
