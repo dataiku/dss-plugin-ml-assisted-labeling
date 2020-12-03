@@ -143,7 +143,7 @@ const TextArea = {
             this.emitUpdateEntities([]);
         },
         deleteSelected() {
-            this.emitUpdateEntities(this.entities.filter((e) => { !e.selected }))
+            this.emitUpdateEntities(this.entities.filter(e => !e.selected))
         },
         deselectAll() {
             if (!this.entities) return;
