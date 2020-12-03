@@ -71,8 +71,9 @@ let CategorySelector = {
             this.selectedLabel = annotation.label;
             this.$emit('input', [...this.annotation.label]);
         },
-        remove(annotation) {
+        remove(annotation, event) {
             this.annotation.label.splice(this.annotation.label.indexOf(annotation), 1);
+            event.stopPropagation();
         },
         color: function (label, opacity) {
             const rgb = label.color;
@@ -242,9 +243,9 @@ let CategorySelector = {
                             <TextAnnotationThumb :data="a" :color="labelColor(a.label)"></TextAnnotationThumb>
                         </div>
                         
-                        <div v-if="!a.label" style="color: var(--grey-lighten-3);">Assign a category</div>
-                        <div v-if="a.label">{{categories[a.label].caption}}</div>
-                        <i @click="remove(a)" class="icon-trash"/>
+                        <div v-if="a.label && categories[a.label]">{{categories[a.label].caption}}</div>
+                        <div v-else style="color: var(--grey-lighten-3);">Assign a category</div>
+                        <i @click="remove(a, $event)" class="icon-trash"/>
                     </div>
 
                 </div>
