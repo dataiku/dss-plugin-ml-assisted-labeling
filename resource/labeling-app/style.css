@@ -366,7 +366,7 @@ audio {
 
 .textarea-wrapper {
     text-align: left;
-    font-size: x-large;
+    font-size: 20px;
     background-color: var(--white);
     flex: 1;
     display: flex;
@@ -384,7 +384,7 @@ audio {
     width: 100%;
     overflow: scroll;
     padding: 24px;
-    line-height: 3;
+    line-height: 34px;
     white-space: pre-wrap;
 }
 
@@ -400,7 +400,7 @@ audio {
     margin: 0 0.15em;
     display: inline;
     padding: 0.25em 0.4em;
-    line-height: 3;
+    line-height: 34px;
     border-radius: 5px;
     user-select: none;
 }
