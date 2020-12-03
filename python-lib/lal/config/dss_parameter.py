@@ -86,7 +86,6 @@ class DSSParameter:
     def __init__(self, name, value, checks=None, required=False):
         if checks is None:
             checks = []
-        print('ok')
         self.name = name
         self.value = value
         self.checks = [CustomCheck(**check) for check in checks]

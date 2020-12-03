@@ -15,7 +15,6 @@ class DkuConfig(object):
         setattr(self, name, DSSParameter(name=name, **dss_param_kwargs))
 
     def get(self, key, default=None):
-        print(key)
         return getattr(self, str(key), default)
 
     def __getattribute__(self, item):
