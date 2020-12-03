@@ -9,6 +9,7 @@ import {ImageCanvas} from "./components/image-object-sample/ImageCanvas.js";
 import {TextArea} from "./components/text-sample/textArea.js";
 import {loadConfig, savePerIterationConfig} from './components/utils/utils.js'
 import {HaltingCriterionMetric} from "./components/halting-criterion-metric.js";
+import {config} from './components/utils/utils.js'
 
 Vue.use(VTooltip);
 
@@ -44,7 +45,7 @@ export default new Vue({
         isCurrentItemLabeled() {
             const annotation = this.annotation;
             if (this.isMultiLabel) {
-                return annotation?.label?.filter(e => e.label).length > 0;
+                return annotation?.label?.filter(e => e.label && config.categories[e.label]).length > 0;
             } else {
                 return annotation?.label?.length;
             }

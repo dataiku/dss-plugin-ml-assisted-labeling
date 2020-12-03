@@ -4,6 +4,7 @@ from abc import abstractmethod
 from datetime import datetime, timedelta
 from threading import RLock
 from typing import TypeVar, Dict
+import copy as cp
 
 import pandas as pd
 
@@ -14,6 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(name)s %(levelname)s - %(messa
 
 META_STATUS_LABELED = 'LABELED'
 META_STATUS_SKIPPED = 'SKIPPED'
+EMPTY_KEY = "no_key"  # Must be changed on front as well
 
 BLOCK_SAMPLE_BY_USER_FOR_MINUTES = 0.5
 
@@ -82,6 +84,20 @@ class LALHandler(object):
                     result.append(i)
         return result
 
+    @staticmethod
+    def replace_empty_keys(label):
+        """
+        Replaces an empty label when its saved/loaded
+        When loaded an empty key is represented by EMPTY_KEY, when saved it becomes None
+        """
+        clean_label = cp.deepcopy(label)
+        for lab in clean_label:
+            if not lab['label']:
+                lab['label'] = EMPTY_KEY
+            elif lab['label'] == EMPTY_KEY:
+                lab['label'] = None
+        return clean_label
+
     def calculate_stats(self, user):
         total_count = len(self.classifier.get_all_item_ids_list())
         labeled_samples = self.get_meta_by_status(user, META_STATUS_LABELED)
@@ -116,7 +132,12 @@ class LALHandler(object):
 
         lbl_id = self.create_label_id() if existing_meta_record.empty else existing_meta_record.iloc[0][self.lbl_id_col]
         raw_data = self.classifier.get_raw_item_by_id(data_id)
-        serialized_label = self.classifier.serialize_label(data.get('label')) if data.get('label') else None
+
+        if not data.get('label'):
+            serialized_label = None
+        else:
+            serialized_label = self.classifier.serialize_label(self.replace_empty_keys(data.get('label')))
+
         label = {**raw_data, **{self.lbl_col: serialized_label, self.lbl_id_col: lbl_id}}
         meta = {
             self.lbl_col: serialized_label,
@@ -226,7 +247,7 @@ class LALHandler(object):
         annotation = annotation.where((pd.notnull(annotation)), None).astype('object').to_dict()
         data_id = annotation['data_id']
         if annotation[self.lbl_col] is not None and annotation['status'] != META_STATUS_SKIPPED:
-            label = self.classifier.deserialize_label(annotation[self.lbl_col])
+            label = self.replace_empty_keys(self.classifier.deserialize_label(annotation[self.lbl_col]))
         else:
             label = None
         return {
