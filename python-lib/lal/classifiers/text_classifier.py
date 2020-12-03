@@ -37,9 +37,9 @@ class TextClassifier(TableBasedDataClassifier):
 
     def get_relevant_config(self):
         return {
-            "textColumn": self.text_column,
-            "textDirection": self.text_direction,
-            "tokenSep": self.token_sep
+            "text_column": self.text_column,
+            "text_direction": self.text_direction,
+            "token_sep": self.token_sep
         }
 
     def serialize_label(self, label):

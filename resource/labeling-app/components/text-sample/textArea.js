@@ -12,17 +12,18 @@ const TextArea = {
             }
         },
         selectedLabel: String,
-        classifierConfig: Object,
         prelabels: {
             type: Array,
             default: () => {
                 return [];
             }
         },
+        tokenSep: String,
+        textDirection: String
     },
     computed: {
         splittedText: function () {
-            return this.splitText(this.text, this.classifierConfig.tokenSep);
+            return this.splitText(this.text, this.tokenSep);
         }
     },
     methods: {
@@ -142,7 +143,7 @@ const TextArea = {
             let charCpt = 0;
             this.splittedText.forEach((token, index) => {
                 const newToken = document.createElement('span');
-                newToken.textContent = token.token + (token.sepAtEnd ? this.classifierConfig.tokenSep: '');
+                newToken.textContent = token.token + (token.sepAtEnd ? this.tokenSep: '');
                 newToken.classList.add('token');
                 newToken.id = this.getTokenId(index);
                 newToken.setAttribute('data-start', charCpt);
@@ -220,7 +221,7 @@ const TextArea = {
                     sortedEntities[entityIndex].isPrelabel = true;
                     entityIndex += 1;
                 }
-                charCpt += (token.token + (token.sepAtEnd ? this.classifierConfig.tokenSep: '')).length;
+                charCpt += (token.token + (token.sepAtEnd ? this.tokenSep: '')).length;
                 tokenIndex += 1
             }
         },
@@ -265,10 +266,10 @@ const TextArea = {
         <div class="labeling-window">
             <div v-bind:class="{
             'textarea-wrapper': true,
-            'text-right': classifierConfig.textDirection === 'rtl',
-            'text-left': classifierConfig.textDirection === 'ltr'
+            'text-right': textDirection === 'rtl',
+            'text-left': textDirection === 'ltr'
             }" ref="wrapper" v-on:mouseup="handleMouseUp"
-                 v-bind:dir="classifierConfig.textDirection">
+                 v-bind:dir="textDirection">
                 <div class="textarea" id="textarea"></div>
             </div>
             <div class="textarea__button-wrapper">

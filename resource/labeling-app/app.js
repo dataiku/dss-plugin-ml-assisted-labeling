@@ -127,54 +127,55 @@ export default new Vue({
                                  :objects.sync="annotation.label"
                     />
                     <TextArea v-if="type === 'text'"
-                                 :text="item.data.raw[config.text_column]"
-                                 :selectedLabel="selectedLabel"
-                                 :entities.sync="annotation.label"
-                                 :prelabels="item.prelabels"
-                                 :classifierConfig="config.classifierConfig"
+                            :text="item.data.raw[config.text_column]"
+                            :selectedLabel="selectedLabel"
+                            :entities.sync="annotation.label"
+                            :prelabels="item.prelabels"
+                            :tokenSep="config.token_sep"
+                            :textDirection="config.text_direction"
                     />
                     <v-popover :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
                         <i class="fas fa-keyboard"></i>
                         <div slot="popover" style="text-align: left">
                             <table class="shortcuts-table">
                                 <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="keybind"><i class="fas fa-arrow-right"></div>
-                                        /
-                                        <div class="keybind">Enter</div>
-                                    </td>
-                                    <td>Next</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="keybind"><i class="fas fa-arrow-left"></div>
-                                    </td>
-                                    <td>Back</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="keybind">Space bar</div>
-                                    </td>
-                                    <td>Skip</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="keybind">⌘</div>
-                                        /
-                                        <div class="keybind">shift</div>
-                                        +
-                                        <div class="keybind">click</div>
-                                    <td>Multi-select</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="keybind ng-binding">⌫</div>
-                                        /
-                                        <div class="keybind">␡</div>
-                                    </td>
-                                    <td>Delete</td>
-                                </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind"><i class="fas fa-arrow-right"></i></div>
+                                            /
+                                            <div class="keybind">Enter</div>
+                                        </td>
+                                        <td>Next</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind"><i class="fas fa-arrow-left"></i></div>
+                                        </td>
+                                        <td>Back</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind">Space bar</div>
+                                        </td>
+                                        <td>Skip</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind">⌘</div>
+                                            /
+                                            <div class="keybind">shift</div>
+                                            +
+                                            <div class="keybind">click</div>
+                                        <td>Multi-select</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind ng-binding">⌫</div>
+                                            /
+                                            <div class="keybind">␡</div>
+                                        </td>
+                                        <td>Delete</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>

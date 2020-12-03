@@ -6,7 +6,7 @@ from lal.app_configuration import prepare_datasets
 from lal.classifiers.text_classifier import TextClassifier
 from lal.handlers.dataiku_lal_handler import DataikuLALHandler
 from lal.config.dku_config import DkuConfig
-from lal.utils import get_local_text_column_name
+from lal.utils import get_local_var
 
 
 def create_dku_config(config):
@@ -19,7 +19,7 @@ def create_dku_config(config):
     )
     dku_config.add_param(
         name='text_column',
-        value=config.get('text_column') or get_local_text_column_name(),
+        value=config.get('text_column') or get_local_var('text_column'),
         required=True
     )
     categories = config.get('categories')
@@ -62,17 +62,17 @@ def create_dku_config(config):
     )
     dku_config.add_param(
         name='use_prelabeling',
-        value=config.get('use_prelabeling'),
+        value=config.get('use_prelabeling') or get_local_var('use_prelabeling'),
         required=True
     )
     dku_config.add_param(
         name='prelabeling_strategy',
-        value=config.get('prelabeling_strategy'),
+        value=config.get('prelabeling_strategy') or get_local_var('prelabeling_strategy'),
         required=True
     )
     dku_config.add_param(
         name='text_direction',
-        value=config.get('text_direction'),
+        value=config.get('text_direction') or get_local_var('text_direction'),
         checks=[{
             'type': 'in',
             'op': ['rtl', 'ltr']
@@ -81,7 +81,7 @@ def create_dku_config(config):
     )
     dku_config.add_param(
         name='tokenization_engine',
-        value=config.get('tokenization_engine'),
+        value=config.get('tokenization_engine') or get_local_var('tokenization_engine'),
         checks=[{
             'type': 'in',
             'op': ['white_space', 'char']
