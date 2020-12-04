@@ -1,6 +1,6 @@
 # ML Assisted Labeling Plugin  
 
-This plugin lets you label your tabular, image or audio data efficiently by leveraging webapps and active learning recipes.
+This plugin lets you label your text, tabular, image or audio data efficiently by leveraging webapps and active learning recipes.
 
 Not all samples bring the same amount of information when it comes to training a model. Labeling a very similar to an already labeled sample might not bring any improvement to the model performance. Active learning aims at estimating how much additional information labeling a sample can bring to a model and select the next sample to label accordingly.
 
