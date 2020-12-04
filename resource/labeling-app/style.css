@@ -146,6 +146,11 @@ canvas {
     font-size: 117px;
 }
 
+.no-label-or {
+    margin: auto 0;
+    font-weight: bold;
+}
+
 .circle {
     background-color: #f9f9f9; /*No equivalent in variable list*/
     width: 95px;

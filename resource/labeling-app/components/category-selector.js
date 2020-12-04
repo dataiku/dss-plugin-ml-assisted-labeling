@@ -211,6 +211,7 @@ let CategorySelector = {
                                 <div class="circle cat-example"></div>
                                 <span>Clicking on the categories buttons</span>
                             </div>
+                            <span class="no-label-or">or</span>
                             <div style="max-width: 110px;">
                                 <div class="circle shortcut-example"></div>
                                 <span>Using keyboard shortcuts</span>
