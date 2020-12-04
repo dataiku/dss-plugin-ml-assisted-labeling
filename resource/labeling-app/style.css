@@ -13,14 +13,19 @@
     right: 10px;
     top: 10px;
     background: var(--white);
-    width: 30px;
-    height: 30px;
+    width: 64px;
+    height: 64px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 100%;
     cursor: help;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 4px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
+}
+
+.shortcut-helper img {
+    height: 50%;
+    width: 50%;
 }
 
 .shortcuts-table {

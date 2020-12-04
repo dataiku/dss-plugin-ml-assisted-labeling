@@ -135,7 +135,7 @@ export default new Vue({
                             :textDirection="config.text_direction"
                     />
                     <v-popover :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
-                        <i class="fas fa-keyboard"></i>
+                        <img src="../../resource/img/question-sign.png" alt="Shortcuts">
                         <div slot="popover" style="text-align: left">
                             <table class="shortcuts-table">
                                 <tbody>
@@ -173,6 +173,8 @@ export default new Vue({
                                             <div class="keybind ng-binding">⌫</div>
                                             /
                                             <div class="keybind">␡</div>
+                                            /
+                                            <div class="keybind">dbl click</div>
                                         </td>
                                         <td>Delete</td>
                                     </tr>
