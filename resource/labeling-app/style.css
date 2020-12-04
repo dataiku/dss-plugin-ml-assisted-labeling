@@ -8,6 +8,35 @@
     flex-direction: column;
 }
 
+.shortcut-helper {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: var(--white);
+    width: 64px;
+    height: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+    cursor: help;
+    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 4px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
+}
+
+.shortcut-helper img {
+    height: 50%;
+    width: 50%;
+}
+
+.shortcuts-table {
+    border: none;
+}
+
+.shortcuts-table td {
+    border: none;
+    padding: 10px 10px;
+}
+
 .progress-background {
     height: 5px;
     width: 100%;
@@ -93,6 +122,14 @@
     font-weight: bold;
 }
 
+.counter-container {
+    margin-top: 10px;
+}
+
+.sample-counter {
+    font-weight: bold;
+}
+
 .sample-container {
     position: relative;
     flex: 1;
@@ -109,6 +146,10 @@ canvas {
 
 .sample-container .main-area-element {
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 4px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
+}
+
+.delete-all-btn:hover {
+    color: var(--error-red);
 }
 
 .control-buttons {
@@ -379,13 +420,16 @@ audio {
 }
 
 .textarea-wrapper {
-    text-align: left;
+    resize: horizontal;
+    overflow: auto;
     font-size: 20px;
+    text-align: left;
     background-color: var(--white);
     flex: 1;
     display: flex;
     align-content: space-between;
-    width: 50vw;
+    max-width: 80vw;
+    min-width: 10vw;
     min-height: 10vh;
     max-height: 85vh;
     box-shadow: 0 9px 12px 1px rgba(0, 0, 0, 0.14), 0 3px 16px 2px rgba(0, 0, 0, 0.12), 0 5px 6px rgba(0, 0, 0, 0.2);
@@ -431,11 +475,12 @@ audio {
     border-radius: 5px;
 }
 
-
+mark {
+    background-color: var(--white);
+}
 
 mark.selected {
     box-shadow: inset 0 0 1px 3px rgba(0,0,0,0.2);
-
 }
 
 /* Text labeling :: End */
@@ -548,6 +593,7 @@ mark.selected {
 .annotation-thumb-wrapper > .main {
     border-width: 2px;
     border-style: solid;
+    border-style: solid;
 }
 
 .annotation-thumb-wrapper {
@@ -556,6 +602,7 @@ mark.selected {
     display: flex;
     justify-content: left;
     align-items: center;
+    background-color: transparent;
     margin-right: 20px;
 }
 

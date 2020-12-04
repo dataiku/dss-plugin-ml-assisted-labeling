@@ -18,7 +18,9 @@ META_STATUS_SKIPPED = 'SKIPPED'
 EMPTY_KEY = "no_key"  # Must be changed on front as well
 
 BLOCK_SAMPLE_BY_USER_FOR_MINUTES = 0.5
-BATCH_SIZE = 20
+
+DEFAULT_BATCH_SIZE = 20
+PRELABELING_BATCH_SIZE = 1
 
 C = TypeVar('C', bound=BaseClassifier)
 
@@ -47,6 +49,7 @@ class LALHandler(object):
         :type classifier: C
         """
         self.classifier = classifier
+        self.batch_size = PRELABELING_BATCH_SIZE if classifier.use_prelabeling else DEFAULT_BATCH_SIZE
         self.lbl_col = label_col_name
         self.lbl_id_col = label_col_name + "_id"
         self._skipped = {}
@@ -159,6 +162,11 @@ class LALHandler(object):
             "stats": self.calculate_stats(user)
         }
 
+    def add_prelabels(self, batch, user):
+        self.logger.info("Retrieving prelabels")
+        labeled_user_meta = self.get_meta_by_status(user, status=META_STATUS_LABELED).to_dict(orient='records')
+        self.classifier.add_prelabels(batch, labeled_user_meta)
+
     def create_label_id(self):
         self.last_used_label_id += 1
         return self.last_used_label_id
@@ -174,17 +182,20 @@ class LALHandler(object):
             return {"isDone": True, "stats": stats, "config": self.get_config()}
 
         remaining = self.get_remaining(user)
-        ids_batch = remaining[-BATCH_SIZE:]
+        ids_batch = remaining[-self.batch_size:]
         with LALHandler.lock:
-            reserved_until = datetime.now() + timedelta(minutes=int(BATCH_SIZE * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
+            reserved_until = datetime.now() + timedelta(minutes=int(self.batch_size * BLOCK_SAMPLE_BY_USER_FOR_MINUTES))
             for i in ids_batch:
                 self.sample_by_user_reservation[i] = ReservedSample(user, reserved_until)
         ids_batch.reverse()
+        batch = [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch]
+        if self.classifier.use_prelabeling:
+            self.add_prelabels(batch, user)
         return {
             "isMultiLabel": self.classifier.is_multi_label,
             "type": self.classifier.type,
-            "items": [{"id": data_id, "data": self.classifier.get_item_by_id(data_id)} for data_id in ids_batch],
-            "isLastBatch": len(remaining) < BATCH_SIZE,
+            "items": batch,
+            "isLastBatch": len(remaining) < self.batch_size,
             "stats": stats,
             "config": self.get_config()
         }
@@ -195,35 +206,44 @@ class LALHandler(object):
     def first(self, user):
         return self.create_annotation_response(self.user_meta(user).sort_values(self.lbl_id_col).iloc[0],
                                                is_first=True,
-                                               is_last=len(self.user_meta(user)) == 1)
+                                               is_last=len(self.user_meta(user)) == 1,
+                                               annnotation_index=0)
 
     def next(self, label_id, user):
         if not label_id:
             raise ValueError("Empty annotation id")
 
         self.logger.info(f"Going forward from label id: {label_id}")
-        meta = self.user_meta(user)
-
+        meta = self.user_meta(user).sort_values(self.lbl_id_col).reset_index(drop=True)
         next_els = meta[meta[self.lbl_id_col] > label_id].sort_values(self.lbl_id_col)
-        return self.create_annotation_response(next_els.iloc[0], is_first=False, is_last=len(next_els) == 1)
+        nxt = next_els.iloc[0]
+        annnotation_index = int(meta[meta[self.lbl_id_col] == nxt[self.lbl_id_col]].index[0])
+        return self.create_annotation_response(nxt,
+                                               is_first=False,
+                                               is_last=len(next_els) == 1,
+                                               annnotation_index=annnotation_index)
 
     def previous(self, label_id, user):
         is_last = False
         self.logger.info(f"Going back from label id: {label_id}")
-        user_meta = self.user_meta(user)
+        user_meta = self.user_meta(user).sort_values(self.lbl_id_col).reset_index(drop=True)
         if label_id:
             previous = user_meta[user_meta[self.lbl_id_col] < label_id]
             is_first = len(previous) == 1
             if not len(previous):
                 raise ValueError("Reached the first labeled annotation")
-            previous = previous.sort_values(self.lbl_id_col).iloc[len(previous) - 1]
+            previous = previous.iloc[len(previous) - 1]
         else:
             is_last = True
             is_first = len(user_meta) == 1
-            previous = user_meta.sort_values(self.lbl_id_col).iloc[len(user_meta) - 1]
-        return self.create_annotation_response(previous, is_first=is_first, is_last=is_last)
+            previous = user_meta.iloc[len(user_meta) - 1]
+        annnotation_index = int(user_meta[user_meta[self.lbl_id_col] == previous[self.lbl_id_col]].index[0])
+        return self.create_annotation_response(previous,
+                                               is_first=is_first,
+                                               is_last=is_last,
+                                               annnotation_index=annnotation_index)
 
-    def create_annotation_response(self, annotation, is_first, is_last):
+    def create_annotation_response(self, annotation, is_first, is_last, annnotation_index):
         annotation = annotation.where((pd.notnull(annotation)), None).astype('object').to_dict()
         data_id = annotation['data_id']
         if annotation[self.lbl_col] is not None and annotation['status'] != META_STATUS_SKIPPED:
@@ -237,6 +257,7 @@ class LALHandler(object):
             "item": {"id": data_id,
                      "status": annotation['status'],
                      "labelId": int(annotation[self.lbl_id_col]),
+                     "labelIndex": annnotation_index + 1,
                      "data": self.classifier.get_item_by_id(data_id)}
         }
 

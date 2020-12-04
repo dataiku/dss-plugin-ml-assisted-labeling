@@ -1,4 +1,5 @@
 import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION, shortcut} from "../utils/utils.js";
+const splitter = new GraphemeSplitter();
 
 
 const TextArea = {
@@ -12,35 +13,44 @@ const TextArea = {
             }
         },
         selectedLabel: String,
+        prelabels: {
+            type: Array,
+            default: () => {
+                return [];
+            }
+        },
+        tokenSep: String,
+        textDirection: String
     },
     computed: {
         splittedText: function () {
-            return this.splitText(this.text);
+            return this.splitText(this.text, this.tokenSep);
         }
     },
     methods: {
-        splitText(txt, sep=' ') {
-            return txt.split(sep).map((x) => this.sanitizeWord(x, sep)).reduce((x, y) => x.concat(y));
+        splitText(txt, tokenSep=' ') {
+            const splitted_text = tokenSep === '' ? splitter.splitGraphemes(txt) : txt.split(tokenSep)
+            return splitted_text.map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
         },
-        sanitizeWord(word, sep=' ') {
-            const sanitizedWordList = [];
-            if (word.match(/^[a-zA-Z0-9]+$/i)) {
-                sanitizedWordList.push(word);
+        sanitizeToken(token) {
+            const sanitizedTokenList = [];
+            if (token.match(/^[\p{L}\p{N}]*$/gu)) {
+                sanitizedTokenList.push({token});
             } else {
-                let currentWord = '';
-                word.split('').forEach((letter) => {
-                    if (letter.match(/^[a-zA-Z0-9]+$/i)) {
-                        currentWord += letter;
+                let currentToken = '';
+                splitter.splitGraphemes(token).forEach((c) => {
+                    if (c.match(/^[\p{L}\p{N}]*$/gu)) {
+                        currentToken += c;
                     } else {
-                        currentWord && sanitizedWordList.push(currentWord);
-                        sanitizedWordList.push(letter);
-                        currentWord = '';
+                        currentToken && sanitizedTokenList.push({token: currentToken});
+                        sanitizedTokenList.push({token: c});
+                        currentToken = '';
                     }
                 })
-                if (currentWord) sanitizedWordList.push(currentWord);
+                if (currentToken) sanitizedTokenList.push({token: currentToken});
             }
-            sanitizedWordList[sanitizedWordList.length - 1] += sep;
-            return sanitizedWordList;
+            sanitizedTokenList[sanitizedTokenList.length - 1].sepAtEnd = true;
+            return sanitizedTokenList;
         },
         updateHighlightingColor(newColor) {
             this.highlightingStyleCreated && document.head.removeChild(document.head.lastChild);
@@ -52,38 +62,25 @@ const TextArea = {
         },
         addSelectionFromEntity(e) {
             const category = config.categories[e.label];
-            const selected = e.selected;
-            this.makeSelected(e.startId, e.endId, category, selected)
+            const newRange = document.createRange();
+            const startNode = document.getElementById(this.getTokenId(e.tokenStart));
+            const endNode = document.getElementById(this.getTokenId(e.tokenEnd));
+            newRange.setStartBefore(startNode);
+            newRange.setEndAfter(endNode);
+            this.makeSelected(newRange, category, e.selected, e.isPrelabel)
         },
-        addSelection(startId, endId) {
-            const category = config.categories[this.selectedLabel];
-            this.makeSelected(startId, endId, category, false)
+        getTextFromBoundaries(start, end) {
+            return this.text.slice(start, end)
         },
-        getTextFromWordIds(startId, endId) {
-            const wordIds = this.getSelectedWordsFromBoundaries(startId, endId);
-            const selectedWords = wordIds.map((x) => document.getElementById(x));
-            return selectedWords.map((x) => x.innerText).reduce((x, y) => x + y);
-        },
-        makeSelected(startId, endId, category, selected) {
-            const wordsIds = this.getSelectedWordsFromBoundaries(startId, endId);
-            const color = category ? category.color : UNDEFINED_COLOR;
-            const colorStrTransparent = this.colorToCSS(color, 0.25);
-            const colorStrOpaque = this.colorToCSS(color)
-
-            const caption = category ? category.caption : UNDEFINED_CAPTION;
-
-            const selectedWords = wordsIds.map((x) => document.getElementById(x));
-            const selectionWrapper = document.createElement('mark');
-            selectionWrapper.classList.add('selection-wrapper');
-            selected && selectionWrapper.classList.add('selected');
-            const selectionId = this.getSelectionId(startId, endId);
-            selectionWrapper.id = selectionId;
-            selectionWrapper.addEventListener('dblclick', () => {
+        handleDblClickOnSelection(selectionId) {
+            return () => {
                 const newEntities = this.entities.filter(
-                    (x) => selectionId !== this.getSelectionId(x.startId, x.endId));
+                    (x) => selectionId !== this.getSelectionId(x.tokenStart, x.tokenEnd));
                 this.$emit("update:entities", newEntities);
-            });
-            selectionWrapper.addEventListener('click', (mEvent) => {
+            }
+        },
+        handleClickOnSelection(selectionId) {
+            return (mEvent) => {
                 this.mapAndEmit((o) => {
                     if (selectionId === this.getSelectionId(o.startId, o.endId)) {
                         o.selected = !o.selected;
@@ -91,26 +88,52 @@ const TextArea = {
                         o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
                     }
                 })
-            });
-            selectionWrapper.style.background = colorStrTransparent
-            selectedWords[0].parentNode.insertBefore(selectionWrapper, selectedWords[0]);
-            selectedWords.forEach((x) => selectionWrapper.appendChild(x));
+            }
+        },
+        makeSelected(range, category, selected, isPrelabel) {
+            const textAreaNodes = range.startContainer.childNodes;
+            const [tokenStart, tokenEnd] = [textAreaNodes[range.startOffset], textAreaNodes[range.endOffset - 1]].map((t) => {
+                return this.parseTokenId(t).tokenIndex
+            })
+            const color = category ? category.color : UNDEFINED_COLOR;
+            const colorStrTransparent = this.colorToCSS(color, 0.25);
+            const colorStrOpaque = this.colorToCSS(color)
 
+            const caption = category ? category.caption : UNDEFINED_CAPTION;
+
+            const selectionWrapper = document.createElement('mark');
+            selectionWrapper.classList.add('selection-wrapper');
+            selected && selectionWrapper.classList.add('selected');
+            const selectionId = this.getSelectionId(tokenStart, tokenEnd);
+            selectionWrapper.id = selectionId;
+
+            selectionWrapper.addEventListener('dblclick', this.handleDblClickOnSelection(selectionId));
+            selectionWrapper.addEventListener('click', this.handleClickOnSelection(selectionId));
+
+            if (!isPrelabel) selectionWrapper.style.background = colorStrTransparent;
+            if (isPrelabel) selectionWrapper.style.border = `${selected ? 4 : 2}px solid ${colorStrOpaque}`
+            range.surroundContents(selectionWrapper);
+
+            // We place a caption at the end of the mark tag
             const captionSpan = document.createElement('span');
             captionSpan.classList.add('selected-caption');
             captionSpan.textContent = caption;
             captionSpan.style.color = colorStrOpaque
             selectionWrapper.appendChild(captionSpan);
 
+            selected && selectionWrapper.scrollIntoView();
         },
-        getLabeledText(startId, endId) {
+        getLabeledText(start, end, tokenStart, tokenEnd) {
             return {
                 label: this.selectedLabel,
-                text: this.getTextFromWordIds(startId, endId),
-                startId: startId,
-                endId: endId,
+                text: this.getTextFromBoundaries(start, end),
+                start: start,
+                end: end,
+                tokenStart: tokenStart,
+                tokenEnd: tokenEnd,
                 draft: false,
-                selected: false
+                selected: !this.selectedLabel,
+                isPrelabel: false
             }
         },
         addObjectToObjectList(newObject) {
@@ -119,24 +142,31 @@ const TextArea = {
         resetSelection() {
             const textarea = document.getElementById('textarea');
             textarea.innerHTML = "";
-            this.splittedText.forEach((word, index) => {
-                const newWord = document.createElement('span');
-                newWord.textContent = word;
-                newWord.classList.add('word');
-                newWord.id = this.getWordId(index);
-                textarea.appendChild(newWord)
+            let charCpt = 0;
+            this.splittedText.forEach((token, index) => {
+                const newToken = document.createElement('span');
+                newToken.textContent = token.token + (token.sepAtEnd ? this.tokenSep: '');
+                newToken.classList.add('token');
+                newToken.id = this.getTokenId(index);
+                newToken.setAttribute('data-start', charCpt);
+                newToken.setAttribute('data-end', (charCpt + splitter.splitGraphemes(token.token).length).toString());
+                charCpt += splitter.splitGraphemes(newToken.textContent).length;
+                textarea.appendChild(newToken)
             })
         },
         handleMouseUp() {
             const selection = document.getSelection();
-            if (selection.isCollapsed) return;
-            const focusWord = this.getWordIndex(selection.focusNode.parentElement.id);
-            const anchorWord = this.getWordIndex(selection.anchorNode.parentElement.id);
-            let startSelect, endSelect;
-            [startSelect, endSelect] = _.sortBy([anchorWord, focusWord]);
-            if (this.isLegitSelect(startSelect, endSelect)) {
-                this.addSelection(startSelect, endSelect);
-                this.addObjectToObjectList(this.getLabeledText(startSelect, endSelect));
+            if (selection.isCollapsed || selection.toString() === this.tokenSep) return;
+            const range = selection.getRangeAt(0);
+            let [startNode, endNode] = [range.startContainer, range.endContainer]
+            if (range.toString().startsWith(this.tokenSep)) {
+                startNode = startNode.parentElement.nextElementSibling.childNodes[0];
+            }
+            const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
+            const {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
+            if (isNaN(charStart) || isNaN(charEnd)) return;
+            if (this.isLegitSelect(tokenStart, tokenEnd)) {
+                this.addObjectToObjectList(this.getLabeledText(charStart, charEnd, tokenStart, tokenEnd));
             }
         },
         deleteAll() {
@@ -156,7 +186,7 @@ const TextArea = {
         },
         isLegitSelect(startId, endId) {
             return !this.entities || !this.entities.some((o) => {
-                return _.intersection(_.range(startId, endId + 1), _.range(o.startId, o.endId + 1)).length > 0;
+                return _.intersection(_.range(startId, endId + 1), _.range(o.tokenStart, o.tokenEnd + 1)).length > 0;
             })
         },
         colorToCSS(color, transparency=1) {
@@ -171,14 +201,43 @@ const TextArea = {
         emitUpdateEntities(newObjects) {
             this.$emit("update:entities", newObjects);
         },
-        getWordId(n) {
-            return `w_${n}`;
+        parseTokenId(node) {
+            const splittedId = node.id.split('_');
+            return {
+                tokenIndex: parseInt(splittedId[1]),
+                charStart: parseInt(node.dataset.start),
+                charEnd: parseInt(node.dataset.end)
+            }
         },
-        getWordIndex(wordId) {
-            return parseInt(wordId.split('_')[1]);
+        getTokenId(n) {
+            return `tok_${n}`;
         },
-        getSelectedWordsFromBoundaries(startId, endId) {
-            return _.range(startId, endId + 1).map(this.getWordId);
+        enrichPrelabels(entities) {
+            if (!entities.length) return;
+            const sortedEntities = _.sortBy(entities, ['start']);
+            let charCpt = 0;
+            let entityIndex = 0;
+            let tokenIndex = 0;
+            let token, entity;
+            while(entityIndex < entities.length) {
+                token = this.splittedText[tokenIndex];
+                entity = sortedEntities[entityIndex];
+                if (!entity.tokenStart && entity.start <= charCpt) {
+                    entity.tokenStart = tokenIndex;
+                }
+                if (entity.end <= charCpt + splitter.splitGraphemes(token.token).length) {
+                    entity.tokenEnd = tokenIndex;
+                    entity.isPrelabel = true;
+                    entityIndex += 1;
+                }
+                charCpt += splitter.splitGraphemes(token.token).length + (token.sepAtEnd ? this.tokenSep: '').length;
+                tokenIndex += 1
+            }
+        },
+        init_text() {
+            this.resetSelection();
+            this.enrichPrelabels(this.prelabels);
+            this.prelabels?.length && this.emitUpdateEntities(this.prelabels);
         }
     },
     watch: {
@@ -188,7 +247,7 @@ const TextArea = {
             this.updateHighlightingColor(this.colorToCSS(color, 0.5));
         },
         text: function(nv){
-            this.resetSelection();
+            this.init_text()
         },
         entities: {
             handler(nv) {
@@ -202,7 +261,7 @@ const TextArea = {
         }
     },
     mounted() {
-        this.resetSelection();
+        this.init_text()
         if (this.entities) {
             this.entities.map((e) => this.addSelectionFromEntity(e));
         }
@@ -220,12 +279,17 @@ const TextArea = {
     },
     // language=HTML
     template: `
-        <div clss="labeling-window">
-            <div class="textarea-wrapper" ref="wrapper" v-on:mouseup="handleMouseUp">
+        <div class="labeling-window">
+            <div v-bind:class="{
+            'textarea-wrapper': true,
+            'text-right': textDirection === 'rtl',
+            'text-left': textDirection === 'ltr'
+            }" ref="wrapper" v-on:mouseup="handleMouseUp"
+                 v-bind:dir="textDirection">
                 <div class="textarea" id="textarea"></div>
             </div>
             <div class="textarea__button-wrapper">
-                <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>&nbsp;Delete all</button>
+                <button @click="deleteAll()" class="main-area-element delete-all-btn"><i class="icon-trash"></i>&nbsp;Delete all</button>
             </div>
         </div>`
 };

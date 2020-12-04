@@ -19,6 +19,8 @@ class BaseClassifier(ABC):
         self.id_to_index = {}
         self.ordered_ids = list()
         self.df_to_label = self.get_df_to_label()
+        self.use_prelabeling = config.get('use_prelabeling', False)
+        self.prelabeling_strategy = 'classic'
 
         for index, row in self.df_to_label.iterrows():
             row_id = self.raw_row_to_id(row)
@@ -82,6 +84,9 @@ class BaseClassifier(ABC):
 
     def deserialize_label(self, label):
         return [label]
+
+    def add_prelabels(self, batch, user_meta):
+        pass
 
     @staticmethod
     @abstractmethod

@@ -62,13 +62,12 @@ let CategorySelector = {
         labelColor(label) {
             return this.categories[label] ? this.categories[label].color : UNDEFINED_COLOR;
         },
-        annotationClick(annotation) {
+        annotationClick(annotation, mEvent) {
+            const previouslySelected = annotation.selected;
             this.annotation.label.forEach(a => {
-                a.selected = false;
+                    a.selected = (mEvent.ctrlKey || mEvent.metaKey) && this.$root.type === 'text' ? a.selected : false;
             });
-
-            annotation.selected = !annotation.selected;
-            this.selectedLabel = annotation.label;
+            annotation.selected = !previouslySelected;
             this.$emit('input', [...this.annotation.label]);
         },
         remove(annotation, event) {
@@ -84,7 +83,9 @@ let CategorySelector = {
             this.$emit('selectedLabel', this.selectedLabel);
             this.annotation?.label?.forEach(a => {
                 if(a.selected){
+                    a.selected = !!a.label
                     a.label = lbl;
+                    a.isPrelabel = false;
                 }
             });
         },
@@ -235,13 +236,14 @@ let CategorySelector = {
                      class="category-selector__annotations-wrapper">
                     <div v-for="a in annotation.label.filter(e=>!e.draft)" class="annotation"
                          :class="{ selected: a.selected }"
-                         @click="annotationClick(a)">
+                         @click="annotationClick(a, $event)">
                         
                         <div class="annotation-thumb-container" v-if="type === 'image-object'" >
                             <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
                         </div>
                         <div class="text-annotation-thumb-container" v-if="type === 'text'" >
-                            <TextAnnotationThumb :data="a" :color="labelColor(a.label)"></TextAnnotationThumb>
+                            <TextAnnotationThumb :data="a" :color="labelColor(a.label)"
+                                                 :isPrelabel="a.isPrelabel"></TextAnnotationThumb>
                         </div>
                         
                         <div v-if="a.label && categories[a.label]">{{categories[a.label].caption}}</div>

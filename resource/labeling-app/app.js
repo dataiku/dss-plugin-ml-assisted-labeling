@@ -35,7 +35,6 @@ export default new Vue({
         type: undefined,
         isMultiLabel: undefined,
         annotation: undefined,
-        annotations: undefined,
         selectedLabel: undefined,
 
         isDone: false,
@@ -46,10 +45,13 @@ export default new Vue({
         isCurrentItemLabeled() {
             const annotation = this.annotation;
             if (this.isMultiLabel) {
-                return annotation?.label?.filter(e => e.label && config.categories[e.label]).length > 0;
+                return annotation?.label?.length > 0 && annotation?.label?.every((a => a.label && config.categories[a.label]));
             } else {
                 return annotation?.label?.length;
             }
+        },
+        countUserAnnotations() {
+            return this.stats.labeled + this.stats.skipped + 1
         },
         updateStatsAndProceedToNextItem: function (response) {
             this.stats = response.stats;
@@ -67,6 +69,7 @@ export default new Vue({
                     this.items.shift();
                 }
                 this.item = this.items[0];
+                this.item.labelIndex = this.countUserAnnotations()
             };
             if (!this.items || doRemoveHead && this.items.length === 1) {
                 const fetchBatchPromise = this.fetchBatch();
@@ -124,10 +127,61 @@ export default new Vue({
                                  :objects.sync="annotation.label"
                     />
                     <TextArea v-if="type === 'text'"
-                                 :text="item.data.raw[config.text_column]"
-                                 :selectedLabel="selectedLabel"
-                                 :entities.sync="annotation.label"
+                            :text="item.data.raw[config.text_column]"
+                            :selectedLabel="selectedLabel"
+                            :entities.sync="annotation.label"
+                            :prelabels="item.prelabels"
+                            :tokenSep="config.token_sep"
+                            :textDirection="config.text_direction"
                     />
+                    <v-popover :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
+                        <img src="../../resource/img/question-sign.png" alt="Shortcuts">
+                        <div slot="popover" style="text-align: left">
+                            <table class="shortcuts-table">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind"><i class="fas fa-arrow-right"></i></div>
+                                            /
+                                            <div class="keybind">Enter</div>
+                                        </td>
+                                        <td>Next</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind"><i class="fas fa-arrow-left"></i></div>
+                                        </td>
+                                        <td>Back</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind">Space bar</div>
+                                        </td>
+                                        <td>Skip</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind">⌘</div>
+                                            /
+                                            <div class="keybind">shift</div>
+                                            +
+                                            <div class="keybind">click</div>
+                                        <td>Multi-select</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind ng-binding">⌫</div>
+                                            /
+                                            <div class="keybind">␡</div>
+                                            /
+                                            <div class="keybind">dbl click</div>
+                                        </td>
+                                        <td>Delete</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </v-popover>
 
                 </div>
                 <div class="right-panel">
@@ -143,6 +197,9 @@ export default new Vue({
                                              :isLabeled="isCurrentItemLabeled()"
                                              :currentStatus="item.status"
                             />
+                            <div class="counter-container" v-if="stats">
+                                <span class="stat">Sample {{item.labelIndex}} / <span class=sample-counter>{{countUserAnnotations()}}</span></span>
+                            </div>
                         </div>
 
                         <div v-if="type != 'text'">
