@@ -93,17 +93,6 @@
     },
     {
       "type": "SELECT",
-      "name": "prelabeling_strategy",
-      "label": "Prelabeling strategy",
-      "selectChoices": [
-        { "value": "classic", "label": "Classic (Re-use labeled data)"}
-      ],
-      "visibilityCondition": "model.use_prelabeling",
-      "description": "Only supported strategies",
-      "defaultValue": "classic"
-    },
-    {
-      "type": "SELECT",
       "name": "text_direction",
       "label": "Text direction",
       "selectChoices": [

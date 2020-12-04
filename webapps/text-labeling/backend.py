@@ -66,11 +66,6 @@ def create_dku_config(config):
         required=True
     )
     dku_config.add_param(
-        name='prelabeling_strategy',
-        value=config.get('prelabeling_strategy') or get_local_var('prelabeling_strategy'),
-        required=True
-    )
-    dku_config.add_param(
         name='text_direction',
         value=config.get('text_direction') or get_local_var('text_direction'),
         checks=[{
