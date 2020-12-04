@@ -156,9 +156,12 @@ const TextArea = {
         },
         handleMouseUp() {
             const selection = document.getSelection();
-            if (selection.isCollapsed) return;
+            if (selection.isCollapsed || selection.toString() === this.tokenSep) return;
             const range = selection.getRangeAt(0);
-            const [startNode, endNode] = [range.startContainer, range.endContainer]
+            let [startNode, endNode] = [range.startContainer, range.endContainer]
+            if (range.toString().startsWith(this.tokenSep)) {
+                startNode = startNode.parentElement.nextElementSibling.childNodes[0];
+            }
             const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
             const {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
             if (isNaN(charStart) || isNaN(charEnd)) return;
