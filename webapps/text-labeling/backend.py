@@ -65,7 +65,6 @@ def create_dku_config(config):
 
 config = get_webapp_config()
 dku_config = create_dku_config(config)
-print(dku_config['unlabeled'])
 prepare_datasets(dku_config)
 initial_df = dataiku.Dataset(config["unlabeled"]).get_dataframe()
 queries_df = None
