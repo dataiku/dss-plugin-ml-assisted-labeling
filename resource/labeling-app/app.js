@@ -45,7 +45,7 @@ export default new Vue({
         isCurrentItemLabeled() {
             const annotation = this.annotation;
             if (this.isMultiLabel) {
-                return annotation?.label?.every((a => a.label && config.categories[a.label])) && annotation?.label?.length > 0;
+                return annotation?.label?.length > 0 && annotation?.label?.every((a => a.label && config.categories[a.label]));
             } else {
                 return annotation?.label?.length;
             }
