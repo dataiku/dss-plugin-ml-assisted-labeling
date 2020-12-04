@@ -1,4 +1,4 @@
-import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION} from "../utils/utils.js";
+import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION, shortcut} from "../utils/utils.js";
 
 
 const TextArea = {
@@ -88,7 +88,7 @@ const TextArea = {
                     if (selectionId === this.getSelectionId(o.startId, o.endId)) {
                         o.selected = !o.selected;
                     } else {
-                        o.selected = (mEvent.ctrlKey || mEvent.metaKey) ? o.selected : false;
+                        o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
                     }
                 })
             });
@@ -141,6 +141,9 @@ const TextArea = {
         },
         deleteAll() {
             this.emitUpdateEntities([]);
+        },
+        deleteSelected() {
+            this.emitUpdateEntities(this.entities.filter(e => !e.selected))
         },
         deselectAll() {
             if (!this.entities) return;
@@ -205,8 +208,15 @@ const TextArea = {
         }
         this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR, 0.5));
         document.getElementById('textarea').addEventListener('click', (mEvent) => {
-            !(mEvent.ctrlKey || mEvent.metaKey) && this.deselectAll();
+            !shortcut(mEvent)('multi-selection') && this.deselectAll();
         }, true);
+
+        window.addEventListener('keyup', (event) => {
+            if (shortcut(event)('delete')) {
+                this.deleteSelected();
+            }
+        });
+
     },
     // language=HTML
     template: `

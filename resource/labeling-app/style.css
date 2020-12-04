@@ -146,6 +146,11 @@ canvas {
     font-size: 117px;
 }
 
+.no-label-or {
+    margin: auto 0;
+    font-weight: bold;
+}
+
 .circle {
     background-color: #f9f9f9; /*No equivalent in variable list*/
     width: 95px;
@@ -254,11 +259,15 @@ audio {
 }
 
 .right-panel .section {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 24px;
+    padding-right: 24px;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--border-color);
     margin-bottom: 10px;
+}
+
+.right-panel-top {
+    background: #f8f8f8;
+    margin-bottom: 0 !important;
 }
 
 .right-panel-top .right-panel-button > i {
@@ -318,6 +327,10 @@ audio {
     text-align: center;
 }
 
+.category-key {
+    margin-left: auto !important;
+}
+
 .tabular-sample {
     text-align: left;
     display: flex;
@@ -367,7 +380,7 @@ audio {
 
 .textarea-wrapper {
     text-align: left;
-    font-size: x-large;
+    font-size: 20px;
     background-color: var(--white);
     flex: 1;
     display: flex;
@@ -375,17 +388,16 @@ audio {
     width: 50vw;
     min-height: 10vh;
     max-height: 85vh;
-    box-shadow: 1px 1px 5px #ddd;
+    box-shadow: 0 9px 12px 1px rgba(0, 0, 0, 0.14), 0 3px 16px 2px rgba(0, 0, 0, 0.12), 0 5px 6px rgba(0, 0, 0, 0.2);
     position: relative;
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .textarea {
     width: 100%;
     overflow: scroll;
-    padding: 20px;
-    line-height: 3;
+    padding: 24px;
+    line-height: 34px;
     white-space: pre-wrap;
 }
 
@@ -401,7 +413,7 @@ audio {
     margin: 0 0.15em;
     display: inline;
     padding: 0.25em 0.4em;
-    line-height: 3;
+    line-height: 34px;
     border-radius: 5px;
     user-select: none;
 }
@@ -413,15 +425,17 @@ audio {
     text-transform: uppercase;
     vertical-align: middle;
 }
-
 .text-annotation-thumb {
     padding: 8px;
     cursor: help;
     border-radius: 5px;
 }
 
+
+
 mark.selected {
-    border: 2px solid rgba(0,0,0,0.25);
+    box-shadow: inset 0 0 1px 3px rgba(0,0,0,0.2);
+
 }
 
 /* Text labeling :: End */
@@ -447,8 +461,9 @@ mark.selected {
     width: 20px;
     height: 20px;
     box-sizing: border-box;
-    margin-right: 30px;
     border: 2px solid;
+    border-radius: 100%;
+    margin-right: 10px;
 }
 
 .right-panel-button .keybind {
@@ -473,18 +488,20 @@ mark.selected {
 .category-button {
     position: relative;
     overflow: hidden;
-    width: 176px;
+    width: 170px;
     text-align: center;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: left;
     margin-bottom: 15px;
     cursor: pointer;
+    text-transform: none;
+    font-weight: normal;
 }
 
 .right-panel-button {
     display: flex;
-    justify-content: space-between;
+    justify-content: left;
     align-items: center;
     border-radius: 3px;
     padding: 5px;
@@ -500,13 +517,20 @@ mark.selected {
 
 .annotation {
     height: 60px;
-    padding: 15px;
+    padding: 24px;
     display: flex;
     align-content: center;
-    justify-content: space-between;
+    justify-content: left;
     cursor: pointer;
     align-items: center;
     border-bottom: 2px solid var(--border-color);
+}
+
+.annotation i {
+    margin-left: auto;
+}
+.annotation i:hover {
+    color: var(--error-red);
 }
 
 .annotation.selected,
@@ -530,8 +554,9 @@ mark.selected {
     height: 100%;
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
+    margin-right: 20px;
 }
 
 .canvas__button-wrapper button {
@@ -581,6 +606,11 @@ mark.selected {
     flex: 1;
     display: flex;
     flex-direction: column;
+}
+
+.category-selector__image-object-wrapper .section {
+    border-bottom: solid 2px var(--border-color);
+    background: #f8f8f8;
 }
 
 .category-selector__annotations-wrapper {
@@ -876,4 +906,16 @@ select {
     border-radius: 10px;
     font-size: 20px;
     padding: 10px 20px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(34, 34, 34, 0.4);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 5px;
+    height: 7px;
 }

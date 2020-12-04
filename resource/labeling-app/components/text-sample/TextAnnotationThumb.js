@@ -33,8 +33,7 @@ let TextAnnotationThumb = {
     template: `
         <div @mouseover="hover = true" @mouseleave="hover = false" class="annotation-thumb-wrapper">
             <span v-bind:style="{
-                background: colorStr(color, 0.3),
-                color: colorStr(color, 1)
+                background: colorStr(color, 0.3)
                 }" class="text-annotation-thumb">{{ hover ? this.data.text : thumbTxt }}</span>
         </div>    `
 };
