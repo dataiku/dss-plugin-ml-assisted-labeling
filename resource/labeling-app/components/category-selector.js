@@ -63,11 +63,11 @@ let CategorySelector = {
             return this.categories[label] ? this.categories[label].color : UNDEFINED_COLOR;
         },
         annotationClick(annotation, mEvent) {
-            const legacySelected = annotation.selected;
+            const previouslySelected = annotation.selected;
             this.annotation.label.forEach(a => {
                     a.selected = (mEvent.ctrlKey || mEvent.metaKey) && this.$root.type === 'text' ? a.selected : false;
             });
-            annotation.selected = !legacySelected;
+            annotation.selected = !previouslySelected;
             this.$emit('input', [...this.annotation.label]);
         },
         remove(annotation, event) {
