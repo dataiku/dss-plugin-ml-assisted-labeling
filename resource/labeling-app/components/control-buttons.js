@@ -128,7 +128,7 @@ export let ControlButtons = {
         </div>
     </v-popover>
     <v-popover :trigger="'hover'" :placement="'bottom'">
-        <button class="right-panel-button" @click="next()" :disabled="!currentStatus && !isLabeled"><span>{{isSaveRequired() ? 'save & next' : 'next'}}</span><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
+        <button class="right-panel-button" @click="next()" :disabled="!isLabeled && currentStatus !== 'SKIPPED'"><span>{{isSaveRequired() ? 'save & next' : 'next'}}</span><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
         <div slot="popover">
             Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Enter</code>
         </div>

@@ -1,4 +1,5 @@
 import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION, shortcut} from "../utils/utils.js";
+const splitter = new GraphemeSplitter();
 
 
 const TextArea = {
@@ -28,7 +29,8 @@ const TextArea = {
     },
     methods: {
         splitText(txt, tokenSep=' ') {
-            return txt.split(tokenSep).map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
+            const splitted_text = tokenSep === '' ? splitter.splitGraphemes(txt) : txt.split(tokenSep)
+            return splitted_text.map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
         },
         sanitizeToken(token) {
             const sanitizedTokenList = [];
@@ -36,7 +38,7 @@ const TextArea = {
                 sanitizedTokenList.push({token});
             } else {
                 let currentToken = '';
-                token.split('').forEach((c) => {
+                splitter.splitGraphemes(token).forEach((c) => {
                     if (c.match(/^[\p{L}\p{N}]*$/gu)) {
                         currentToken += c;
                     } else {
@@ -147,8 +149,8 @@ const TextArea = {
                 newToken.classList.add('token');
                 newToken.id = this.getTokenId(index);
                 newToken.setAttribute('data-start', charCpt);
-                newToken.setAttribute('data-end', (charCpt + token.token.length).toString());
-                charCpt += newToken.textContent.length;
+                newToken.setAttribute('data-end', (charCpt + splitter.splitGraphemes(token.token).length).toString());
+                charCpt += splitter.splitGraphemes(newToken.textContent).length;
                 textarea.appendChild(newToken)
             })
         },
@@ -213,18 +215,19 @@ const TextArea = {
             let charCpt = 0;
             let entityIndex = 0;
             let tokenIndex = 0;
-            let token;
+            let token, entity;
             while(entityIndex < entities.length) {
                 token = this.splittedText[tokenIndex];
-                if (sortedEntities[entityIndex].start <= charCpt) {
-                    sortedEntities[entityIndex].tokenStart = tokenIndex;
+                entity = sortedEntities[entityIndex];
+                if (!entity.tokenStart && entity.start <= charCpt) {
+                    entity.tokenStart = tokenIndex;
                 }
-                if (sortedEntities[entityIndex].end <= charCpt + token.token.length) {
-                    sortedEntities[entityIndex].tokenEnd = tokenIndex;
-                    sortedEntities[entityIndex].isPrelabel = true;
+                if (entity.end <= charCpt + splitter.splitGraphemes(token.token).length) {
+                    entity.tokenEnd = tokenIndex;
+                    entity.isPrelabel = true;
                     entityIndex += 1;
                 }
-                charCpt += (token.token + (token.sepAtEnd ? this.tokenSep: '')).length;
+                charCpt += splitter.splitGraphemes(token.token).length + (token.sepAtEnd ? this.tokenSep: '').length;
                 tokenIndex += 1
             }
         },
