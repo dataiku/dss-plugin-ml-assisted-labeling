@@ -124,13 +124,13 @@ export let ControlButtons = {
     <v-popover :trigger="'hover'" :placement="'bottom'">
         <button class="right-panel-button skip-button" @click="skip()"><span>skip</span></button>
         <div slot="popover">
-            Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Space</code>
+            Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Tab</code>
         </div>
     </v-popover>
     <v-popover :trigger="'hover'" :placement="'bottom'">
         <button class="right-panel-button" @click="next()" :disabled="!currentStatus && !isLabeled"><span>{{isSaveRequired() ? 'save & next' : 'next'}}</span><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
         <div slot="popover">
-            Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Enter</code>
+            Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Space</code>
         </div>
     </v-popover>
     <button class="right-panel-button" :disabled="!$root.item.labelId" @click="unlabeled()" style="margin-right: 0"><i class="fas fa-step-forward"></i></button></div>
