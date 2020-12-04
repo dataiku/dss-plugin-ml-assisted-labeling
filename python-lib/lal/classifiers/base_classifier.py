@@ -85,6 +85,9 @@ class BaseClassifier(ABC):
     def deserialize_label(self, label):
         return [label]
 
+    def add_prelabels(self, batch, user_meta):
+        pass
+
     @staticmethod
     @abstractmethod
     def raw_row_to_id(raw):
@@ -109,10 +112,6 @@ class BaseClassifier(ABC):
     @staticmethod
     def prepare_data_for_saving(self, obj):
         return obj
-
-    @staticmethod
-    def add_prelabels(batch, user_meta):
-        pass
 
 
 class FolderBasedDataClassifier(BaseClassifier, ABC):
