@@ -111,7 +111,7 @@ const TextArea = {
             selectionWrapper.addEventListener('click', this.handleClickOnSelection(selectionId));
 
             if (!isPrelabel) selectionWrapper.style.background = colorStrTransparent;
-            if (isPrelabel) selectionWrapper.style.border = `${selected ? 4 : 2}px solid ${colorStrOpaque}`
+            if (isPrelabel) selectionWrapper.style.border = `2px solid ${colorStrOpaque}`
             range.surroundContents(selectionWrapper);
 
             // We place a caption at the end of the mark tag
