@@ -3,6 +3,7 @@ import logging
 
 import pandas as pd
 import re
+import emoji
 
 WHITESPACE_TOKEN_ENGINE = 'white_space'
 CHARACTER_TOKEN_ENGINE = 'char'
@@ -75,12 +76,13 @@ class TextClassifier(TableBasedDataClassifier):
             return prelabels
         regexp = '({})'.format('|'.join(list(history.keys())))
         regexp = ('\\b{}\\b' if self.token_engine == WHITESPACE_TOKEN_ENGINE else '{}').format(regexp)
+        emojis = list(re.finditer(emoji.get_emoji_regexp(), text))
         for match in re.finditer(regexp, text, re.IGNORECASE):
             prelabels.append({
                 "text": match.group(),
                 "label": history[match.group().lower()]['label'],
-                "start": match.start(),
-                "end": match.end()
+                "start": match.start() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.start()]),
+                "end": match.end() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.end()])
             })
         prelabels.sort(key=(lambda x: x["start"]))
         self.logger.debug(f"Prelabels : {prelabels}")

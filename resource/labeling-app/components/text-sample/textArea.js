@@ -1,4 +1,5 @@
 import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION} from "../utils/utils.js";
+const splitter = new GraphemeSplitter();
 
 
 const TextArea = {
@@ -28,12 +29,10 @@ const TextArea = {
     },
     methods: {
         splitText(txt, tokenSep=' ') {
-            const splitter = new GraphemeSplitter();
             const splitted_text = tokenSep === '' ? splitter.splitGraphemes(txt) : txt.split(tokenSep)
             return splitted_text.map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
         },
         sanitizeToken(token) {
-            const splitter = new GraphemeSplitter();
             const sanitizedTokenList = [];
             if (token.match(/^[\p{L}\p{N}]*$/gu)) {
                 sanitizedTokenList.push({token});
@@ -150,8 +149,8 @@ const TextArea = {
                 newToken.classList.add('token');
                 newToken.id = this.getTokenId(index);
                 newToken.setAttribute('data-start', charCpt);
-                newToken.setAttribute('data-end', (charCpt + token.token.length).toString());
-                charCpt += newToken.textContent.length;
+                newToken.setAttribute('data-end', (charCpt + splitter.splitGraphemes(token.token).length).toString());
+                charCpt += splitter.splitGraphemes(newToken.textContent).length;
                 textarea.appendChild(newToken)
             })
         },
@@ -220,12 +219,12 @@ const TextArea = {
                 if (!entity.tokenStart && entity.start <= charCpt) {
                     entity.tokenStart = tokenIndex;
                 }
-                if (entity.end <= charCpt + token.token.length) {
+                if (entity.end <= charCpt + splitter.splitGraphemes(token.token).length) {
                     entity.tokenEnd = tokenIndex;
                     entity.isPrelabel = true;
                     entityIndex += 1;
                 }
-                charCpt += (token.token + (token.sepAtEnd ? this.tokenSep: '')).length;
+                charCpt += splitter.splitGraphemes(token.token).length + (token.sepAtEnd ? this.tokenSep: '').length;
                 tokenIndex += 1
             }
         },
