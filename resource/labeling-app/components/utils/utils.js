@@ -1,7 +1,7 @@
 import {DKUApi} from "../../dku-api.js";
 
-export const UNDEFINED_COLOR = [220, 220, 220];
-export const UNDEFINED_CAPTION = 'missing';
+export const UNDEFINED_COLOR = [102, 102, 102];
+export const UNDEFINED_CAPTION = 'missing ?';
 const EMPTY_KEY = "no_key"  // Must be changed on back as well
 
 function hexToRgb(hex) {
@@ -82,6 +82,19 @@ export function loadConfig() {
         savePerIterationConfig(data)
         return config;
     });
+}
+
+export function shortcut(event) {
+    const shortcuts = {
+        'multi-selection': [event.ctrlKey, event.metaKey, event.shiftKey],
+        'delete': [event.key === "Delete", event.key === "Backspace"],
+        'back': [event.code === 'ArrowLeft'],
+        'next': [event.code === 'ArrowRight', event.code === 'Space'],
+        'skip': [event.code === 'Tab']
+    }
+    return (action) => {
+        return shortcuts[action].some(x => x);
+    }
 }
 
 

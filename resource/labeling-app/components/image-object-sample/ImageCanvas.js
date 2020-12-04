@@ -1,6 +1,6 @@
 /*global fabric*/
 
-import {config, UNDEFINED_COLOR} from "../utils/utils.js";
+import {config, UNDEFINED_COLOR, shortcut} from "../utils/utils.js";
 
 const STROKE_WIDTH = 3;
 
@@ -364,7 +364,7 @@ const ImageCanvas = {
         });
 
         window.addEventListener('keyup', (event) => {
-            if (event.key === "Delete" || event.key === "Backspace") {
+            if (shortcut(event)('delete')) {
                 let selection = this.canvas.getActiveObject();
 
                 if (selection.type === 'activeSelection') {
