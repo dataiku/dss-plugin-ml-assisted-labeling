@@ -1,6 +1,7 @@
 import {DKUApi} from "../../dku-api.js";
 
 export const UNDEFINED_COLOR = [220, 220, 220];
+export const UNDEFINED_CAPTION = 'missing';
 const EMPTY_KEY = "no_key"  // Must be changed on back as well
 
 function hexToRgb(hex) {
@@ -63,6 +64,10 @@ export function loadConfig() {
         let localCategories = data.local_categories || [];
         let allCategories = webAppConfig.categories || [];
         allCategories = allCategories.concat(localCategories);
+
+        for (const [key, value] of Object.entries(data.classifier_config || [])) {
+            webAppConfig[key] = value
+        }
 
         if (allCategories) {
             allCategories.forEach((el, idx) => {

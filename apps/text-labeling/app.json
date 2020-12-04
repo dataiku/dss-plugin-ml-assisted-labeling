@@ -1,0 +1,8 @@
+{
+    "meta": {
+        "label": "Text labeling - ML Assisted Labeling",
+        "description": "",
+        "icon": "icon-puzzle-piece"
+    },
+    "appImageFilename": "img/font.png"
+}

@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "label": "Text labeling",
+    "description": "Manually classify text from a dataset for use in supervised learning",
+    "icon": "icon-font"
+  },
+  "baseType": "STANDARD",
+  "enableJavascriptModules": "true",
+  "hasBackend": "true",
+  "noJSSecurity": "true",
+  "standardWebAppLibraries": [
+    "jquery",
+    "dataiku",
+    "bootstrap",
+    "font_awesome"
+  ],
+  "params": [
+    {
+      "type": "SEPARATOR",
+      "name": "Input",
+      "label": "Input"
+    },
+    {
+      "type": "DATASET",
+      "name": "unlabeled",
+      "label": "Unlabeled dataset",
+      "description": "Dataset containing data to label",
+      "mandatory": true,
+      "canSelectForeign": true,
+      "canCreateDataset": false
+    },
+    {
+      "type": "DATASET_COLUMN",
+      "datasetParamName": "unlabeled",
+      "name": "text_column",
+      "label": "Text column",
+      "description": "Column containing the text to label",
+      "mandatory": true,
+      "canSelectForeign": true,
+      "canCreateDataset": false
+    },
+    {
+      "name": "categories",
+      "type": "KEY_VALUE_LIST",
+      "label": "Categories",
+      "description": "Category name → optional description",
+      "mandatory": true
+    },
+    {
+      "type": "SEPARATOR",
+      "name": "Output",
+      "label": " Output"
+    },
+    {
+      "type": "DATASET",
+      "name": "labels_ds",
+      "label": "Labels dataset",
+      "description": "Dataset to save the labels into",
+      "mandatory": false,
+      "canSelectForeign": false,
+      "canCreateDataset": true,
+      "markCreatedAsBuilt": true
+    },
+    {
+      "type": "DATASET",
+      "name": "metadata_ds",
+      "label": "Labeling metadata dataset",
+      "description": "Contains additional information such as annotator and timestamps for each labeling",
+      "mandatory": true,
+      "canSelectForeign": true,
+      "canCreateDataset": true,
+      "markCreatedAsBuilt": true
+    },
+    {
+      "name": "label_col_name",
+      "type": "STRING",
+      "label": "Labels target column name",
+      "defaultValue": "label",
+      "description": "Name of the label column in the Labels dataset",
+      "mandatory": true
+    }
+  ]
+}
