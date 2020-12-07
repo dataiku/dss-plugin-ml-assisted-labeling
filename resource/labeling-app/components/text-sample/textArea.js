@@ -25,9 +25,6 @@ const TextArea = {
     computed: {
         splittedText: function () {
             return this.splitText(this.text, this.tokenSep);
-        },
-        isFirefox: function () {
-            return navigator.userAgent.indexOf("Firefox") > -1;
         }
     },
     methods: {
