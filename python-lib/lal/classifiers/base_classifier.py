@@ -20,7 +20,7 @@ class BaseClassifier(ABC):
         self.ordered_ids = list()
         self.df_to_label = self.get_df_to_label()
         self.use_prelabeling = config.get('use_prelabeling', False)
-        self.prelabeling_strategy = config.get('prelabeling_strategy', None)
+        self.prelabeling_strategy = 'classic'
 
         for index, row in self.df_to_label.iterrows():
             row_id = self.raw_row_to_id(row)
@@ -85,6 +85,9 @@ class BaseClassifier(ABC):
     def deserialize_label(self, label):
         return [label]
 
+    def add_prelabels(self, batch, user_meta):
+        pass
+
     @staticmethod
     @abstractmethod
     def raw_row_to_id(raw):
@@ -109,10 +112,6 @@ class BaseClassifier(ABC):
     @staticmethod
     def prepare_data_for_saving(self, obj):
         return obj
-
-    @staticmethod
-    def add_prelabels(batch, user_meta):
-        pass
 
 
 class FolderBasedDataClassifier(BaseClassifier, ABC):

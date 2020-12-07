@@ -62,17 +62,17 @@ let CategorySelector = {
         labelColor(label) {
             return this.categories[label] ? this.categories[label].color : UNDEFINED_COLOR;
         },
-        annotationClick(annotation) {
+        annotationClick(annotation, mEvent) {
+            const previouslySelected = annotation.selected;
             this.annotation.label.forEach(a => {
-                a.selected = false;
+                    a.selected = (mEvent.ctrlKey || mEvent.metaKey) && this.$root.type === 'text' ? a.selected : false;
             });
-
-            annotation.selected = !annotation.selected;
-            this.selectedLabel = annotation.label;
+            annotation.selected = !previouslySelected;
             this.$emit('input', [...this.annotation.label]);
         },
-        remove(annotation) {
+        remove(annotation, event) {
             this.annotation.label.splice(this.annotation.label.indexOf(annotation), 1);
+            event.stopPropagation();
         },
         color: function (label, opacity) {
             const rgb = label.color;
@@ -176,7 +176,7 @@ let CategorySelector = {
                         <span style="  font-size: 10px; color: var(--grey-lighten-3);">Select category to apply</span>
                     </div>
                     <div class="categories-container">
-                        <div v-for="(lbl,key) in categories" class="right-panel-button category-button"
+                        <button v-for="(lbl,key) in categories" class="right-panel-button category-button"
                              :class="{ 'active': selectedLabel === key }"
                              @click="categoryClick(key)">
                             <div :style="{ backgroundColor: color(lbl, 0.3), borderColor: color(lbl, 0.3) }"
@@ -186,12 +186,12 @@ let CategorySelector = {
                                 <div>{{lbl.caption}}</div>
                             </div>
                             <code v-if="catToKeyMapping.hasOwnProperty(key)"
-                                  class="keybind">{{catToKeyMapping[key]}}</code>
+                                  class="keybind category-key">{{catToKeyMapping[key]}}</code>
                             <div class="progress-background"
                                 v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
                                 <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
                             </div>
-                        </div>
+                        </button>
                     </div>
                 </div>
                 <div class="empty-annotations-placeholder" v-if="!annotation?.label?.filter(e=>!e.draft).length || !Object.keys(categories).length">
@@ -204,10 +204,22 @@ let CategorySelector = {
                         <i v-if="status === 'SKIPPED'" class="fas fa-forward skipped"></i>
                         <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
                     </div>
-                    <div v-else-if="type === 'image-object'">
-                        <div v-if="status !== 'SKIPPED'" class="circle"></div>
+                    <div v-else style="width: 100%;">
                         <h2 v-if="status !== 'SKIPPED'">No labels yet</h2>
-                        <p>Select a label and draw a box around the target.</p>
+                        <p v-if="isMultiLabel" style="margin: auto;">Select a category by ...</p>
+                        <div class="circles-container">
+                            <div style="max-width: 110px;">
+                                <div class="circle cat-example"></div>
+                                <span>Clicking on the categories buttons</span>
+                            </div>
+                            <span class="no-label-or">or</span>
+                            <div style="max-width: 110px;">
+                                <div class="circle shortcut-example"></div>
+                                <span>Using keyboard shortcuts</span>
+                            </div>
+                        </div>
+                        <p v-if="type === 'image-object'" style="margin: auto;">... then draw a box around the target</p>
+                        <p v-if="type === 'text'" style="margin: auto;">... then select a word or a group of words</p>
                     </div>
                     <div v-else-if="type === 'text'">
                         <div v-if="status !== 'SKIPPED'" class="circle"></div>
@@ -224,7 +236,7 @@ let CategorySelector = {
                      class="category-selector__annotations-wrapper">
                     <div v-for="a in annotation.label.filter(e=>!e.draft)" class="annotation"
                          :class="{ selected: a.selected }"
-                         @click="annotationClick(a)">
+                         @click="annotationClick(a, $event)">
                         
                         <div class="annotation-thumb-container" v-if="type === 'image-object'" >
                             <AnnotationThumb :data="a" :color="labelColor(a.label)"></AnnotationThumb>
@@ -234,9 +246,9 @@ let CategorySelector = {
                                                  :isPrelabel="a.isPrelabel"></TextAnnotationThumb>
                         </div>
                         
-                        <div v-if="!a.label">Assign a category</div>
-                        <div v-if="a.label">{{categories[a.label].caption}}</div>
-                        <i @click="remove(a)" class="icon-trash"/>
+                        <div v-if="a.label && categories[a.label]">{{categories[a.label].caption}}</div>
+                        <div v-else style="color: var(--grey-lighten-3);">Assign a category</div>
+                        <i @click="remove(a, $event)" class="icon-trash"/>
                     </div>
 
                 </div>
@@ -268,7 +280,7 @@ let CategorySelector = {
             </div>
 
             <textarea name="" id="" cols="60" rows="2" placeholder="Comments..." :disabled="!enabled"
-                      ref="comments"
+                      ref="comments" style="min-height:70px"
                       v-model="annotation.comment" @keyup.stop v-autoexpand class="comments"></textarea>
         </div>`,
 };

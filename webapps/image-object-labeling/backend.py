@@ -10,7 +10,7 @@ config = get_webapp_config()
 labels_schema = [
     {"name": "path", "type": "string"}
 ]
-prepare_datasets(labels_schema)
+prepare_datasets(config, labels_schema)
 
 unlabeled_mf = dataiku.Folder(config["unlabeled"])
 

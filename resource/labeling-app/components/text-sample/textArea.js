@@ -1,5 +1,5 @@
-import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION} from "../utils/utils.js";
-import { PUNCTUATION_REGEX } from "./punctuation.js"
+import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION, shortcut} from "../utils/utils.js";
+const splitter = new GraphemeSplitter();
 
 
 const TextArea = {
@@ -13,17 +13,18 @@ const TextArea = {
             }
         },
         selectedLabel: String,
-        classifierConfig: Object,
         prelabels: {
             type: Array,
             default: () => {
                 return [];
             }
         },
+        tokenSep: String,
+        textDirection: String
     },
     computed: {
         splittedText: function () {
-            return this.splitText(this.text, this.classifierConfig.tokenSep);
+            return this.splitText(this.text, this.tokenSep);
         },
         isFirefox: function () {
             return navigator.userAgent.indexOf("Firefox") > -1;
@@ -31,16 +32,17 @@ const TextArea = {
     },
     methods: {
         splitText(txt, tokenSep=' ') {
-            return txt.split(tokenSep).map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
+            const splitted_text = tokenSep === '' ? splitter.splitGraphemes(txt) : txt.split(tokenSep)
+            return splitted_text.map((x) => this.sanitizeToken(x, tokenSep)).reduce((x, y) => x.concat(y));
         },
         sanitizeToken(token) {
             const sanitizedTokenList = [];
-            if (!token.match(PUNCTUATION_REGEX)) {
+            if (token.match(/^[\p{L}\p{N}]*$/gu)) {
                 sanitizedTokenList.push({token});
             } else {
                 let currentToken = '';
-                token.split('').forEach((c) => {
-                    if (!c.match(PUNCTUATION_REGEX)) {
+                splitter.splitGraphemes(token).forEach((c) => {
+                    if (c.match(/^[\p{L}\p{N}]*$/gu)) {
                         currentToken += c;
                     } else {
                         currentToken && sanitizedTokenList.push({token: currentToken});
@@ -89,7 +91,7 @@ const TextArea = {
                         if (selectionId === this.getSelectionId(o.tokenStart, o.tokenEnd)) {
                             o.selected = !o.selected;
                         } else {
-                            o.selected = (mEvent.ctrlKey || mEvent.metaKey) ? o.selected : false;
+                            o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
                         }
                     })
                 }
@@ -126,6 +128,7 @@ const TextArea = {
             captionSpan.style.color = colorStrOpaque
             selectionWrapper.appendChild(captionSpan);
 
+            selected && selectionWrapper.scrollIntoView();
         },
         getLabeledText(start, end, tokenStart, tokenEnd) {
             return {
@@ -164,12 +167,12 @@ const TextArea = {
             let charCpt = 0;
             this.splittedText.forEach((token, index) => {
                 const newToken = document.createElement('span');
-                newToken.textContent = token.token + (token.sepAtEnd ? this.classifierConfig.tokenSep: '');
+                newToken.textContent = token.token + (token.sepAtEnd ? this.tokenSep: '');
                 newToken.classList.add('token');
                 newToken.id = this.getTokenId(index);
                 newToken.setAttribute('data-start', charCpt);
-                newToken.setAttribute('data-end', (charCpt + token.token.length).toString());
-                charCpt += newToken.textContent.length;
+                newToken.setAttribute('data-end', (charCpt + splitter.splitGraphemes(token.token).length).toString());
+                charCpt += splitter.splitGraphemes(newToken.textContent).length;
                 this.addTokenEventListeners(newToken);
                 textarea.appendChild(newToken)
             })
@@ -177,18 +180,24 @@ const TextArea = {
         handleMouseUp(ev) {
             console.log(ev);
             const selection = document.getSelection();
-            if (selection.isCollapsed) return;
+            if (selection.isCollapsed || selection.toString() === this.tokenSep) return;
             const range = selection.getRangeAt(selection.rangeCount - 1);
-            // const startNode = range.startContainer.length === range.startOffset ?
-            const [startNode, endNode] = [range.startContainer, range.endContainer];
+            let [startNode, endNode] = [range.startContainer, range.endContainer]
+            if (range.toString().startsWith(this.tokenSep)) {
+                startNode = startNode.parentElement.nextElementSibling.childNodes[0];
+            }
             const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
             const {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
+            if (isNaN(charStart) || isNaN(charEnd)) return;
             if (this.isLegitSelect(tokenStart, tokenEnd)) {
                 this.addObjectToObjectList(this.getLabeledText(charStart, charEnd, tokenStart, tokenEnd));
             }
         },
         deleteAll() {
             this.emitUpdateEntities([]);
+        },
+        deleteSelected() {
+            this.emitUpdateEntities(this.entities.filter(e => !e.selected))
         },
         deselectAll() {
             if (!this.entities) return;
@@ -233,18 +242,19 @@ const TextArea = {
             let charCpt = 0;
             let entityIndex = 0;
             let tokenIndex = 0;
-            let token;
+            let token, entity;
             while(entityIndex < entities.length) {
                 token = this.splittedText[tokenIndex];
-                if (sortedEntities[entityIndex].start <= charCpt) {
-                    sortedEntities[entityIndex].tokenStart = tokenIndex;
+                entity = sortedEntities[entityIndex];
+                if (!entity.tokenStart && entity.start <= charCpt) {
+                    entity.tokenStart = tokenIndex;
                 }
-                if (sortedEntities[entityIndex].end <= charCpt + token.token.length) {
-                    sortedEntities[entityIndex].tokenEnd = tokenIndex;
-                    sortedEntities[entityIndex].isPrelabel = true;
+                if (entity.end <= charCpt + splitter.splitGraphemes(token.token).length) {
+                    entity.tokenEnd = tokenIndex;
+                    entity.isPrelabel = true;
                     entityIndex += 1;
                 }
-                charCpt += (token.token + (token.sepAtEnd ? this.classifierConfig.tokenSep: '')).length;
+                charCpt += splitter.splitGraphemes(token.token).length + (token.sepAtEnd ? this.tokenSep: '').length;
                 tokenIndex += 1
             }
         },
@@ -281,23 +291,27 @@ const TextArea = {
         }
         this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR, 0.5));
         document.getElementById('textarea').addEventListener('click', (mEvent) => {
-            !(mEvent.ctrlKey || mEvent.metaKey) && this.deselectAll();
+            !shortcut(mEvent)('multi-selection') && this.deselectAll();
         }, true);
-
+        window.addEventListener('keyup', (event) => {
+            if (shortcut(event)('delete')) {
+                this.deleteSelected();
+            }
+        });
     },
     // language=HTML
     template: `
         <div class="labeling-window">
             <div v-bind:class="{
             'textarea-wrapper': true,
-            'text-right': classifierConfig.textDirection === 'rtl',
-            'text-left': classifierConfig.textDirection === 'ltr'
+            'text-right': textDirection === 'rtl',
+            'text-left': textDirection === 'ltr'
             }" ref="wrapper" v-on:mouseup="handleMouseUp"
-                 v-bind:dir="classifierConfig.textDirection">
+                 v-bind:dir="textDirection">
                 <div class="textarea" id="textarea"></div>
             </div>
             <div class="textarea__button-wrapper">
-                <button @click="deleteAll()" class="main-area-element"><i class="icon-trash"></i>&nbsp;Delete all</button>
+                <button @click="deleteAll()" class="main-area-element delete-all-btn"><i class="icon-trash"></i>&nbsp;Delete all</button>
             </div>
         </div>`
 };

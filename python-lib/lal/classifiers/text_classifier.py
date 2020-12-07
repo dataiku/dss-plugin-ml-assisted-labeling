@@ -3,7 +3,7 @@ import logging
 
 import pandas as pd
 import re
-from lal.utils import get_local_text_column_name
+import emoji
 
 WHITESPACE_TOKEN_ENGINE = 'white_space'
 CHARACTER_TOKEN_ENGINE = 'char'
@@ -18,7 +18,7 @@ class TextClassifier(TableBasedDataClassifier):
 
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
-        self.text_column = config.get("text_column") or get_local_text_column_name()
+        self.text_column = config.get("text_column")
         self.token_engine = config.get("tokenization_engine")
         self.text_direction = config.get("text_direction")
         self.token_sep = self.get_token_sep()
@@ -38,9 +38,9 @@ class TextClassifier(TableBasedDataClassifier):
 
     def get_relevant_config(self):
         return {
-            "textColumn": self.text_column,
-            "textDirection": self.text_direction,
-            "tokenSep": self.token_sep
+            "text_column": self.text_column,
+            "text_direction": self.text_direction,
+            "token_sep": self.token_sep
         }
 
     def serialize_label(self, label):
@@ -76,12 +76,13 @@ class TextClassifier(TableBasedDataClassifier):
             return prelabels
         regexp = '({})'.format('|'.join(list(history.keys())))
         regexp = ('\\b{}\\b' if self.token_engine == WHITESPACE_TOKEN_ENGINE else '{}').format(regexp)
+        emojis = list(re.finditer(emoji.get_emoji_regexp(), text))
         for match in re.finditer(regexp, text, re.IGNORECASE):
             prelabels.append({
                 "text": match.group(),
                 "label": history[match.group().lower()]['label'],
-                "start": match.start(),
-                "end": match.end()
+                "start": match.start() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.start()]),
+                "end": match.end() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.end()])
             })
         prelabels.sort(key=(lambda x: x["start"]))
         self.logger.debug(f"Prelabels : {prelabels}")

@@ -7,7 +7,7 @@ from lal.classifiers.tabular_classifier import TabularClassifier
 from lal.handlers.dataiku_lal_handler import DataikuLALHandler
 
 config = get_webapp_config()
-prepare_datasets()
+prepare_datasets(config)
 initial_df = dataiku.Dataset(config["unlabeled"]).get_dataframe()
 queries_df = dataiku.Dataset(config["queries_ds"]).get_dataframe() if "queries_ds" in config else None
 

@@ -1,7 +1,8 @@
 import {DKUApi} from "../../dku-api.js";
 
-export const UNDEFINED_COLOR = [220, 220, 220];
-export const UNDEFINED_CAPTION = 'missing';
+export const UNDEFINED_COLOR = [102, 102, 102];
+export const UNDEFINED_CAPTION = 'missing ?';
+const EMPTY_KEY = "no_key"  // Must be changed on back as well
 
 function hexToRgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -39,7 +40,6 @@ export function savePerIterationConfig(configResponse) {
         config.isAlEnabled = configResponse.al_enabled;
         config.haltingThresholds = configResponse.halting_thr;
         config.stoppingMessages = configResponse.stopping_messages;
-        config.classifierConfig = configResponse.classifier_config;
     }
 }
 
@@ -50,9 +50,9 @@ export function loadConfig() {
         // precooked list of 21 most distinct colors (https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/) :
         // https://medialab.github.io/iwanthue/
         if (totalCount <= 10) {
-            preset = [[178, 45, 45], [242, 162, 0], [238, 255, 0], [201, 204, 153], [0, 255, 136], [0, 190, 204], [112, 51, 204], [214, 182, 242], [255, 0, 136], [102, 77, 90]]
+            preset = [[178, 45, 45], [242, 162, 0], [246, 216, 88], [201, 204, 153], [81, 163, 154], [0, 190, 204], [112, 51, 204], [215, 57, 101], [255, 0, 13], [102, 77, 90]]
         } else if (totalCount <= 21) {
-            preset = [[230, 25, 75], [60, 180, 75], [255, 225, 25], [0, 130, 200], [245, 130, 48], [145, 30, 180], [70, 240, 240], [240, 50, 230], [210, 245, 60], [250, 190, 190], [0, 128, 128], [230, 190, 255], [170, 110, 40], [255, 250, 200], [128, 0, 0], [170, 255, 195], [128, 128, 0], [255, 215, 180], [0, 0, 128], [128, 128, 128], [255, 255, 255]]
+            preset = [[230, 25, 75], [60, 180, 75], [240, 180, 63], [0, 130, 200], [245, 130, 48], [145, 30, 180], [87, 168, 238], [240, 50, 230], [194, 200, 81], [232, 94, 89], [0, 128, 128], [116, 86, 245], [170, 110, 40], [136, 111, 101], [128, 0, 0], [105, 179, 172], [128, 128, 0], [238, 162, 133], [0, 0, 128], [128, 128, 128]]
         }
         return preset && preset[elIdx]
     }
@@ -65,9 +65,13 @@ export function loadConfig() {
         let allCategories = webAppConfig.categories || [];
         allCategories = allCategories.concat(localCategories);
 
+        for (const [key, value] of Object.entries(data.classifier_config || [])) {
+            webAppConfig[key] = value
+        }
+
         if (allCategories) {
             allCategories.forEach((el, idx) => {
-                categories[el.from] = {
+                categories[el.from || EMPTY_KEY] = {
                     caption: el.to || el.from,
                     color: getColorFromPreparedList(idx, allCategories.length) || stringToRgb(el.from)
                 }
@@ -78,6 +82,19 @@ export function loadConfig() {
         savePerIterationConfig(data)
         return config;
     });
+}
+
+export function shortcut(event) {
+    const shortcuts = {
+        'multi-selection': [event.ctrlKey, event.metaKey, event.shiftKey],
+        'delete': [event.key === "Delete", event.key === "Backspace"],
+        'back': [event.code === 'ArrowLeft'],
+        'next': [event.code === 'ArrowRight', event.code === 'Space'],
+        'skip': [event.code === 'Tab']
+    }
+    return (action) => {
+        return shortcuts[action].some(x => x);
+    }
 }
 
 
