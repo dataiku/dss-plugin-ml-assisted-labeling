@@ -73,7 +73,7 @@ const TextArea = {
             return this.text.slice(start, end)
         },
         handleDblClickOnSelection(selectionId) {
-            return (ev) => {
+            return () => {
                 const newEntities = this.entities.filter(
                     (x) => selectionId !== this.getSelectionId(x.tokenStart, x.tokenEnd));
                 this.$emit("update:entities", newEntities);
@@ -81,8 +81,8 @@ const TextArea = {
         },
         handleClickOnSelection(selectionId) {
             return (mEvent) => {
-                if (mEvent.detail > 1) {
-                    this.handleDblClickOnSelection(selectionId)(mEvent);
+                if (mEvent.detail === 2) {
+                    this.handleDblClickOnSelection(selectionId)();
                 } else {
                     this.mapAndEmit((o) => {
                         if (selectionId === this.getSelectionId(o.tokenStart, o.tokenEnd)) {
@@ -111,7 +111,6 @@ const TextArea = {
             const selectionId = this.getSelectionId(tokenStart, tokenEnd);
             selectionWrapper.id = selectionId;
 
-            selectionWrapper.addEventListener('dblclick', this.handleDblClickOnSelection(selectionId));
             selectionWrapper.addEventListener('click', this.handleClickOnSelection(selectionId));
 
             if (!isPrelabel) selectionWrapper.style.background = colorStrTransparent;
