@@ -146,21 +146,6 @@ const TextArea = {
         addObjectToObjectList(newObject) {
             this.emitUpdateEntities(this.entities ? this.entities.concat([newObject]) : [newObject]);
         },
-        addTokenEventListeners(tokenNode) {
-            if(this.isFirefox) {
-                 tokenNode.addEventListener('mousedown', (ev) => {
-                    if (ev.detail > 1) {
-                        ev.preventDefault();
-                        const newRange = document.createRange();
-                        const startNode = ev.target.childNodes[0];
-                        const endNode = ev.target.childNodes[0];
-                        newRange.setStart(startNode, 0);
-                        newRange.setEnd(endNode, endNode.length);
-                        document.getSelection().addRange(newRange);
-                    }
-                 }, false)
-            }
-        },
         resetSelection() {
             const textarea = document.getElementById('textarea');
             textarea.innerHTML = "";
@@ -173,19 +158,28 @@ const TextArea = {
                 newToken.setAttribute('data-start', charCpt);
                 newToken.setAttribute('data-end', (charCpt + splitter.splitGraphemes(token.token).length).toString());
                 charCpt += splitter.splitGraphemes(newToken.textContent).length;
-                this.addTokenEventListeners(newToken);
                 textarea.appendChild(newToken)
             })
         },
-        handleMouseUp(ev) {
-            console.log(ev);
+        findRangeBoundaries() {
             const selection = document.getSelection();
             if (selection.isCollapsed || selection.toString() === this.tokenSep) return;
             const range = selection.getRangeAt(selection.rangeCount - 1);
-            let [startNode, endNode] = [range.startContainer, range.endContainer]
+            let [startNode, endNode] = [
+                range.startContainer.nodeType === 1 ? range.startContainer.childNodes[0] : range.startContainer,
+                range.endContainer.nodeType === 1 ? range.endContainer.childNodes[0] : range.endContainer
+            ]
+            if (range.commonAncestorContainer.id === 'textarea' && range.startContainer.length === range.startOffset) {
+                startNode = range.startContainer.parentElement.nextElementSibling.childNodes[0];
+            } // Useful for Firefox compatibility
             if (range.toString().startsWith(this.tokenSep)) {
                 startNode = startNode.parentElement.nextElementSibling.childNodes[0];
             }
+            return {startNode, endNode}
+        },
+        handleMouseUp(ev) {
+            const {startNode, endNode} = this.findRangeBoundaries() || {};
+            if (!startNode || !endNode) return;
             const {tokenIndex: tokenStart, charStart: charStart} = this.parseTokenId(startNode.parentElement);
             const {tokenIndex: tokenEnd, charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
             if (isNaN(charStart) || isNaN(charEnd)) return;
