@@ -88,6 +88,10 @@ class BaseClassifier(ABC):
     def add_prelabels(self, batch, user_meta):
         pass
 
+    @property
+    def is_multi_label(self):
+        return False
+
     @staticmethod
     @abstractmethod
     def raw_row_to_id(raw):
