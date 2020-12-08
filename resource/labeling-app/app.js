@@ -134,7 +134,7 @@ export default new Vue({
                             :tokenSep="config.token_sep"
                             :textDirection="config.text_direction"
                     />
-                    <v-popover :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
+                    <v-popover v-if="isMultiLabel" :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
                         <img src="../../resource/img/question-sign.png" alt="Shortcuts">
                         <div slot="popover" style="text-align: left">
                             <table class="shortcuts-table">
