@@ -267,7 +267,7 @@ let CategorySelector = {
                         <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; justify-content: center; flex-direction: row;">
+                <div style="display: flex; align-items: center; justify-content: center; flex-direction: row; flex-wrap: wrap;">
                     <div class="button category" v-for="(lbl,key) in categories"
                          @click="doLabel(key)"
                          :class="{ selected: annotation.label && annotation.label.includes(key) }">
