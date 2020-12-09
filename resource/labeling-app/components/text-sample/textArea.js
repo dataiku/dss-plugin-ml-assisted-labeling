@@ -19,7 +19,8 @@ const TextArea = {
             }
         },
         tokenSep: String,
-        textDirection: String
+        textDirection: String,
+        tokenizedText: Object
     },
     data() {
         return {
@@ -146,17 +147,27 @@ const TextArea = {
         resetSelection() {
             const textarea = document.getElementById('textarea');
             textarea.innerHTML = "";
-            let charCpt = 0;
-            this.splittedText.forEach((token, index) => {
+            this.tokenizedText.tokens.forEach((token, index) => {
                 const newToken = document.createElement('span');
-                newToken.textContent = token.token + (token.sepAtEnd ? this.tokenSep: '');
+                const textContent = [...this.tokenizedText.text].slice(token.start, token.end).join('');
+                newToken.textContent = textContent + token.whitespace;
                 newToken.classList.add('token');
                 newToken.id = this.getTokenId(index);
-                newToken.setAttribute('data-start', charCpt);
-                newToken.setAttribute('data-end', (charCpt + this.splitter.splitGraphemes(token.token).length).toString());
-                charCpt += this.splitter.splitGraphemes(newToken.textContent).length;
+                newToken.setAttribute('data-start', token.start);
+                newToken.setAttribute('data-end', token.end);
                 textarea.appendChild(newToken)
             })
+            // let charCpt = 0;
+            // this.splittedText.forEach((token, index) => {
+            //     const newToken = document.createElement('span');
+            //     newToken.textContent = token.token + (token.sepAtEnd ? this.tokenSep: '');
+            //     newToken.classList.add('token');
+            //     newToken.id = this.getTokenId(index);
+            //     newToken.setAttribute('data-start', charCpt);
+            //     newToken.setAttribute('data-end', (charCpt + this.splitter.splitGraphemes(token.token).length).toString());
+            //     charCpt += this.splitter.splitGraphemes(newToken.textContent).length;
+            //     textarea.appendChild(newToken)
+            // })
         },
         handleMouseUp() {
             const selection = document.getSelection();
