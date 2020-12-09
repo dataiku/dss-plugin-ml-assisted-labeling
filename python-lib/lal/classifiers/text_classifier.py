@@ -27,7 +27,7 @@ class TextClassifier(TableBasedDataClassifier):
         self.tokenizer = self.use_tokenization and MultilingualTokenizer()
         self.text_column = config.get("text_column")
         self.language = config.get("language")
-        self.language = config.get("language_column")
+        self.language_column = config.get("language_column")
         self.token_engine = config.get("tokenization_engine")
         self.text_direction = config.get("text_direction")
         self.token_sep = self.get_token_sep()
@@ -103,8 +103,9 @@ class TextClassifier(TableBasedDataClassifier):
     def tokenize_text(self, raw_item):
         text = raw_item.get(self.text_column)
         language = raw_item[self.language_column] if self.language == LANGUAGE_COLUMN_PARAM else self.language
+        print("language", self.language)
         if not language in list(SUPPORTED_LANGUAGES_SPACY.keys()) + ['none']:
-            self.logger.error("The language {} does not belong to supported languages. Applying English")
+            self.logger.error("The language {} does not belong to supported languages. Applying English".format(language))
             language = 'en'
         if language == NO_LANGUAGE_PARAM:
             doc_dict = self.dummy_tokenization(text)
@@ -123,6 +124,54 @@ class TextClassifier(TableBasedDataClassifier):
             tk['whitespace'] = spacy_doc[tk['id']].whitespace_
             tk['text'] = spacy_doc[tk['id']].text
         return doc_dict
+
+    def tokenization_by_char(self, text):
+        text_split_emoji = emoji.get_emoji_regexp().split(text)
+        splitted_text = []
+        for a in text_split_emoji:
+            splitted_text += [a] if emoji.get_emoji_regexp().match(a) else list(a)
+        return [{
+            "id": i,
+            "start": i,
+            "end": i + 1,
+            "whitespace": "",
+            "text": splitted_text[i]
+        } for i in range(len(splitted_text))]
+
+    def tokenization_by_ws(self, text):
+        text_split_emoji = emoji.get_emoji_regexp().split(text)
+        splitted_text = []
+        for a in text_split_emoji:
+            splitted_text += [a] if emoji.get_emoji_regexp().match(a) else re.findall(r"\w+|[^\w\s]", a, re.UNICODE)
+        cpt = 0
+        tokens = []
+        for i, token in enumerate(splitted_text):
+            token_dict = {}
+            token_dict['id'] = i
+            token_dict['start'] = cpt
+            cpt += len(token)
+            token_dict['end'] = cpt
+            if not cpt >= len(text) and text[cpt] == " ":
+                token_dict['whitespace'] = " "
+                cpt += 1
+            else:
+                token_dict['whitespace'] = ""
+            token_dict['text'] = token
+            tokens.append(token_dict)
+        return tokens
+
+    def dummy_tokenization(self, text):
+        dummy_doc = {
+            "text": text,
+            "writingSystem": {
+                "direction": self.text_direction
+            }
+        }
+        if self.token_engine == CHARACTER_TOKEN_ENGINE:
+            dummy_doc["tokens"] = self.tokenization_by_char(text)
+        elif self.token_engine == WHITESPACE_TOKEN_ENGINE:
+            dummy_doc["tokens"] = self.tokenization_by_ws(text)
+        return dummy_doc
 
     @property
     def type(self):
