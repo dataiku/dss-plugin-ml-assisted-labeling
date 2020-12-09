@@ -103,9 +103,9 @@ class TextClassifier(TableBasedDataClassifier):
     def tokenize_text(self, raw_item):
         text = raw_item.get(self.text_column)
         language = raw_item[self.language_column] if self.language == LANGUAGE_COLUMN_PARAM else self.language
-        print("language", self.language)
         if not language in list(SUPPORTED_LANGUAGES_SPACY.keys()) + ['none']:
             self.logger.error("The language {} does not belong to supported languages. Applying English".format(language))
+
             language = 'en'
         if language == NO_LANGUAGE_PARAM:
             doc_dict = self.dummy_tokenization(text)

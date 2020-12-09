@@ -125,25 +125,19 @@ const TextArea = {
             textarea.innerHTML = "";
             this.tokenizedText.tokens.forEach((token, index) => {
                 const newToken = document.createElement('span');
-                const textContent = [...this.tokenizedText.text].slice(token.start, token.end).join('');
-                newToken.textContent = textContent + token.whitespace;
+                newToken.textContent = token.text + token.whitespace;
                 newToken.classList.add('token');
                 newToken.id = this.getTokenId(index);
                 newToken.setAttribute('data-start', token.start);
                 newToken.setAttribute('data-end', token.end);
                 textarea.appendChild(newToken)
             })
-            // let charCpt = 0;
-            // this.splittedText.forEach((token, index) => {
-            //     const newToken = document.createElement('span');
-            //     newToken.textContent = token.token + (token.sepAtEnd ? this.tokenSep: '');
-            //     newToken.classList.add('token');
-            //     newToken.id = this.getTokenId(index);
-            //     newToken.setAttribute('data-start', charCpt);
-            //     newToken.setAttribute('data-end', (charCpt + this.splitter.splitGraphemes(token.token).length).toString());
-            //     charCpt += this.splitter.splitGraphemes(newToken.textContent).length;
-            //     textarea.appendChild(newToken)
-            // })
+        },
+        isLegitSelect(startToken, endToken, selectedText) {
+            if (selectedText=== startToken.whitespace) return false;
+            return !this.entities || !this.entities.some((o) => {
+                return startToken.start < o.start && endToken.end > o.end
+            })
         },
         isLegitSelect(startToken, endToken, selectedText) {
             if (selectedText=== startToken.whitespace) return false;
