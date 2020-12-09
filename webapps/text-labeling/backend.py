@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dataiku
 from dataiku.customwebapp import get_webapp_config
 
@@ -7,6 +8,7 @@ from lal.classifiers.text_classifier import TextClassifier
 from lal.handlers.dataiku_lal_handler import DataikuLALHandler
 from lal.config.dku_config import DkuConfig
 from lal.utils import get_local_var
+from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY
 
 
 def create_dku_config(config):
@@ -66,13 +68,27 @@ def create_dku_config(config):
         required=True
     )
     dku_config.add_param(
+        name='language',
+        value=config.get('language') or get_local_var('language'),
+        checks=[{
+            'type': 'in',
+            'op': list(SUPPORTED_LANGUAGES_SPACY.keys()) + ['language_column', 'none']
+        }],
+        required=True
+    )
+    dku_config.add_param(
+        name='language_column',
+        value=config.get('language_column') or get_local_var('language_column'),
+        required=(dku_config.language == "language_column")
+    )
+    dku_config.add_param(
         name='text_direction',
         value=config.get('text_direction') or get_local_var('text_direction'),
         checks=[{
             'type': 'in',
             'op': ['rtl', 'ltr']
         }],
-        required=True
+        required=(dku_config.language == "none")
     )
     dku_config.add_param(
         name='tokenization_engine',
@@ -81,7 +97,7 @@ def create_dku_config(config):
             'type': 'in',
             'op': ['white_space', 'char']
         }],
-        required=True
+        required=(dku_config.language == "none")
     )
     return dku_config
 

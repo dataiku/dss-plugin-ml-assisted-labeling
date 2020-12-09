@@ -4,10 +4,14 @@ import logging
 import pandas as pd
 import re
 import emoji
-from lal.tokenizer.spacy_tokenizer import MultilingualTokenizer
+from lal.tokenizers.spacy_tokenizer import MultilingualTokenizer
+from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY
 
 WHITESPACE_TOKEN_ENGINE = 'white_space'
 CHARACTER_TOKEN_ENGINE = 'char'
+
+LANGUAGE_COLUMN_PARAM = 'language_column'
+NO_LANGUAGE_PARAM = 'none'
 
 CLASSIC_PRELABEL_ENGINE = 'classic'
 
@@ -21,8 +25,9 @@ class TextClassifier(TableBasedDataClassifier):
         self.__initial_df = initial_df
         self.use_tokenization = True
         self.tokenizer = self.use_tokenization and MultilingualTokenizer()
-        self.language = 'en'
         self.text_column = config.get("text_column")
+        self.language = config.get("language")
+        self.language = config.get("language_column")
         self.token_engine = config.get("tokenization_engine")
         self.text_direction = config.get("text_direction")
         self.token_sep = self.get_token_sep()
@@ -41,11 +46,7 @@ class TextClassifier(TableBasedDataClassifier):
         return self.__initial_df
 
     def get_relevant_config(self):
-        return {
-            "text_column": self.text_column,
-            "text_direction": self.text_direction,
-            "token_sep": self.token_sep
-        }
+        return {}
 
     def serialize_label(self, label):
         cleaned_labels = [self.clean_data_to_save(lab) for lab in label]
@@ -58,7 +59,7 @@ class TextClassifier(TableBasedDataClassifier):
     def classic_prelabeling(self, batch, user_meta):
         history = self.build_history_from_meta(user_meta)
         for item in batch:
-            item['prelabels'] = self.find_prelabels(history, item["data"]["raw"][self.text_column])
+            item['prelabels'] = self.find_prelabels(history, item["data"]["raw"]["tokenized_text"]["text"])
 
     def build_history_from_meta(self, user_meta):
         history = {}
@@ -95,15 +96,32 @@ class TextClassifier(TableBasedDataClassifier):
     def get_raw_item_by_id(self, data_id):
         raw_item = super(TextClassifier, self).get_raw_item_by_id(data_id)
         if self.tokenizer:
-            tokenized_text = self.tokenize_text(raw_item.get(self.text_column))
+            tokenized_text = self.tokenize_text(raw_item)
             raw_item['tokenized_text'] = tokenized_text
         return raw_item
 
-    def tokenize_text(self, text):
-        spacy_doc = self.tokenizer.tokenize_list(text_list=[text], language=self.language)[0]
+    def tokenize_text(self, raw_item):
+        text = raw_item.get(self.text_column)
+        language = raw_item[self.language_column] if self.language == LANGUAGE_COLUMN_PARAM else self.language
+        if not language in list(SUPPORTED_LANGUAGES_SPACY.keys()) + ['none']:
+            self.logger.error("The language {} does not belong to supported languages. Applying English")
+            language = 'en'
+        if language == NO_LANGUAGE_PARAM:
+            doc_dict = self.dummy_tokenization(text)
+        else:
+            doc_dict = self.spacy_tokenization(text, language)
+        return doc_dict
+
+    def spacy_tokenization(self, text, language):
+        spacy_doc = self.tokenizer.tokenize_list(
+            text_list=[text],
+            language=language
+        )[0]
         doc_dict = spacy_doc.to_json()
+        doc_dict['writingSystem'] = spacy_doc.vocab.writing_system
         for tk in doc_dict['tokens']:
             tk['whitespace'] = spacy_doc[tk['id']].whitespace_
+            tk['text'] = spacy_doc[tk['id']].text
         return doc_dict
 
     @property
@@ -124,9 +142,7 @@ class TextClassifier(TableBasedDataClassifier):
             'text': lab['text'],
             'start': lab['start'],
             'end': lab['end'],
-            'label': lab['label'],
-            'tokenStart': lab['tokenStart'],
-            'tokenEnd': lab['tokenEnd']
+            'label': lab['label']
         }
 
     @staticmethod
