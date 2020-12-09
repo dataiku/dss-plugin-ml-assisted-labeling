@@ -86,7 +86,7 @@ const TextArea = {
         handleClickOnSelection(selectionId) {
             return (mEvent) => {
                 this.mapAndEmit((o) => {
-                    if (selectionId === this.getSelectionId(o.startId, o.endId)) {
+                    if (selectionId === this.getSelectionId(o.tokenStart, o.tokenEnd)) {
                         o.selected = !o.selected;
                     } else {
                         o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
