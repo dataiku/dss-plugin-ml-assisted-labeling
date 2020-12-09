@@ -4,6 +4,7 @@ import logging
 import pandas as pd
 import re
 import emoji
+from lal.tokenizer.spacy_tokenizer import MultilingualTokenizer
 
 WHITESPACE_TOKEN_ENGINE = 'white_space'
 CHARACTER_TOKEN_ENGINE = 'char'
@@ -18,6 +19,9 @@ class TextClassifier(TableBasedDataClassifier):
 
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
+        self.use_tokenization = True
+        self.tokenizer = self.use_tokenization and MultilingualTokenizer()
+        self.language = 'en'
         self.text_column = config.get("text_column")
         self.token_engine = config.get("tokenization_engine")
         self.text_direction = config.get("text_direction")
@@ -87,6 +91,20 @@ class TextClassifier(TableBasedDataClassifier):
         prelabels.sort(key=(lambda x: x["start"]))
         self.logger.debug(f"Prelabels : {prelabels}")
         return prelabels
+
+    def get_raw_item_by_id(self, data_id):
+        raw_item = super(TextClassifier, self).get_raw_item_by_id(data_id)
+        if self.tokenizer:
+            tokenized_text = self.tokenize_text(raw_item.get(self.text_column))
+            raw_item['tokenized_text'] = tokenized_text
+        return raw_item
+
+    def tokenize_text(self, text):
+        spacy_doc = self.tokenizer.tokenize_list(text_list=[text], language=self.language)[0]
+        doc_dict = spacy_doc.to_json()
+        for tk in doc_dict['tokens']:
+            tk['whitespace'] = spacy_doc[tk['id']].whitespace_
+        return doc_dict
 
     @property
     def type(self):
