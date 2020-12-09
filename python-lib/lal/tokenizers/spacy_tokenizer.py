@@ -18,8 +18,8 @@ from emoji import UNICODE_EMOJI
 from fastcore.utils import store_attr
 from spacymoji import Emoji
 
-from lal.tokenizer.language_dict import SUPPORTED_LANGUAGES_SPACY, SPACY_LANGUAGE_MODELS, UNSUPPORTED_SPACY_EMOJI_LANG
-from lal.tokenizer.plugin_io_utils import generate_unique, truncate_text_list
+from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY, SPACY_LANGUAGE_MODELS, UNSUPPORTED_SPACY_EMOJI_LANG
+from lal.tokenizers.plugin_io_utils import generate_unique, truncate_text_list
 
 
 # Setting custom spaCy token extensions to allow for easier filtering in downstream tasks

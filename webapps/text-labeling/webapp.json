@@ -14,6 +14,7 @@
     "bootstrap",
     "font_awesome"
   ],
+  "paramsPythonSetup": "get_webapp_parameters.py",
   "params": [
     {
       "type": "SEPARATOR",
@@ -93,6 +94,24 @@
     },
     {
       "type": "SELECT",
+      "name": "language",
+      "label": "Language",
+      "getChoicesFromPython": true,
+      "defaultValue": "en"
+    },
+    {
+      "name": "language_column",
+      "label": "Language column",
+      "type": "COLUMN",
+      "description": "Column containing ISO 639-1 language codes",
+      "columnRole": "input_dataset",
+      "allowedColumnTypes": [
+          "string"
+      ],
+      "visibilityCondition": "model.language == 'language_column'"
+    },
+    {
+      "type": "SELECT",
       "name": "text_direction",
       "label": "Text direction",
       "selectChoices": [
@@ -101,6 +120,7 @@
       ],
       "description": "Left-to-Right for Latin, Cyrillic, Greek... or Right-to-Left for Arabic, Hebrew, Syriac...",
       "defaultValue": "ltr",
+      "visibilityCondition": "model.language == 'none'",
       "required": true
     },
     {
@@ -113,6 +133,7 @@
       ],
       "description": "Split along char for languages without separators (Chinese, Japanese, Korean...)",
       "defaultValue": "white_space",
+      "visibilityCondition": "model.language == 'none'",
       "required": true
     }
   ]
