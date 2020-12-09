@@ -99,7 +99,7 @@
         { "value": "ltr", "label": "Left to Right"},
         { "value": "rtl", "label": "Right to Left"}
       ],
-      "description": "If all samples do not have same text direction, use a prepare recipe before",
+      "description": "Left-to-Right for Latin, Cyrillic, Greek... or Right-to-Left for Arabic, Hebrew, Syriac...",
       "defaultValue": "ltr",
       "required": true
     },
@@ -111,7 +111,7 @@
         { "value": "white_space", "label": "Split along white spaces and punctuation"},
         { "value": "char", "label": "Split along each character"}
       ],
-      "description": "If all samples do not have same tokenization, use a prepare recipe before",
+      "description": "Split along char for languages without separators (Chinese, Japanese, Korean...)",
       "defaultValue": "white_space",
       "required": true
     }
