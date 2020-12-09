@@ -100,9 +100,10 @@
       "defaultValue": "en"
     },
     {
+      "type": "DATASET_COLUMN",
+      "datasetParamName": "unlabeled",
       "name": "language_column",
       "label": "Language column",
-      "type": "COLUMN",
       "description": "Column containing ISO 639-1 language codes",
       "columnRole": "input_dataset",
       "allowedColumnTypes": [
