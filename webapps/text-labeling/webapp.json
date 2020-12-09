@@ -43,7 +43,7 @@
       "name": "categories",
       "type": "KEY_VALUE_LIST",
       "label": "Categories",
-      "description": "Category name → optional description",
+      "description": "Category key → optional placeholder for display",
       "mandatory": true
     },
     {
