@@ -139,12 +139,6 @@ const TextArea = {
                 return startToken.start < o.start && endToken.end > o.end
             })
         },
-        isLegitSelect(startToken, endToken, selectedText) {
-            if (selectedText=== startToken.whitespace) return false;
-            return !this.entities || !this.entities.some((o) => {
-                return startToken.start < o.start && endToken.end > o.end
-            })
-        },
         handleMouseUp() {
             const selection = document.getSelection();
             if (selection.isCollapsed) return;
