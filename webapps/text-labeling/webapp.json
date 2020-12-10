@@ -105,11 +105,9 @@
       "name": "language_column",
       "label": "Language column",
       "description": "Column containing ISO 639-1 language codes",
-      "columnRole": "input_dataset",
-      "allowedColumnTypes": [
-          "string"
-      ],
-      "visibilityCondition": "model.language == 'language_column'"
+      "visibilityCondition": "model.language == 'language_column'",
+      "canSelectForeign": true,
+      "canCreateDataset": false
     },
     {
       "type": "SELECT",
