@@ -421,7 +421,6 @@ audio {
     resize: horizontal;
     overflow: auto;
     font-size: 20px;
-    text-align: left;
     background-color: var(--white);
     flex: 1;
     display: flex;
