@@ -57,7 +57,7 @@ const TextArea = {
             return () => {
                 const newEntities = this.entities.filter(
                     (x) => selectionId !== this.getSelectionId(
-                        this.getTokenFromStart(x.start)?.id, this.getTokenFromEnd(x.end)?.id));
+                        this.getTokenFromStart(x.start).id, this.getTokenFromEnd(x.end).id));
                 this.$emit("update:entities", newEntities);
             }
         },
@@ -65,7 +65,7 @@ const TextArea = {
             return (mEvent) => {
                 this.mapAndEmit((o) => {
                     if (selectionId === this.getSelectionId(
-                        this.getTokenFromStart(o.start)?.id, this.getTokenFromEnd(o.end)?.id)) {
+                        this.getTokenFromStart(o.start).id, this.getTokenFromEnd(o.end).id)) {
                         o.selected = !o.selected;
                     } else {
                         o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
@@ -134,7 +134,7 @@ const TextArea = {
             })
         },
         isLegitSelect(startToken, endToken, selectedText) {
-            if (selectedText=== startToken.whitespace) return false;
+            if (selectedText === startToken.whitespace) return false;
             return !this.entities || !this.entities.some((o) => {
                 return startToken.start < o.start && endToken.end > o.end
             })
@@ -205,8 +205,11 @@ const TextArea = {
         },
         init_text() {
             this.resetSelection();
-            this.prelabels.forEach((pl) => {pl.isPrelabel = true;});
+            this.sanitizePrelabels();
             this.prelabels?.length && this.emitUpdateEntities(this.prelabels);
+        },
+        sanitizePrelabels() {
+            this.prelabels.forEach((pl) => {pl.isPrelabel = true;})
         }
     },
     watch: {

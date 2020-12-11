@@ -59,7 +59,7 @@ class TextClassifier(TableBasedDataClassifier):
     def classic_prelabeling(self, batch, user_meta):
         history = self.build_history_from_meta(user_meta)
         for item in batch:
-            item['prelabels'] = self.find_prelabels(history, item["data"]["raw"]["tokenized_text"]["text"])
+            item['prelabels'] = self.find_prelabels(history, item["data"]["raw"]["tokenized_text"])
 
     def build_history_from_meta(self, user_meta):
         history = {}
@@ -75,7 +75,8 @@ class TextClassifier(TableBasedDataClassifier):
                     }
         return history
 
-    def find_prelabels(self, history, text):
+    def find_prelabels(self, history, tokenized_text):
+        text = tokenized_text["text"]
         prelabels = []
         if not history:
             return prelabels
@@ -83,15 +84,21 @@ class TextClassifier(TableBasedDataClassifier):
         regexp = ('\\b{}\\b' if self.token_engine == WHITESPACE_TOKEN_ENGINE else '{}').format(regexp)
         emojis = list(re.finditer(emoji.get_emoji_regexp(), text))
         for match in re.finditer(regexp, text, re.IGNORECASE):
-            prelabels.append({
-                "text": match.group(),
-                "label": history[match.group().lower()]['label'],
-                "start": match.start() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.start()]),
-                "end": match.end() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.end()])
-            })
+            pl_start = match.start() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.start()])
+            pl_end = match.end() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.end()])
+            if self.is_legit_prelabel(pl_start, pl_end, tokenized_text["tokens"]):
+                prelabels.append({
+                    "text": match.group(),
+                    "label": history[match.group().lower()]['label'],
+                    "start": pl_start,
+                    "end": pl_end
+                })
         prelabels.sort(key=(lambda x: x["start"]))
         self.logger.debug(f"Prelabels : {prelabels}")
         return prelabels
+
+    def is_legit_prelabel(self, pl_start, pl_end, tokens):
+        return any([t for t in tokens if t["start"] == pl_start]) and any([t for t in tokens if t["end"] == pl_end])
 
     def get_raw_item_by_id(self, data_id):
         raw_item = super(TextClassifier, self).get_raw_item_by_id(data_id)
