@@ -57,7 +57,7 @@ const TextArea = {
             return () => {
                 const newEntities = this.entities.filter(
                     (x) => selectionId !== this.getSelectionId(
-                        this.getTokenFromStart(x.start).id, this.getTokenFromEnd(x.end).id));
+                        this.getTokenFromStart(x.start)?.id, this.getTokenFromEnd(x.end)?.id));
                 this.$emit("update:entities", newEntities);
             }
         },
@@ -65,7 +65,7 @@ const TextArea = {
             return (mEvent) => {
                 this.mapAndEmit((o) => {
                     if (selectionId === this.getSelectionId(
-                        this.getTokenFromStart(o.start).id, this.getTokenFromEnd(o.end).id)) {
+                        this.getTokenFromStart(o.start)?.id, this.getTokenFromEnd(o.end)?.id)) {
                         o.selected = !o.selected;
                     } else {
                         o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
@@ -235,9 +235,6 @@ const TextArea = {
             this.entities.map((e) => this.addSelectionFromEntity(e));
         }
         this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR, 0.5));
-        document.getElementById('textarea').addEventListener('click', (mEvent) => {
-            !shortcut(mEvent)('multi-selection') && this.deselectAll();
-        }, true);
 
         window.addEventListener('keyup', (event) => {
             if (shortcut(event)('delete')) {
@@ -246,7 +243,7 @@ const TextArea = {
         });
 
         document.getElementsByClassName('sample-container')[0].addEventListener('click', (event) => {
-            this.deselectAll();
+            !shortcut(event)('multi-selection') && this.deselectAll();
         }, true);
 
     },
