@@ -78,11 +78,14 @@ export let ControlButtons = {
             this.isLast = data.isLast;
         },
         first: function () {
+            if (!this.$root.canLabel || this.isFirst) {
+                return;
+            }
             DKUApi.first().then(this.processAnnotationResponce);
         },
         unlabeled: function (force=false) {
-            if (!this.currentStatus && !force) {
-                return
+            if ((!this.currentStatus && !force) || !this.$root.item.labelId) {
+                return;
             }
             this.$root.assignNextItem();
             this.isLast = true;
@@ -115,6 +118,12 @@ export let ControlButtons = {
             }
             if (shortcut(event)('skip')) {
                 this.skip();
+            }
+            if (shortcut(event)('first')) {
+                this.first();
+            }
+            if (shortcut(event)('last')) {
+                this.unlabeled();
             }
         }, false);
     },

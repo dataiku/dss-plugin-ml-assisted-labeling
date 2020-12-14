@@ -161,6 +161,18 @@ export default new Vue({
                                     </tr>
                                     <tr>
                                         <td>
+                                            <div class="keybind ng-binding">PageDown</div>
+                                        </td>
+                                        <td>First</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind ng-binding">PageUp</div>
+                                        </td>
+                                        <td>Last</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
                                             <div class="keybind">⌘</div>
                                             /
                                             <div class="keybind">shift</div>
@@ -172,7 +184,7 @@ export default new Vue({
                                         <td>
                                             <div class="keybind ng-binding">⌫</div>
                                             /
-                                            <div class="keybind">␡</div>
+                                            <div class="keybind">DEL</div>
                                             /
                                             <div class="keybind">dbl click</div>
                                         </td>

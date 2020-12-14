@@ -90,7 +90,9 @@ export function shortcut(event) {
         'delete': [event.key === "Delete", event.key === "Backspace"],
         'back': [event.code === 'ArrowLeft'],
         'next': [event.code === 'ArrowRight', event.code === 'Space'],
-        'skip': [event.code === 'Tab']
+        'skip': [event.code === 'Tab'],
+        'first': [event.code === 'PageDown'],
+        'last': [event.code === 'PageUp']
     }
     return (action) => {
         return shortcuts[action].some(x => x);
