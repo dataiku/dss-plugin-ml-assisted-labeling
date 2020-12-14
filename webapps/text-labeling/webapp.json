@@ -130,7 +130,7 @@
         { "value": "white_space", "label": "Split along white spaces and punctuation"},
         { "value": "char", "label": "Split along each character"}
       ],
-      "description": "Split along char for languages without separators (Chinese, Japanese, Korean...)",
+      "description": "Split along each character for languages such as Chinese, Japanese, Korean",
       "defaultValue": "white_space",
       "visibilityCondition": "model.language == 'none'",
       "required": true
