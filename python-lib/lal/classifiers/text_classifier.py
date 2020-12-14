@@ -98,7 +98,7 @@ class TextClassifier(TableBasedDataClassifier):
         return any([t for t in tokens if t["start"] == pl_start]) and any([t for t in tokens if t["end"] == pl_end])
 
     def get_raw_item_by_id(self, data_id):
-        raw_item = super(TextClassifier, self).get_raw_item_by_id(data_id)
+        raw_item = super().get_raw_item_by_id(data_id)
         if self.tokenizer:
             tokenized_text = self.tokenize_text(raw_item)
             raw_item['tokenized_text'] = tokenized_text
