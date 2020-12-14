@@ -7,19 +7,19 @@ import emoji
 from lal.tokenizers.spacy_tokenizer import MultilingualTokenizer
 from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY
 
-WHITESPACE_TOKEN_ENGINE = 'white_space'
-CHARACTER_TOKEN_ENGINE = 'char'
-
-LANGUAGE_COLUMN_PARAM = 'language_column'
-NO_LANGUAGE_PARAM = 'none'
-
-CLASSIC_PRELABEL_ENGINE = 'classic'
 
 from lal.classifiers.base_classifier import TableBasedDataClassifier
 
 
 class TextClassifier(TableBasedDataClassifier):
     logger = logging.getLogger(__name__)
+    WHITESPACE_TOKEN_ENGINE = 'white_space'
+    CHARACTER_TOKEN_ENGINE = 'char'
+
+    LANGUAGE_COLUMN_PARAM = 'language_column'
+    NO_LANGUAGE_PARAM = 'none'
+
+    CLASSIC_PRELABEL_ENGINE = 'classic'
 
     def __init__(self, initial_df, queries_df, config=None):
         self.__initial_df = initial_df
@@ -35,9 +35,9 @@ class TextClassifier(TableBasedDataClassifier):
         super(TextClassifier, self).__init__(queries_df, config)
 
     def get_token_sep(self):
-        if self.token_engine == WHITESPACE_TOKEN_ENGINE:
+        if self.token_engine == self.WHITESPACE_TOKEN_ENGINE:
             return ' '
-        elif self.token_engine == CHARACTER_TOKEN_ENGINE:
+        elif self.token_engine == self.CHARACTER_TOKEN_ENGINE:
             return ''
         else:
             return ' '
@@ -50,7 +50,7 @@ class TextClassifier(TableBasedDataClassifier):
         return json.dumps(cleaned_labels)
 
     def add_prelabels(self, batch, user_meta):
-        if self.prelabeling_strategy == CLASSIC_PRELABEL_ENGINE:
+        if self.prelabeling_strategy == self.CLASSIC_PRELABEL_ENGINE:
             self.classic_prelabeling(batch, user_meta)
 
     def classic_prelabeling(self, batch, user_meta):
@@ -78,7 +78,7 @@ class TextClassifier(TableBasedDataClassifier):
         if not history:
             return prelabels
         regexp = '({})'.format('|'.join(list(history.keys())))
-        regexp = ('\\b{}\\b' if self.token_engine == WHITESPACE_TOKEN_ENGINE else '{}').format(regexp)
+        regexp = ('\\b{}\\b' if self.token_engine == self.WHITESPACE_TOKEN_ENGINE else '{}').format(regexp)
         emojis = list(re.finditer(emoji.get_emoji_regexp(), text))
         for match in re.finditer(regexp, text, re.IGNORECASE):
             pl_start = match.start() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.start()])
@@ -106,11 +106,11 @@ class TextClassifier(TableBasedDataClassifier):
 
     def tokenize_text(self, raw_item):
         text = raw_item.get(self.text_column)
-        language = raw_item[self.language_column] if self.language == LANGUAGE_COLUMN_PARAM else self.language
+        language = raw_item[self.language_column] if self.language == self.LANGUAGE_COLUMN_PARAM else self.language
         if not language in list(SUPPORTED_LANGUAGES_SPACY.keys()) + ['none']:
             self.logger.error("The language {} does not belong to supported languages. Applying English".format(language))
             language = 'en'
-        if language == NO_LANGUAGE_PARAM:
+        if language == self.NO_LANGUAGE_PARAM:
             doc_dict = self.dummy_tokenization(text)
         else:
             doc_dict = self.spacy_tokenization(text, language)
@@ -159,9 +159,9 @@ class TextClassifier(TableBasedDataClassifier):
                 "direction": self.text_direction
             }
         }
-        if self.token_engine == CHARACTER_TOKEN_ENGINE:
+        if self.token_engine == self.CHARACTER_TOKEN_ENGINE:
             dummy_doc["tokens"] = self.tokenization_by_pattern(text, r".")
-        elif self.token_engine == WHITESPACE_TOKEN_ENGINE:
+        elif self.token_engine == self.WHITESPACE_TOKEN_ENGINE:
             dummy_doc["tokens"] = self.tokenization_by_pattern(text, r"\w+|[^\w\s]")
         return dummy_doc
 
