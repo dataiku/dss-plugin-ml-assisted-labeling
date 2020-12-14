@@ -45,9 +45,6 @@ class TextClassifier(TableBasedDataClassifier):
     def get_initial_df(self):
         return self.__initial_df
 
-    def get_relevant_config(self):
-        return {}
-
     def serialize_label(self, label):
         cleaned_labels = [self.clean_data_to_save(lab) for lab in label]
         return json.dumps(cleaned_labels)
