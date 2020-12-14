@@ -131,23 +131,12 @@ class TextClassifier(TableBasedDataClassifier):
             tk['text'] = spacy_doc[tk['id']].text
         return doc_dict
 
-    def tokenization_by_char(self, text):
-        text_split_emoji = emoji.get_emoji_regexp().split(text)
-        splitted_text = []
-        for a in text_split_emoji:
-            splitted_text += [a] if emoji.get_emoji_regexp().match(a) else list(a)
-        return [{
-            "id": i,
-            "start": i,
-            "end": i + 1,
-            "whitespace": "",
-            "text": splitted_text[i]
-        } for i in range(len(splitted_text))]
-
-    def tokenization_by_ws(self, text):
+    def tokenization_by_pattern(self, text, pattern):
         tokens = []
-        tokens_it = re.finditer(r"{emoji_pattern}|\w+|[^\w\s]".format(emoji_pattern=emoji.get_emoji_regexp().pattern),
-                                text, re.UNICODE)
+        tokens_it = re.finditer(r"{emoji_pattern}|{pattern}".format(
+            emoji_pattern=emoji.get_emoji_regexp().pattern,
+            pattern=pattern
+        ), text, re.UNICODE)
         current = next(tokens_it)
         i = 0
         while current:
@@ -174,9 +163,9 @@ class TextClassifier(TableBasedDataClassifier):
             }
         }
         if self.token_engine == CHARACTER_TOKEN_ENGINE:
-            dummy_doc["tokens"] = self.tokenization_by_char(text)
+            dummy_doc["tokens"] = self.tokenization_by_pattern(text, r".")
         elif self.token_engine == WHITESPACE_TOKEN_ENGINE:
-            dummy_doc["tokens"] = self.tokenization_by_ws(text)
+            dummy_doc["tokens"] = self.tokenization_by_pattern(text, r"\w+|[^\w\s]")
         return dummy_doc
 
     @property
