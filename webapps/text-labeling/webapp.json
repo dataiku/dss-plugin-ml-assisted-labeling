@@ -90,14 +90,14 @@
       "name": "use_prelabeling",
       "label": "Activate Prelabeling",
       "description": "Labels calculated from what you already labeled will be added to new samples",
-      "defaultValue": false
+      "mandatory": true
     },
     {
       "type": "SELECT",
       "name": "language",
       "label": "Language",
       "getChoicesFromPython": true,
-      "defaultValue": "en"
+      "mandatory": true
     },
     {
       "type": "DATASET_COLUMN",

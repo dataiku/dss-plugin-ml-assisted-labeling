@@ -49,6 +49,8 @@ class CustomCheck:
         return f'Error for parameter "{parameter.name}" - {formatted_err_msg}'
 
     def _exists(self, value):
+        if "nguages, you can use \"Detected language" in self.err_msg:
+            print("value : ", value)
         return not value is None
 
     def _in(self, value):

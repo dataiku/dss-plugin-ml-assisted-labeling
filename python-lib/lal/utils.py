@@ -32,19 +32,14 @@ def prettify_error(s):
 
 
 def get_local_var(var_name):
-    return dataiku.Project().get_variables()['local'].get('{}__{}'.format(LOCAL_VAR_PREFIX, var_name), [])
+    return dataiku.Project().get_variables()['local'].get('{}__{}'.format(LOCAL_VAR_PREFIX, var_name), None)
 
 
 def get_local_categories():
     return get_local_var("categories")
 
 
-def get_local_text_column_name():
-    return get_local_var("text_column_name")
-
-
 def load_classifier(dss_model, version_id=None):
-
     logging.info("Trying to load model from {0}, version: {1}".format(dss_model, version_id))
     try:
         clf = dss_model.get_predictor(version_id=version_id)._clf
@@ -63,7 +58,6 @@ def load_classifier(dss_model, version_id=None):
 
 
 def load_data(input_dataset):
-    
     # DSS entities loading
     logging.info("Reading samples from {0}".format(input_dataset))
     input_is_folder = False
@@ -80,7 +74,6 @@ def load_data(input_dataset):
 
 
 def preprocess_data(model, input_df, input_is_folder, version_id=None):
-        
     try:
         input_X = model.get_predictor(version_id=version_id).get_preprocessing().preprocess(input_df)[0]
     except Exception as e:
