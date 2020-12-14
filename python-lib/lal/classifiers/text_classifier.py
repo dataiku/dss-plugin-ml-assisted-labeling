@@ -145,25 +145,25 @@ class TextClassifier(TableBasedDataClassifier):
         } for i in range(len(splitted_text))]
 
     def tokenization_by_ws(self, text):
-        text_split_emoji = emoji.get_emoji_regexp().split(text)
-        splitted_text = []
-        for a in text_split_emoji:
-            splitted_text += [a] if emoji.get_emoji_regexp().match(a) else re.findall(r"\w+|[^\w\s]", a, re.UNICODE)
-        cpt = 0
         tokens = []
-        for i, token in enumerate(splitted_text):
-            token_dict = {}
-            token_dict['id'] = i
-            token_dict['start'] = cpt
-            cpt += len(token)
-            token_dict['end'] = cpt
-            if not cpt >= len(text) and text[cpt] == " ":
-                token_dict['whitespace'] = " "
-                cpt += 1
-            else:
-                token_dict['whitespace'] = ""
-            token_dict['text'] = token
-            tokens.append(token_dict)
+        tokens_it = re.finditer(r"{emoji_pattern}|\w+|[^\w\s]".format(emoji_pattern=emoji.get_emoji_regexp().pattern),
+                                text, re.UNICODE)
+        current = next(tokens_it)
+        i = 0
+        while current:
+            try:
+                nxt = next(tokens_it)
+            except StopIteration:
+                nxt = None
+            tokens.append({
+                "start": current.start(),
+                "end": current.end(),
+                "text": current.group(),
+                "whitespace": text[current.end():nxt.start()] if nxt else "",
+                "id": i
+            })
+            current = nxt
+            i += 1
         return tokens
 
     def dummy_tokenization(self, text):
