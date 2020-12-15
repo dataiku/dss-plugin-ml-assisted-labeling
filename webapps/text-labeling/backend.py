@@ -55,11 +55,6 @@ def create_dku_config(config):
         required=True
     )
     dku_config.add_param(
-        name='metadata_ds',
-        value=config.get('metadata_ds'),
-        required=True
-    )
-    dku_config.add_param(
         name='label_col_name',
         value=config.get('label_col_name'),
         required=True
