@@ -2,7 +2,6 @@ from .dss_parameter import DSSParameter
 import dataiku
 
 
-
 class DkuConfig(object):
     def __init__(self, config=None, use_local=False, local_prefix=''):
         self.use_local = use_local
@@ -17,7 +16,8 @@ class DkuConfig(object):
 
     def add_param(self, name, **dss_param_kwargs):
         if self.use_local:
-            dss_param_kwargs['value'] = dss_param_kwargs.get('value', self._get_local_var(dss_param_kwargs.get('name')))
+            dss_param_kwargs['value'] = dss_param_kwargs.get('value') or self._get_local_var(name)
+
         setattr(self, name, DSSParameter(name=name, **dss_param_kwargs))
 
     def get(self, key, default=None):
