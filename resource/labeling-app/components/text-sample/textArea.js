@@ -113,7 +113,7 @@ const TextArea = {
                 start: start,
                 end: end,
                 draft: false,
-                selected: !this.selectedLabel,
+                selected: true,//!this.selectedLabel,
                 isPrelabel: false
             }
         },
