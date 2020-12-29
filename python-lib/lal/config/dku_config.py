@@ -1,37 +1,99 @@
 from .dss_parameter import DSSParameter
-import dataiku
+from collections.abc import MutableMapping
+from typing import Any
 
 
-class DkuConfig(object):
-    def __init__(self, config=None, use_local=False, local_prefix=''):
-        self.use_local = use_local
-        self.local_prefix = local_prefix
-        self._load_param(config)
+class DkuConfig(MutableMapping):
+    """Mapping structure containing DSSParameter objects. It behaves as a dict with the following differences:
+        - You can access elements with a dot structure (Example: dku_config.param1 or dku_config["param1"])
+        - You can set an element with a dot structure (Example: dku_config.param1 = 123)
+        - All objects stored are converted in DSSParameter
+        - Accessing an element returns the value of the object DSSParameter
 
-    def _load_param(self, config):
-        self.config = config or {}
+    Attributes:
+        config(dict): Dict storing the DSSParameters
+    """
+    def __init__(self, local_vars=None, local_prefix='', **kwargs):
+        """Initialization method for the DkuConfig class
 
-    def _get_local_var(self, var_name):
-        return dataiku.Project().get_variables()['local'].get('{}__{}'.format(self.local_prefix, var_name), None)
+        Args:
+            local_vars(dict, optional): Dict containing vars fetched from project local variables. Default is {}
+            local_prefix(str, optional): If project vars prefixed, write the prefix here, it will be added when
+                searching for the var
+            **kwargs: DSSParameters. Each key will be set as the parameter name and the values must be of type
+                dict. These dicts must contain at least an attribute "value". For other attributes, see
+                DSSParameter help.
+        """
+        object.__setattr__(self, 'config', {})
+        object.__setattr__(self, 'local_vars', local_vars or {})
+        object.__setattr__(self, 'local_prefix', local_prefix)
+        if kwargs:
+            for k, v in kwargs.items():
+                if 'value' not in v:
+                    raise ValueError('Each init kwargs must have a "value" field.')
+                val = v.pop('value')
+                self.add_param(name=k, value=val, **v)
 
-    def add_param(self, name, **dss_param_kwargs):
-        if self.use_local:
-            dss_param_kwargs['value'] = dss_param_kwargs.get('value') or self._get_local_var(name)
+    def add_param(self, name: str, value: Any = None, **kwargs):
+        """Add a new DSSParameter to the config
 
-        setattr(self, name, DSSParameter(name=name, **dss_param_kwargs))
+        Args:
+            name(str): The name of the parameter
+            value(Any, optional): The value of the parameter. If empty, the parameter must be in local vars
+            **kwargs: Other arguments. See DSSParameter help.
+        """
+        if self.local_vars:
+            value = value or self._get_local_var(name)
+        self.config[name] = DSSParameter(name=name, value=value, **kwargs)
 
-    def get(self, key, default=None):
-        return getattr(self, str(key), default)
+    def get_param(self, name: str) -> DSSParameter:
+        """Returns the DSSParameter of given name
 
-    def __getattribute__(self, item):
-        attr = object.__getattribute__(self, item)
-        return attr.value if isinstance(attr, DSSParameter) else attr
+        Args:
+            name(str): Name of object to return
+
+        Returns:
+            DSSParameter: Parameter of given name
+        """
+        return self.config.get(name)
+
+    def _get_local_var(self, var_name: str) -> Any:
+        """Returns the value of the local variable related to var_name.
+
+        Args:
+            var_name(str): The variable to fetch from local_vars. It will be prefixed by the attribute "local_prefix"
+
+        Returns:
+            Any: The value matching the given name
+        """
+        return self.local_vars.get('{}__{}'.format(self.local_prefix, var_name), None)
+
+    def __delitem__(self, item):
+        del self.config[item]
+
+    def __getattr__(self, name):
+        return self[name]
+
+    def __setattr__(self, key, value):
+        self[key] = value
 
     def __getitem__(self, item):
-        it = self.get(item)
-        if not it:
+        if item in self.config:
+            return self.config.get(item).value
+        else:
             raise KeyError(item)
-        return self.get(item)
 
-    def __contains__(self, item):
-        return not not self.get(item)
+    def __setitem__(self, key, value):
+        self.add_param(name=key, value=value)
+
+    def __iter__(self):
+        return iter(self.config)
+
+    def __len__(self):
+        return len(self.config)
+
+    def __repr__(self):
+        return self.config.__repr__()
+
+    def __str__(self):
+        return self.config.__str__()

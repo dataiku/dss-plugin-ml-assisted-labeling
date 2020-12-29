@@ -13,7 +13,7 @@ from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY
 
 def create_dku_config(config):
     dku_config = DkuConfig(
-        use_local=True,
+        local_vars=dataiku.Project().get_variables()['local'],
         local_prefix=LOCAL_VAR_PREFIX
     )
     dku_config.add_param(

@@ -1,107 +1,97 @@
+from .custom_check import CustomCheck, CustomCheckError
+from typing import Any, List
+
 import logging
 logger = logging.getLogger(__name__)
 
-DEFAULT_ERROR_MESSAGES = {
-    'exists': 'The field "{name}" is required.',
-    'in': '{value} should be in the following iterable: {op}.',
-    'not_in': '{value} should not be in the following iterable: {op}.',
-    'sup': '{name} should be superior to {op} (Currently {value}).',
-    'sup_eq': '{name} should be superior or equal to {op} (Currently {value}).',
-    'inf': '{name} should be inferior to {op} (Currently {value}).',
-    'inf_eq': '{name} should be inferior or equal to {op} (Currently {value}).',
-    'between': '{name} should be between {op[0]} and {op[1]} (Currently {value}).',
-    'between_strict': '{name} should be strictly between {op[0]} and {op[1]} (Currently {value}).',
-    'custom': "Unknown error append."
-}
-
 
 class DSSParameterError(Exception):
+    """Exception raised when at least one CustomCheck fails.
+    """
     pass
 
 
-class CustomCheck:
-    def __init__(self, type, op=None, cond=None, err_msg='', severity='ERROR'):
-        self.type = type
-        self.op = op
-        self.cond = cond
-        self.err_msg = err_msg or self.get_default_err_msg()
-        self.severity = getattr(logging, severity, logging.ERROR)
-
-    def run(self, parameter):
-        result = getattr(self, '_{}'.format(self.type))(parameter.value)
-        self.handle_return(result, parameter)
-
-    def handle_return(self, result, parameter):
-        try:
-            assert result
-        except AssertionError:
-            formatted_err_msg = self.format_err_mesg(parameter)
-            if self.severity == logging.ERROR:
-                raise DSSParameterError(formatted_err_msg)
-            else:
-                logger.log(self.severity, formatted_err_msg)
-
-    def get_default_err_msg(self):
-        return DEFAULT_ERROR_MESSAGES[self.type]
-
-    def format_err_mesg(self, parameter):
-        formatted_err_msg = self.err_msg.format(name=parameter.name, value=parameter.value, op=self.op)
-        return f'Error for parameter "{parameter.name}" - {formatted_err_msg}'
-
-    def _exists(self, value):
-        if "nguages, you can use \"Detected language" in self.err_msg:
-            print("value : ", value)
-        return not value is None
-
-    def _in(self, value):
-        return value in self.op
-
-    def _not_in(self, value):
-        return value not in self.op
-
-    def _sup(self, value):
-        return value > float(self.op)
-
-    def _inf(self, value):
-        return value < float(self.op)
-
-    def _sup_eq(self, value):
-        return value >= float(self.op)
-
-    def _inf_eq(self, value):
-        return value <= float(self.op)
-
-    def _between(self, value):
-        return float(self.op[0]) <= value <= float(self.op[1])
-
-    def _between_strict(self, value):
-        return float(self.op[0]) < value < float(self.op[1])
-
-    def _is_type(self, value):
-        return isinstance(value, self.op)
-
-    def _custom(self, value):
-        return self.cond
-
-
 class DSSParameter:
-    def __init__(self, name, value, checks=None, required=False):
+    """Object related to one parameter. It is mainly used for checks to run in backend for custom forms.
+
+    Attributes:
+        name(str): Name of the parameter
+        value(Any): Value of the parameter
+        checks(list[dict], optional): Checks to run on provided value
+        required(bool, optional): Whether the value can be None
+    """
+    def __init__(self, name: str, value: Any, checks: List[dict] = None, required: bool = False):
+        """Initialization method for the DSSParameter class
+
+        Args:
+            name(str): Name of the parameter
+            value(Any): Value of the parameter
+            checks(list[dict], optional): Checks to run on provided value
+            required(bool, optional): Whether the value can be None
+        """
         if checks is None:
             checks = []
         self.name = name
         self.value = value
         self.checks = [CustomCheck(**check) for check in checks]
-        self.required = required
+        if required:
+            self.checks.append(CustomCheck(type='exists'))
         self.run_checks()
 
     def run_checks(self):
-        if self.required:
-            self.checks.append(CustomCheck(type='exists'))
+        """Runs all checks provided for this parameter
+        """
+        errors = []
         for check in self.checks:
-            check.run(self)
+            try:
+                check.run(self.value)
+            except CustomCheckError as err:
+                errors.append(err)
+        if errors:
+            self.handle_failure(errors)
+        self.handle_success()
 
+    def handle_failure(self, errors: List[CustomCheckError]):
+        """Is called when at least one test fails. It will raise an Exception with understandable text
+
+        Args:
+            errors(list[CustomCheckError]: Errors met when running checks
+
+        Raises:
+            DSSParameterError: Raises if at least on check fails
+        """
+        raise DSSParameterError(self.format_failure_message(errors))
+
+    def format_failure_message(self, errors: List[CustomCheckError]) -> str:
+        """Format failure text
+
+        Args:
+            errors(list[CustomCheckError]: Errors met when running checks
+
+        Returns:
+            str: Formatted error message
+        """
+        return """
+        Error for parameter \"{name}\" :
+        {errors}
+        Please check your settings and fix errors.
+        """.format(
+            name=self.name,
+            errors='\n'.join(["\t- {}".format(e) for e in errors])
+        )
+
+    def handle_success(self):
+        """Called if all checks are successful. Prints a success message
+        """
         self.print_success_message()
 
     def print_success_message(self):
+        """Formats the succee message
+        """
         logger.info('All checks have been successfully done for {}.'.format(self.name))
 
+    def __repr__(self):
+        return "DSSParameter(name={}, value={})".format(self.name, self.value)
+
+    def __str__(self):
+        return "DSSParameter(name={}, value={})".format(self.name, self.value)
