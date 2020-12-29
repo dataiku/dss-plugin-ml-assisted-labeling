@@ -91,8 +91,8 @@ export function shortcut(event) {
         'back': [event.code === 'ArrowLeft'],
         'next': [event.code === 'ArrowRight', event.code === 'Space'],
         'skip': [event.code === 'Tab'],
-        'first': [event.code === 'PageDown'],
-        'last': [event.code === 'PageUp']
+        'first': [event.code === 'ArrowUp'],
+        'last': [event.code === 'ArrowDown']
     }
     return (action) => {
         return shortcuts[action].some(x => x);

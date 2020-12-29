@@ -143,7 +143,7 @@ export default new Vue({
                                         <td>
                                             <div class="keybind"><i class="fas fa-arrow-right"></i></div>
                                             /
-                                            <div class="keybind">Enter</div>
+                                            <div class="keybind">Spacebar</div>
                                         </td>
                                         <td>Next</td>
                                     </tr>
@@ -155,19 +155,19 @@ export default new Vue({
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div class="keybind">Space bar</div>
+                                            <div class="keybind">Tab</div>
                                         </td>
                                         <td>Skip</td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div class="keybind ng-binding">PageDown</div>
+                                            <div class="keybind ng-binding"><i class="fas fa-arrow-up"></i></div>
                                         </td>
                                         <td>First</td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div class="keybind ng-binding">PageUp</div>
+                                            <div class="keybind ng-binding"><i class="fas fa-arrow-down"></i></div>
                                         </td>
                                         <td>Last</td>
                                     </tr>

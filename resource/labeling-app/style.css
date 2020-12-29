@@ -37,6 +37,10 @@
     padding: 10px 10px;
 }
 
+.shortcuts-table td:first-child {
+    text-align: right;
+}
+
 .progress-background {
     height: 5px;
     width: 100%;
