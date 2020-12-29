@@ -84,7 +84,7 @@ export let ControlButtons = {
             DKUApi.first().then(this.processAnnotationResponce);
         },
         unlabeled: function (force=false) {
-            if ((!this.currentStatus && !force) || !this.$root.item.labelId) {
+            if ((!this.currentStatus || !this.$root.item.labelId) && !force) {
                 return;
             }
             this.$root.assignNextItem();
