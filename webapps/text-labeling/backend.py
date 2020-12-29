@@ -6,7 +6,7 @@ from lal.api import define_endpoints
 from lal.app_configuration import prepare_datasets
 from lal.classifiers.text_classifier import TextClassifier
 from lal.handlers.dataiku_lal_handler import DataikuLALHandler
-from lal.config.dku_config import DkuConfig
+from lal.config import DkuConfig
 from lal.utils import LOCAL_VAR_PREFIX
 from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY
 
