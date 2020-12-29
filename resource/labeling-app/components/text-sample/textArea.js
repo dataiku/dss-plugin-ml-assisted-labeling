@@ -280,11 +280,6 @@ const TextArea = {
                 this.deleteSelected();
             }
         });
-
-        document.getElementsByClassName('sample-container')[0].addEventListener('click', (event) => {
-            this.deselectAll();
-        }, true);
-
     },
     // language=HTML
     template: `

@@ -103,6 +103,13 @@ export default new Vue({
                 });
                 return batchPromise;
             }
+        },
+        handleContainerClick: function (ev) {
+            if (this.type === "text") {
+                if (!ev.path.find((x) => x.classList?.value === 'textarea')) {
+                    this.$refs.textarea.deselectAll();
+                }
+            }
         }
     },
     mounted: function () {
@@ -117,7 +124,7 @@ export default new Vue({
         <div class="main">
             <errors></errors>
             <div v-if="config && item && !isDone" class="ongoing-training-main">
-                <div class="sample-container">
+                <div class="sample-container" @click="handleContainerClick($event)">
                     <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
                     <image-sample v-if="type === 'image'" :item="item.data"/>
                     <sound-sample v-if="type === 'sound'" :item="item.data"/>
@@ -126,7 +133,7 @@ export default new Vue({
                                  :selectedLabel="selectedLabel"
                                  :objects.sync="annotation.label"
                     />
-                    <TextArea v-if="type === 'text'"
+                    <TextArea v-if="type === 'text'" ref="textarea"
                             :text="item.data.raw[config.text_column]"
                             :selectedLabel="selectedLabel"
                             :entities.sync="annotation.label"
@@ -194,7 +201,6 @@ export default new Vue({
                             </table>
                         </div>
                     </v-popover>
-
                 </div>
                 <div class="right-panel">
                     <div class="section right-panel-top">
