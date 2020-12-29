@@ -4,11 +4,11 @@ from dataiku.customwebapp import get_webapp_config
 
 from lal.api import define_endpoints
 from lal.app_configuration import prepare_datasets
-from lal.classifiers.text_classifier import TextClassifier
+from lal.classifiers.ner.text_classifier import TextClassifier
 from lal.handlers.dataiku_lal_handler import DataikuLALHandler
 from lal.config import DkuConfig
 from lal.utils import LOCAL_VAR_PREFIX
-from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY
+from lal.classifiers.ner.tokenizers import SUPPORTED_LANGUAGES_SPACY
 
 
 def create_dku_config(config):

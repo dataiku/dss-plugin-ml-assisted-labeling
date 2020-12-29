@@ -4,8 +4,8 @@ import logging
 import pandas as pd
 import re
 import emoji
-from lal.tokenizers.spacy_tokenizer import MultilingualTokenizer
-from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY
+from .tokenizers import MultilingualTokenizer
+from .tokenizers import SUPPORTED_LANGUAGES_SPACY
 
 
 from lal.classifiers.base_classifier import TableBasedDataClassifier

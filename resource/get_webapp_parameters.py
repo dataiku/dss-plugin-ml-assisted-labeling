@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from lal.tokenizers.language_dict import SUPPORTED_LANGUAGES_SPACY
+from lal.classifiers.ner.tokenizers import SUPPORTED_LANGUAGES_SPACY
 
 
 def do(payload, config, plugin_config, inputs):
