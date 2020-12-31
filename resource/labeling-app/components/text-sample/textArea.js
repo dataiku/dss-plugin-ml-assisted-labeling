@@ -161,10 +161,8 @@ const TextArea = {
             const selection = document.getSelection();
             if (selection.isCollapsed || selection.toString() === this.tokenSep) return;
             const range = selection.getRangeAt(selection.rangeCount - 1);
-            let [startNode, endNode] = [
-                range.startContainer.nodeType === 1 ? range.startContainer.childNodes[0] : range.startContainer,
-                range.endContainer.nodeType === 1 ? range.endContainer.childNodes[0] : range.endContainer
-            ]
+            let startNode = range.startContainer.nodeType === 1 ? range.startContainer.childNodes[0] : range.startContainer
+            let endNode = range.endContainer.nodeType === 1 ? range.endContainer.childNodes[0] : range.endContainer
             if (range.commonAncestorContainer.id === 'textarea' && range.startContainer.length === range.startOffset) {
                 startNode = range.startContainer.parentElement.nextElementSibling.childNodes[0];
             } // Useful for Firefox compatibility
