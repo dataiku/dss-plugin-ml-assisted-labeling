@@ -91,11 +91,17 @@ class LALHandler(object):
         When loaded an empty key is represented by EMPTY_KEY, when saved it becomes None
         """
         clean_label = cp.deepcopy(label)
-        for lab in clean_label:
-            if not lab['label']:
-                lab['label'] = EMPTY_KEY
-            elif lab['label'] == EMPTY_KEY:
-                lab['label'] = None
+        for i, lab in enumerate(clean_label):
+            if isinstance(lab, str):
+                if not lab:
+                    clean_label[i] = EMPTY_KEY
+                elif lab == EMPTY_KEY:
+                    clean_label[i] = None
+            else:
+                if not lab['label']:
+                    lab['label'] = EMPTY_KEY
+                elif lab['label'] == EMPTY_KEY:
+                    lab['label'] = None
         return clean_label
 
     def calculate_stats(self, user):

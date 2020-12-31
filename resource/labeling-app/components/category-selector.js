@@ -267,16 +267,19 @@ let CategorySelector = {
                         <h2 v-if="status === 'SKIPPED'">Sample was skipped</h2>
                     </div>
                 </div>
-                <div class="button category" v-for="(lbl,key) in categories"
-                     @click="doLabel(key)"
-                     :class="{ selected: annotation.label && annotation.label.includes(key) }">
-                    <span>{{lbl.caption}}</span>
-                    <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
-                    <div class="progress-background"
-                         v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
-                        <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
+                <div style="display: flex; align-items: center; justify-content: center; flex-direction: row; flex-wrap: wrap;">
+                    <div class="button category" v-for="(lbl,key) in categories"
+                         @click="doLabel(key)"
+                         :class="{ selected: annotation.label && annotation.label.includes(key) }">
+                        <span>{{lbl.caption}}</span>
+                        <code v-if="catToKeyMapping.hasOwnProperty(key)" class="keybind">{{catToKeyMapping[key]}}</code>
+                        <div class="progress-background"
+                             v-tooltip.bottom="{content: (stats.perLabel[key] || 0) + ' label(s) - '+getProgress(key)+'% of total', enabled: getProgress(key)}">
+                            <div class="progress" :style="{ width: getProgress(key) + '%' }"></div>
+                        </div>
                     </div>
                 </div>
+                <div style="flex-grow: 4;"></div>
             </div>
 
             <textarea name="" id="" cols="60" rows="2" placeholder="Comments..." :disabled="!enabled"

@@ -103,6 +103,13 @@ export default new Vue({
                 });
                 return batchPromise;
             }
+        },
+        handleContainerClick: function (ev) {
+            if (this.type === "text") {
+                if (!ev.path.find((x) => x.classList?.value === 'textarea')) {
+                    this.$refs.textarea.deselectAll();
+                }
+            }
         }
     },
     mounted: function () {
@@ -117,7 +124,7 @@ export default new Vue({
         <div class="main">
             <errors></errors>
             <div v-if="config && item && !isDone" class="ongoing-training-main">
-                <div class="sample-container">
+                <div class="sample-container" @click="handleContainerClick($event)">
                     <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
                     <image-sample v-if="type === 'image'" :item="item.data"/>
                     <sound-sample v-if="type === 'sound'" :item="item.data"/>
@@ -126,7 +133,7 @@ export default new Vue({
                                  :selectedLabel="selectedLabel"
                                  :objects.sync="annotation.label"
                     />
-                    <TextArea v-if="type === 'text'"
+                    <TextArea v-if="type === 'text'" ref="textarea"
                             :text="item.data.raw[config.text_column]"
                             :selectedLabel="selectedLabel"
                             :entities.sync="annotation.label"
@@ -134,7 +141,7 @@ export default new Vue({
                             :tokenSep="config.token_sep"
                             :textDirection="config.text_direction"
                     />
-                    <v-popover :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
+                    <v-popover v-if="isMultiLabel" :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
                         <img src="../../resource/img/question-sign.png" alt="Shortcuts">
                         <div slot="popover" style="text-align: left">
                             <table class="shortcuts-table">
@@ -143,7 +150,7 @@ export default new Vue({
                                         <td>
                                             <div class="keybind"><i class="fas fa-arrow-right"></i></div>
                                             /
-                                            <div class="keybind">Enter</div>
+                                            <div class="keybind">Spacebar</div>
                                         </td>
                                         <td>Next</td>
                                     </tr>
@@ -155,9 +162,21 @@ export default new Vue({
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div class="keybind">Space bar</div>
+                                            <div class="keybind">Tab</div>
                                         </td>
                                         <td>Skip</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind ng-binding"><i class="fas fa-arrow-up"></i></div>
+                                        </td>
+                                        <td>First</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="keybind ng-binding"><i class="fas fa-arrow-down"></i></div>
+                                        </td>
+                                        <td>Last</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -172,7 +191,7 @@ export default new Vue({
                                         <td>
                                             <div class="keybind ng-binding">⌫</div>
                                             /
-                                            <div class="keybind">␡</div>
+                                            <div class="keybind">DEL</div>
                                             /
                                             <div class="keybind">dbl click</div>
                                         </td>
@@ -182,7 +201,6 @@ export default new Vue({
                             </table>
                         </div>
                     </v-popover>
-
                 </div>
                 <div class="right-panel">
                     <div class="section right-panel-top">

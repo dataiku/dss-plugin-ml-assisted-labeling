@@ -13,8 +13,8 @@
     right: 10px;
     top: 10px;
     background: var(--white);
-    width: 64px;
-    height: 64px;
+    width: 32px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -35,6 +35,10 @@
 .shortcuts-table td {
     border: none;
     padding: 10px 10px;
+}
+
+.shortcuts-table td:first-child {
+    text-align: right;
 }
 
 .progress-background {
@@ -232,17 +236,15 @@ canvas {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 15px;
 }
 
-.category-selector--categories .empty-annotations-placeholder{
-    top: 50%; transform: translateY(-50%)
-}
 .category-selector--categories {
-    align-content: flex-start;
+    align-content: center;
     margin-left: -5px;
     margin-right: -5px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-around;
     flex-wrap: wrap;
     flex: 1;
