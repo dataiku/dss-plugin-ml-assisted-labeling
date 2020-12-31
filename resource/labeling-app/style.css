@@ -13,8 +13,8 @@
     right: 10px;
     top: 10px;
     background: var(--white);
-    width: 64px;
-    height: 64px;
+    width: 32px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -35,6 +35,10 @@
 .shortcuts-table td {
     border: none;
     padding: 10px 10px;
+}
+
+.shortcuts-table td:first-child {
+    text-align: right;
 }
 
 .progress-background {

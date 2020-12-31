@@ -280,7 +280,6 @@ const TextArea = {
                 this.deleteSelected();
             }
         });
-
     },
     // language=HTML
     template: `
