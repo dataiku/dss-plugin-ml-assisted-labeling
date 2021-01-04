@@ -63,14 +63,18 @@ const TextArea = {
         },
         handleClickOnSelection(selectionId) {
             return (mEvent) => {
-                this.mapAndEmit((o) => {
-                    if (selectionId === this.getSelectionId(
-                        this.getTokenFromStart(o.start).id, this.getTokenFromEnd(o.end).id)) {
-                        o.selected = !o.selected;
-                    } else {
-                        o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
-                    }
-                })
+                if (mEvent.detail === 2) {
+                    this.handleDblClickOnSelection(selectionId)(); // Firefox doesn't handle dblclick event listener
+                } else {
+                    this.mapAndEmit((o) => {
+                        if (selectionId === this.getSelectionId(
+                            this.getTokenFromStart(o.start).id, this.getTokenFromEnd(o.end).id)) {
+                            o.selected = !o.selected;
+                        } else {
+                            o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
+                        }
+                    })
+                }
             }
         },
         makeSelected(range, category, selected, isPrelabel) {
@@ -90,7 +94,6 @@ const TextArea = {
             const selectionId = this.getSelectionId(tokenStart, tokenEnd);
             selectionWrapper.id = selectionId;
 
-            selectionWrapper.addEventListener('dblclick', this.handleDblClickOnSelection(selectionId));
             selectionWrapper.addEventListener('click', this.handleClickOnSelection(selectionId));
 
             if (!isPrelabel) selectionWrapper.style.background = colorStrTransparent;
