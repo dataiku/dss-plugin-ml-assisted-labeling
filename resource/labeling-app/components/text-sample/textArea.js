@@ -136,20 +136,27 @@ const TextArea = {
                 textarea.appendChild(newToken)
             })
         },
-        isLegitSelect(startToken, endToken, selectedText) {
+        isLegitSelect(startNode, endNode, selectedText) {
             const selection = document.getSelection();
             if (selection.rangeCount > 1 && selection.getRangeAt(0).toString().length > 0) return false;
+            if (!startNode || !endNode) return false;
+
+            const startToken = this.getTokenFromId(startNode.id);
+            const endToken = this.getTokenFromId(endNode.id);
+
             if (!startToken || !endToken || selectedText === startToken.whitespace) return false;
             return !this.entities || !this.entities.some((o) => {
                 return startToken.start < o.start && endToken.end > o.end
             })
         },
         sanitizeBoundaryNodes(range) {
-            let [startNode, endNode] = [range.startContainer, range.endContainer]
+            let [startNode, endNode] = [range.startContainer, range.endContainer];
             startNode = startNode.nodeType === Node.TEXT_NODE ? startNode.parentElement : startNode;
             endNode = endNode.nodeType === Node.TEXT_NODE ? endNode.parentElement : endNode;
             const startToken = this.getTokenFromId(startNode.id);
-            if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
+            if (startToken && range.toString() === startToken.whitespace) {
+                startNode = undefined
+            } else if (startToken && range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
                 startNode = startNode.nextElementSibling;
             }
             return [startNode, endNode];
@@ -159,12 +166,7 @@ const TextArea = {
             if (selection.isCollapsed || selection.toString() === "") return;
             const range = selection.getRangeAt(selection.rangeCount - 1);
             let [startNode, endNode] = this.sanitizeBoundaryNodes(range);
-
-            const startToken = this.getTokenFromId(startNode.id);
-            const endToken = this.getTokenFromId(endNode.id);
-
-            const selectedText = range.toString();
-            if (!this.isLegitSelect(startToken, endToken, selectedText)) return;
+            if (!this.isLegitSelect(startNode, endNode, range.toString())) return;
 
             const {charStart: charStart} = this.parseTokenId(startNode);
             const {charEnd: charEnd} = this.parseTokenId(endNode);
