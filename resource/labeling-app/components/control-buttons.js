@@ -78,11 +78,14 @@ export let ControlButtons = {
             this.isLast = data.isLast;
         },
         first: function () {
+            if (!this.$root.canLabel || this.isFirst) {
+                return;
+            }
             DKUApi.first().then(this.processAnnotationResponce);
         },
         unlabeled: function (force=false) {
-            if (!this.currentStatus && !force) {
-                return
+            if ((!this.currentStatus || !this.$root.item.labelId) && !force) {
+                return;
             }
             this.$root.assignNextItem();
             this.isLast = true;
@@ -116,23 +119,24 @@ export let ControlButtons = {
             if (shortcut(event)('skip')) {
                 this.skip();
             }
+            if (shortcut(event)('first')) {
+                this.first();
+            }
+            if (shortcut(event)('last')) {
+                this.unlabeled();
+            }
         }, false);
     },
     template: `<div class="control-buttons">
-    <button class="right-panel-button" :disabled="isFirst" @click="first()"><i class="fas fa-step-backward"></i></button>
+    <button class="right-panel-button" :disabled="isFirst" @click="first()"><span>first</span><code class="keybind"><i class="fas fa-arrow-up"></i></code></i></button>
     <button class="right-panel-button" :disabled="isFirst" @click="back()"><span>back</span><code class="keybind"><i class="fas fa-arrow-left"></i></code></button>
-    <v-popover :trigger="'hover'" :placement="'bottom'">
-        <button class="right-panel-button skip-button" @click="skip()"><span>skip</span></button>
-        <div slot="popover">
-            Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Tab</code>
-        </div>
-    </v-popover>
+    <button class="right-panel-button skip-button" @click="skip()"><span>skip</span><code class="keybind">TAB</code></button>
     <v-popover :trigger="'hover'" :placement="'bottom'">
         <button class="right-panel-button" @click="next()" :disabled="!isLabeled && currentStatus !== 'SKIPPED'"><span>{{isSaveRequired() ? 'save & next' : 'next'}}</span><code class="keybind"><i class="fas fa-arrow-right"></i></code></button>
         <div slot="popover">
             Alternative hotkey: <code class="keybind" style="vertical-align: baseline">Space</code>
         </div>
     </v-popover>
-    <button class="right-panel-button" :disabled="!$root.item.labelId" @click="unlabeled()" style="margin-right: 0"><i class="fas fa-step-forward"></i></button></div>
+    <button class="right-panel-button" :disabled="!$root.item.labelId" @click="unlabeled()" style="margin-right: 0"><span>Last</span><code class="keybind"><i class="fas fa-arrow-down"></i></code></i></button></div>
 `
 };

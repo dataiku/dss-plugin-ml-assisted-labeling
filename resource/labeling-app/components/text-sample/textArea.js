@@ -244,11 +244,6 @@ const TextArea = {
                 this.deleteSelected();
             }
         });
-
-        document.getElementsByClassName('sample-container')[0].addEventListener('click', (event) => {
-            !shortcut(event)('multi-selection') && this.deselectAll();
-        }, true);
-
     },
     // language=HTML
     template: `
