@@ -134,7 +134,7 @@ const TextArea = {
             })
         },
         isLegitSelect(startToken, endToken, selectedText) {
-            if (selectedText === startToken.whitespace) return false;
+            if (!startToken || !endToken || selectedText === startToken.whitespace) return false;
             return !this.entities || !this.entities.some((o) => {
                 return startToken.start < o.start && endToken.end > o.end
             })
