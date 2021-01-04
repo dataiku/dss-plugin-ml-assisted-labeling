@@ -238,7 +238,9 @@ const TextArea = {
             this.entities.map((e) => this.addSelectionFromEntity(e));
         }
         this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR, 0.5));
-
+        document.getElementById('textarea').addEventListener('click', (mEvent) => {
+            !shortcut(mEvent)('multi-selection') && this.deselectAll();
+        }, true);
         window.addEventListener('keyup', (event) => {
             if (shortcut(event)('delete')) {
                 this.deleteSelected();
