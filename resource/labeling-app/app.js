@@ -134,12 +134,10 @@ export default new Vue({
                                  :objects.sync="annotation.label"
                     />
                     <TextArea v-if="type === 'text'" ref="textarea"
-                            :text="item.data.raw[config.text_column]"
                             :selectedLabel="selectedLabel"
                             :entities.sync="annotation.label"
                             :prelabels="item.prelabels"
-                            :tokenSep="config.token_sep"
-                            :textDirection="config.text_direction"
+                            :tokenizedText="item.data.raw.tokenized_text"
                     />
                     <v-popover v-if="isMultiLabel" :trigger="'hover'" :placement="'bottom'" class="shortcut-helper">
                         <img src="../../resource/img/question-sign.png" alt="Shortcuts">

@@ -14,6 +14,7 @@
     "bootstrap",
     "font_awesome"
   ],
+  "paramsPythonSetup": "get_webapp_parameters.py",
   "params": [
     {
       "type": "SEPARATOR",
@@ -89,7 +90,24 @@
       "name": "use_prelabeling",
       "label": "Activate Prelabeling",
       "description": "Labels calculated from what you already labeled will be added to new samples",
-      "defaultValue": false
+      "mandatory": true
+    },
+    {
+      "type": "SELECT",
+      "name": "language",
+      "label": "Language",
+      "getChoicesFromPython": true,
+      "mandatory": true
+    },
+    {
+      "type": "DATASET_COLUMN",
+      "datasetParamName": "unlabeled",
+      "name": "language_column",
+      "label": "Language column",
+      "description": "Column containing ISO 639-1 language codes",
+      "visibilityCondition": "model.language == 'language_column'",
+      "canSelectForeign": true,
+      "canCreateDataset": false
     },
     {
       "type": "SELECT",
@@ -101,6 +119,7 @@
       ],
       "description": "Left-to-Right for Latin, Cyrillic, Greek... or Right-to-Left for Arabic, Hebrew, Syriac...",
       "defaultValue": "ltr",
+      "visibilityCondition": "model.language == 'none'",
       "required": true
     },
     {
@@ -111,8 +130,9 @@
         { "value": "white_space", "label": "Split along white spaces and punctuation"},
         { "value": "char", "label": "Split along each character"}
       ],
-      "description": "Split along char for languages without separators (Chinese, Japanese, Korean...)",
+      "description": "Split along each character for languages such as Chinese, Japanese, Korean",
       "defaultValue": "white_space",
+      "visibilityCondition": "model.language == 'none'",
       "required": true
     }
   ]

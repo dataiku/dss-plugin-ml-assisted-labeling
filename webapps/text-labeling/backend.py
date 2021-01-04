@@ -1,17 +1,21 @@
+# -*- coding: utf-8 -*-
 import dataiku
 from dataiku.customwebapp import get_webapp_config
 
 from lal.api import define_endpoints
 from lal.app_configuration import prepare_datasets
-from lal.classifiers.text_classifier import TextClassifier
+from lal.classifiers.ner.text_classifier import TextClassifier
 from lal.handlers.dataiku_lal_handler import DataikuLALHandler
-from lal.config.dku_config import DkuConfig
-from lal.utils import get_local_var
+from lal.config import DkuConfig
+from lal.utils import LOCAL_VAR_PREFIX
+from lal.classifiers.ner.tokenizers import SUPPORTED_LANGUAGES_SPACY
 
 
 def create_dku_config(config):
-    dku_config = DkuConfig()
-
+    dku_config = DkuConfig(
+        local_vars=dataiku.Project().get_variables()['local'],
+        local_prefix=LOCAL_VAR_PREFIX
+    )
     dku_config.add_param(
         name='unlabeled',
         value=config.get('unlabeled'),
@@ -19,7 +23,7 @@ def create_dku_config(config):
     )
     dku_config.add_param(
         name='text_column',
-        value=config.get('text_column') or get_local_var('text_column'),
+        value=config.get('text_column'),
         required=True
     )
     categories = config.get('categories')
@@ -51,37 +55,54 @@ def create_dku_config(config):
         required=True
     )
     dku_config.add_param(
-        name='metadata_ds',
-        value=config.get('metadata_ds'),
-        required=True
-    )
-    dku_config.add_param(
         name='label_col_name',
         value=config.get('label_col_name'),
         required=True
     )
     dku_config.add_param(
         name='use_prelabeling',
-        value=config.get('use_prelabeling') or get_local_var('use_prelabeling'),
+        value=config.get('use_prelabeling'),
         required=True
     )
     dku_config.add_param(
+        name='language',
+        value=config.get('language'),
+        checks=[
+            {
+                'type': 'exists',
+                'err_msg': 'You must select one of the language.\n'
+                           'If the language is not in the list, please use the "Custom..." parameter to define a custom way to tokenize your text\n'
+                           'If your dataset contains samples of several languages, you can use "Detected language column" and create a column in your dataset containing the language of the sample.'
+            },
+            {
+                'type': 'in',
+                'op': list(SUPPORTED_LANGUAGES_SPACY.keys()) + ['language_column', 'none']
+            },
+        ],
+        required=True
+    )
+    dku_config.add_param(
+        name='language_column',
+        value=config.get('language_column'),
+        required=(dku_config.language == "language_column")
+    )
+    dku_config.add_param(
         name='text_direction',
-        value=config.get('text_direction') or get_local_var('text_direction'),
+        value=config.get('text_direction'),
         checks=[{
             'type': 'in',
             'op': ['rtl', 'ltr']
         }],
-        required=True
+        required=(dku_config.language == "none")
     )
     dku_config.add_param(
         name='tokenization_engine',
-        value=config.get('tokenization_engine') or get_local_var('tokenization_engine'),
+        value=config.get('tokenization_engine'),
         checks=[{
             'type': 'in',
             'op': ['white_space', 'char']
         }],
-        required=True
+        required=(dku_config.language == "none")
     )
     return dku_config
 
