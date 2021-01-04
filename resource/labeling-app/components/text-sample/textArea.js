@@ -137,6 +137,8 @@ const TextArea = {
             })
         },
         isLegitSelect(startToken, endToken, selectedText) {
+            const selection = document.getSelection();
+            if (selection.rangeCount > 1 && selection.getRangeAt(0).toString().length > 0) return false;
             if (!startToken || !endToken || selectedText === startToken.whitespace) return false;
             return !this.entities || !this.entities.some((o) => {
                 return startToken.start < o.start && endToken.end > o.end
