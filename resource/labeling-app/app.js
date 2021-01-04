@@ -106,7 +106,7 @@ export default new Vue({
         },
         handleContainerClick: function (ev) {
             if (this.type === "text") {
-                if (!ev.path.find((x) => x.classList?.value === 'textarea')) {
+                if (ev.target.classList.value === "sample-container") {
                     this.$refs.textarea.deselectAll();
                 }
             }
