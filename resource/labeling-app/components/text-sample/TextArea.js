@@ -1,4 +1,4 @@
-import {config, UNDEFINED_COLOR, UNDEFINED_CAPTION, shortcut} from "../utils/utils.js";
+import {config, shortcut, UNDEFINED_CAPTION, UNDEFINED_COLOR} from "../utils/utils.js";
 
 
 const TextArea = {
@@ -29,29 +29,28 @@ const TextArea = {
             this.highlightingStyleCreated = true;
         },
         addSelectionFromEntity(e) {
-            const category = config.categories[e.label];
-            const newRange = document.createRange();
-            const startToken = this.getTokenFromStart(e.start);
-            const endToken = this.getTokenFromEnd(e.end);
+            const [startToken, endToken] = [this.getTokenFromStart(e.start), this.getTokenFromEnd(e.end)];
             if (!startToken || !endToken) return;
-            const startNode = document.getElementById(this.getTokenId(startToken.id));
-            const endNode = document.getElementById(this.getTokenId(endToken.id));
+            const [startNode, endNode] = [startToken, endToken].map(this.getNodeFromToken);
+
+            const newRange = document.createRange();
             newRange.setStartBefore(startNode);
             newRange.setEndAfter(endNode);
-            this.makeSelected(newRange, category, e.selected, e.isPrelabel)
+            newRange.startToken = startToken;
+            newRange.endToken = endToken;
+            this.makeSelected(newRange, config.categories[e.label], e.selected, e.isPrelabel)
         },
-        getTokenFromStart(start) {
-            return this.tokenizedText.tokens.filter((t) => {
-                return t.start === start;
-            })[0]
-        },
-        getTokenFromEnd(end) {
-            return this.tokenizedText.tokens.filter((t) => {
-                return t.end === end;
-            })[0]
-        },
-        getTextFromBoundaries(start, end) {
-            return [...this.tokenizedText.text].slice(start, end).join('');
+        handleSimpleClickOnSelection(selectionId) {
+            return (mEvent) => {
+                this.mapAndEmit((o) => {
+                    if (selectionId === this.getSelectionId(
+                        this.getTokenFromStart(o.start).id, this.getTokenFromEnd(o.end).id)) {
+                        o.selected = !o.selected;
+                    } else {
+                        o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
+                    }
+                })
+            }
         },
         handleDblClickOnSelection(selectionId) {
             return () => {
@@ -66,48 +65,49 @@ const TextArea = {
                 if (mEvent.detail === 2) {
                     this.handleDblClickOnSelection(selectionId)(); // Firefox doesn't handle dblclick event listener
                 } else {
-                    this.mapAndEmit((o) => {
-                        if (selectionId === this.getSelectionId(
-                            this.getTokenFromStart(o.start).id, this.getTokenFromEnd(o.end).id)) {
-                            o.selected = !o.selected;
-                        } else {
-                            o.selected = shortcut(mEvent)('multi-selection') ? o.selected : false;
-                        }
-                    })
+                    this.handleSimpleClickOnSelection(selectionId)(mEvent);
                 }
             }
         },
-        makeSelected(range, category, selected, isPrelabel) {
-            const textAreaNodes = range.startContainer.childNodes;
-            const [tokenStart, tokenEnd] = [textAreaNodes[range.startOffset], textAreaNodes[range.endOffset - 1]].map((t) => {
-                return this.parseTokenId(t).tokenIndex
-            })
+        getCategoryColor(category, isTransparent=false) {
             const color = category ? category.color : UNDEFINED_COLOR;
-            const colorStrTransparent = this.colorToCSS(color, 0.25);
-            const colorStrOpaque = this.colorToCSS(color)
-
-            const caption = category ? category.caption : UNDEFINED_CAPTION;
-
+            return this.colorToCSS(color, isTransparent ? 0.25 : 1);
+        },
+        getCategoryCaption(category) {
+            return category ? category.caption : UNDEFINED_CAPTION;
+        },
+        createSelectionWrapper(startToken, endToken, category, selected, isPrelabel) {
             const selectionWrapper = document.createElement('mark');
             selectionWrapper.classList.add('selection-wrapper');
-            selected && selectionWrapper.classList.add('selected');
-            const selectionId = this.getSelectionId(tokenStart, tokenEnd);
+            if (selected) selectionWrapper.classList.add('selected');
+            const selectionId = this.getSelectionId(startToken.id, endToken.id);
             selectionWrapper.id = selectionId;
-
             selectionWrapper.addEventListener('click', this.handleClickOnSelection(selectionId));
+            if (isPrelabel) {
+                selectionWrapper.style.border = `${selected ? 4 : 2}px solid ${this.getCategoryColor(category)}`
+            } else {
+                selectionWrapper.style.background = this.getCategoryColor(category, true);
+            }
+            return selectionWrapper;
+        },
+        createSelectionCaption(category) {
+            const selectionCaption = document.createElement('span');
+            selectionCaption.classList.add('selected-caption');
+            selectionCaption.textContent = this.getCategoryCaption(category);
+            selectionCaption.style.color = this.getCategoryColor(category);
+            return selectionCaption
+        },
+        makeSelected(range, category, selected, isPrelabel) {
+            const startToken = range.startToken;
+            const endToken = range.endToken;
 
-            if (!isPrelabel) selectionWrapper.style.background = colorStrTransparent;
-            if (isPrelabel) selectionWrapper.style.border = `${selected ? 4 : 2}px solid ${colorStrOpaque}`
+            const selectionWrapper = this.createSelectionWrapper(startToken, endToken, category, selected, isPrelabel);
             range.surroundContents(selectionWrapper);
 
-            // We place a caption at the end of the mark tag
-            const captionSpan = document.createElement('span');
-            captionSpan.classList.add('selected-caption');
-            captionSpan.textContent = caption;
-            captionSpan.style.color = colorStrOpaque
-            selectionWrapper.appendChild(captionSpan);
+            const selectionCaption = this.createSelectionCaption(category);
+            selectionWrapper.appendChild(selectionCaption);
 
-            selected && selectionWrapper.scrollIntoView({block: "nearest", behavior: "smooth", });
+            selected && selectionWrapper.scrollIntoView({block: "nearest", behavior: "smooth"});
         },
         getLabeledText(start, end) {
             return {
@@ -116,24 +116,27 @@ const TextArea = {
                 start: start,
                 end: end,
                 draft: false,
-                selected: true,//!this.selectedLabel,
+                selected: true,
                 isPrelabel: false
             }
         },
         addObjectToObjectList(newObject) {
             this.emitUpdateEntities(this.entities ? this.entities.concat([newObject]) : [newObject]);
         },
+        createToken(token, index) {
+            const tokenDOM = document.createElement('span');
+            tokenDOM.textContent = token.text + token.whitespace;
+            tokenDOM.classList.add('token');
+            tokenDOM.id = this.getTokenId(index);
+            tokenDOM.setAttribute('data-start', token.start);
+            tokenDOM.setAttribute('data-end', token.end);
+            return tokenDOM
+        },
         resetSelection() {
             const textarea = document.getElementById('textarea');
             textarea.innerHTML = "";
             this.tokenizedText.tokens.forEach((token, index) => {
-                const newToken = document.createElement('span');
-                newToken.textContent = token.text + token.whitespace;
-                newToken.classList.add('token');
-                newToken.id = this.getTokenId(index);
-                newToken.setAttribute('data-start', token.start);
-                newToken.setAttribute('data-end', token.end);
-                textarea.appendChild(newToken)
+                textarea.appendChild(this.createToken(token, index))
             })
         },
         isLegitSelect() {
@@ -144,7 +147,7 @@ const TextArea = {
             let [startNode, endNode] = this.sanitizeBoundaryNodes(selection);
             if (!startNode || !endNode) return;
 
-            const [startToken, endToken] = [this.getTokenFromId(startNode.id), this.getTokenFromId(endNode.id)];
+            const [startToken, endToken] = [this.getTokenFromNode(startNode), this.getTokenFromNode(endNode)];
             if (!startToken || !endToken) return;
 
             return !this.entities || !this.entities.some((o) => {
@@ -158,7 +161,7 @@ const TextArea = {
             startNode = startNode.nodeType === Node.TEXT_NODE ? startNode.parentElement : startNode;
             endNode = endNode.nodeType === Node.TEXT_NODE ? endNode.parentElement : endNode;
 
-            const startToken = this.getTokenFromId(startNode.id);
+            const startToken = this.getTokenFromNode(startNode);
             if (!startToken || range.toString() === startToken.whitespace) {
                 startNode = null;
             } else if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
@@ -174,14 +177,10 @@ const TextArea = {
             if (!this.isLegitSelect()) return;
             let [startNode, endNode] = this.getBoundaryNodes();
 
-            const {charStart: charStart} = this.parseTokenId(startNode);
-            const {charEnd: charEnd} = this.parseTokenId(endNode);
+            const charStart = parseInt(startNode.dataset.start);
+            const charEnd = parseInt(endNode.dataset.end);
             if (isNaN(charStart) || isNaN(charEnd)) return;
             this.addObjectToObjectList(this.getLabeledText(charStart, charEnd));
-        },
-
-        getTokenFromId(tokenId) {
-            return this.tokenizedText.tokens[this.getTokenIndex(tokenId)]
         },
         deleteAll() {
             this.emitUpdateEntities([]);
@@ -191,38 +190,18 @@ const TextArea = {
         },
         deselectAll() {
             if (!this.entities) return;
-            const newObjectList = _.cloneDeep(this.entities)
-            newObjectList.map((o) => {o.selected = false})
-            this.emitUpdateEntities(newObjectList);
+            this.mapAndEmit((o) => {o.selected = false})
         },
-        getSelectionId(startId, endId) {
-            return `sel_${startId}_${endId}`;
-        },
-        colorToCSS(color, transparency=1) {
-            return `rgb(${color[0]},${color[1]},${color[2]}, ${transparency})`;
+        colorToCSS(color, opacity=1) {
+            return `rgb(${color[0]},${color[1]},${color[2]}, ${opacity})`;
         },
         mapAndEmit(fn) {
             const newObjectList = _.cloneDeep(this.entities);
             newObjectList.map(fn);
             this.emitUpdateEntities(newObjectList);
-
         },
         emitUpdateEntities(newObjects) {
             this.$emit("update:entities", newObjects);
-        },
-        parseTokenId(node) {
-            const splittedId = node.id.split('_');
-            return {
-                tokenIndex: parseInt(splittedId[1]),
-                charStart: parseInt(node.dataset.start),
-                charEnd: parseInt(node.dataset.end)
-            }
-        },
-        getTokenId(n) {
-            return `tok_${n}`;
-        },
-        getTokenIndex(tokenId) {
-            return parseInt(tokenId.split('_')[1]);
         },
         init_text() {
             this.resetSelection();
@@ -231,15 +210,47 @@ const TextArea = {
         },
         sanitizePrelabels() {
             this.prelabels.forEach((pl) => {pl.isPrelabel = true;})
+        },
+        getTokenFromData(dataName, dataValue) {
+            return this.tokenizedText.tokens.filter((t) => {
+                return t[dataName] === dataValue;
+            })[0]
+        },
+        getTokenFromStart(start) {
+            return this.getTokenFromData('start', start);
+        },
+        getTokenFromEnd(end) {
+            return this.getTokenFromData('end', end);
+        },
+        getNodeFromToken(token) {
+            return document.getElementById(this.getTokenId(token.id));
+        },
+        getTokenFromNode(node) {
+            return this.tokenizedText.tokens[this.getTokenIdFromNode(node)];
+        },
+        getTextFromBoundaries(start, end) {
+            return [...this.tokenizedText.text].slice(start, end).join('');
+        },
+        getTokenIdFromNode(node) {
+            return parseInt(node.id.split('_')[1]);
+        },
+        getTokenId(n) {
+            return `tok_${n}`;
+        },
+        getSelectionId(startId, endId) {
+            return `sel_${startId}_${endId}`;
+        },
+    },
+    computed: {
+        selectedCategory: function () {
+            return config.categories[this.selectedLabel];
         }
     },
     watch: {
         selectedLabel: function (){
-            const category = config.categories[this.selectedLabel];
-            const color = category ? category.color : UNDEFINED_COLOR;
-            this.updateHighlightingColor(this.colorToCSS(color, 0.5));
+            this.updateHighlightingColor(this.getCategoryColor(this.selectedCategory, true));
         },
-        tokenizedText: function(nv){
+        tokenizedText: function(){
             this.init_text()
         },
         entities: {
@@ -258,7 +269,7 @@ const TextArea = {
         if (this.entities) {
             this.entities.map((e) => this.addSelectionFromEntity(e));
         }
-        this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR, 0.5));
+        this.updateHighlightingColor(this.getCategoryColor(this.selectedCategory, true));
         document.getElementById('textarea').addEventListener('click', (mEvent) => {
             !shortcut(mEvent)('multi-selection') && this.deselectAll();
         }, true);
