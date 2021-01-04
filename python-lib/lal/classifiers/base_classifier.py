@@ -64,7 +64,7 @@ class BaseClassifier(ABC):
         return {}
 
     def get_item_by_id(self, sid):
-        result = {"raw": self.get_raw_item_by_id(sid)}
+        result = {"raw": self.get_raw_item_by_id(sid, is_saving=False)}
         enriched = self.get_enriched_item_by_id(sid)
         if enriched:
             result["enriched"] = enriched
@@ -75,7 +75,7 @@ class BaseClassifier(ABC):
     def get_enriched_item_by_id(self, sid):
         pass
 
-    def get_raw_item_by_id(self, data_id):
+    def get_raw_item_by_id(self, data_id, is_saving=False):
         df = self.df_to_label.where((pd.notnull(self.df_to_label)), None).astype('object')
         return df.loc[self.id_to_index[data_id]].to_dict()
 
@@ -123,7 +123,7 @@ class FolderBasedDataClassifier(BaseClassifier, ABC):
     def raw_row_to_id(raw):
         return raw['path']
 
-    def get_raw_item_by_id(self, sid):
+    def get_raw_item_by_id(self, sid, is_saving=False):
         return {"path": sid}
 
 
