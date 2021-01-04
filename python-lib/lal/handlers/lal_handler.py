@@ -137,7 +137,7 @@ class LALHandler(object):
         existing_meta_record = user_meta[user_meta.data_id == data_id]
 
         lbl_id = self.create_label_id() if existing_meta_record.empty else existing_meta_record.iloc[0][self.lbl_id_col]
-        raw_data = self.classifier.get_raw_item_by_id(data_id)
+        raw_data = self.classifier.get_raw_item_by_id(data_id, is_saving=True)
 
         if not data.get('label'):
             serialized_label = None

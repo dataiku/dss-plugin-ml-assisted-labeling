@@ -97,11 +97,10 @@ class TextClassifier(TableBasedDataClassifier):
     def is_legit_prelabel(self, pl_start, pl_end, tokens):
         return any([t for t in tokens if t["start"] == pl_start]) and any([t for t in tokens if t["end"] == pl_end])
 
-    def get_raw_item_by_id(self, data_id):
-        raw_item = super().get_raw_item_by_id(data_id)
-        if self.tokenizer:
-            tokenized_text = self.tokenize_text(raw_item)
-            raw_item['tokenized_text'] = tokenized_text
+    def get_raw_item_by_id(self, data_id, is_saving=False):
+        raw_item = super().get_raw_item_by_id(data_id, is_saving)
+        if self.tokenizer and not is_saving:
+            raw_item['tokenized_text'] = self.tokenize_text(raw_item)
         return raw_item
 
     def tokenize_text(self, raw_item):
