@@ -1,4 +1,4 @@
-PLUGIN_VERSION=3.0.2
+PLUGIN_VERSION=3.1.0
 PLUGIN_ID=ml-assisted-labeling
 
 all:
