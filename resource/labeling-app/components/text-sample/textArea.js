@@ -147,12 +147,10 @@ const TextArea = {
             const startToken = this.getTokenFromId(startNode.parentElement.id);
             const endToken = this.getTokenFromId(endNode.parentElement.id);
             const selectedText = range.toString();
-
             if (!this.isLegitSelect(startToken, endToken, selectedText)) return;
             if (range.startOffset >= startNode.length - startToken.whitespace.length) {
                 startNode = startNode.parentElement.nextElementSibling.childNodes[0];
             }
-
             const {charStart: charStart} = this.parseTokenId(startNode.parentElement);
             const {charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
             if (isNaN(charStart) || isNaN(charEnd)) return;
