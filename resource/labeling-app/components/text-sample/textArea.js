@@ -134,7 +134,7 @@ const TextArea = {
             })
         },
         isLegitSelect(startToken, endToken, selectedText) {
-            if (selectedText === startToken.whitespace) return false;
+            if (!startToken || !endToken || selectedText === startToken.whitespace) return false;
             return !this.entities || !this.entities.some((o) => {
                 return startToken.start < o.start && endToken.end > o.end
             })
@@ -147,12 +147,10 @@ const TextArea = {
             const startToken = this.getTokenFromId(startNode.parentElement.id);
             const endToken = this.getTokenFromId(endNode.parentElement.id);
             const selectedText = range.toString();
-
             if (!this.isLegitSelect(startToken, endToken, selectedText)) return;
             if (range.startOffset >= startNode.length - startToken.whitespace.length) {
                 startNode = startNode.parentElement.nextElementSibling.childNodes[0];
             }
-
             const {charStart: charStart} = this.parseTokenId(startNode.parentElement);
             const {charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
             if (isNaN(charStart) || isNaN(charEnd)) return;
@@ -238,7 +236,9 @@ const TextArea = {
             this.entities.map((e) => this.addSelectionFromEntity(e));
         }
         this.updateHighlightingColor(this.colorToCSS(UNDEFINED_COLOR, 0.5));
-
+        document.getElementById('textarea').addEventListener('click', (mEvent) => {
+            !shortcut(mEvent)('multi-selection') && this.deselectAll();
+        }, true);
         window.addEventListener('keyup', (event) => {
             if (shortcut(event)('delete')) {
                 this.deleteSelected();
