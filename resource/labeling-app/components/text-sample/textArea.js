@@ -136,37 +136,43 @@ const TextArea = {
                 textarea.appendChild(newToken)
             })
         },
-        isLegitSelect(startNode, endNode, selectedText) {
+        isLegitSelect() {
             const selection = document.getSelection();
-            if (selection.rangeCount > 1 && selection.getRangeAt(0).toString().length > 0) return false;
-            if (!startNode || !endNode) return false;
+            if (selection.isCollapsed || selection.toString() === "") return;
+            if (selection.rangeCount > 1 && selection.getRangeAt(0).toString().length > 0) return;
 
-            const startToken = this.getTokenFromId(startNode.id);
-            const endToken = this.getTokenFromId(endNode.id);
+            let [startNode, endNode] = this.sanitizeBoundaryNodes(selection);
+            if (!startNode || !endNode) return;
 
-            if (!startToken || !endToken || selectedText === startToken.whitespace) return false;
+            const [startToken, endToken] = [this.getTokenFromId(startNode.id), this.getTokenFromId(endNode.id)];
+            if (!startToken || !endToken) return;
+
             return !this.entities || !this.entities.some((o) => {
                 return startToken.start < o.start && endToken.end > o.end
             })
         },
-        sanitizeBoundaryNodes(range) {
+        sanitizeBoundaryNodes(selection) {
+            const range = selection.getRangeAt(selection.rangeCount - 1);
             let [startNode, endNode] = [range.startContainer, range.endContainer];
+
             startNode = startNode.nodeType === Node.TEXT_NODE ? startNode.parentElement : startNode;
             endNode = endNode.nodeType === Node.TEXT_NODE ? endNode.parentElement : endNode;
+
             const startToken = this.getTokenFromId(startNode.id);
-            if (startToken && range.toString() === startToken.whitespace) {
-                startNode = undefined
-            } else if (startToken && range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
-                startNode = startNode.nextElementSibling;
+            if (!startToken || range.toString() === startToken.whitespace) {
+                startNode = null;
+            } else if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
+                startNode = startNode.nextElementSibling; // Compatibility with Firefox
             }
             return [startNode, endNode];
         },
-        handleMouseUp() {
+        getBoundaryNodes() {
             const selection = document.getSelection();
-            if (selection.isCollapsed || selection.toString() === "") return;
-            const range = selection.getRangeAt(selection.rangeCount - 1);
-            let [startNode, endNode] = this.sanitizeBoundaryNodes(range);
-            if (!this.isLegitSelect(startNode, endNode, range.toString())) return;
+            return this.sanitizeBoundaryNodes(selection);
+        },
+        handleMouseUp() {
+            if (!this.isLegitSelect()) return;
+            let [startNode, endNode] = this.getBoundaryNodes();
 
             const {charStart: charStart} = this.parseTokenId(startNode);
             const {charEnd: charEnd} = this.parseTokenId(endNode);
