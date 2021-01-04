@@ -142,20 +142,30 @@ const TextArea = {
                 return startToken.start < o.start && endToken.end > o.end
             })
         },
+        sanitizeBoundaryNodes(range) {
+            let [startNode, endNode] = [range.startContainer, range.endContainer]
+            startNode = startNode.nodeType === Node.TEXT_NODE ? startNode.parentElement : startNode;
+            endNode = endNode.nodeType === Node.TEXT_NODE ? endNode.parentElement : endNode;
+            const startToken = this.getTokenFromId(startNode.id);
+            if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
+                startNode = startNode.nextElementSibling;
+            }
+            return [startNode, endNode];
+        },
         handleMouseUp() {
             const selection = document.getSelection();
-            if (selection.isCollapsed) return;
-            const range = selection.getRangeAt(0);
-            let [startNode, endNode] = [range.startContainer, range.endContainer]
-            const startToken = this.getTokenFromId(startNode.parentElement.id);
-            const endToken = this.getTokenFromId(endNode.parentElement.id);
+            if (selection.isCollapsed || selection.toString() === "") return;
+            const range = selection.getRangeAt(selection.rangeCount - 1);
+            let [startNode, endNode] = this.sanitizeBoundaryNodes(range);
+
+            const startToken = this.getTokenFromId(startNode.id);
+            const endToken = this.getTokenFromId(endNode.id);
+
             const selectedText = range.toString();
             if (!this.isLegitSelect(startToken, endToken, selectedText)) return;
-            if (range.startOffset >= startNode.length - startToken.whitespace.length) {
-                startNode = startNode.parentElement.nextElementSibling.childNodes[0];
-            }
-            const {charStart: charStart} = this.parseTokenId(startNode.parentElement);
-            const {charEnd: charEnd} = this.parseTokenId(endNode.parentElement);
+
+            const {charStart: charStart} = this.parseTokenId(startNode);
+            const {charEnd: charEnd} = this.parseTokenId(endNode);
             if (isNaN(charStart) || isNaN(charEnd)) return;
             this.addObjectToObjectList(this.getLabeledText(charStart, charEnd));
         },
