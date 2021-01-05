@@ -47,7 +47,7 @@ class ImageObjectClassifier(FolderBasedDataClassifier):
         return True
 
     @staticmethod
-    def deserialize_label(self, label):
+    def deserialize_label(label):
         return json.loads(label)
 
     @staticmethod
