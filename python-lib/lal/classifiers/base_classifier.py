@@ -79,20 +79,18 @@ class BaseClassifier(ABC):
         df = self.df_to_label.where((pd.notnull(self.df_to_label)), None).astype('object')
         return df.loc[self.id_to_index[data_id]].to_dict()
 
-    @staticmethod
-    def serialize_label(label):
-        return str(label[0])
+    def serialize_label(self, label):
+        return label if self.is_multi_label else str(label[0])
 
-    @staticmethod
-    def deserialize_label(label):
-        return [label]
+    def deserialize_label(self, label):
+        return label if self.is_multi_label else [label]
 
     def add_prelabels(self, batch, user_meta):
         pass
 
     @property
     def is_multi_label(self):
-        return False
+        return self.config.get('multi_annotation', False)
 
     @staticmethod
     @abstractmethod

@@ -69,9 +69,18 @@
       "mandatory": true
     },
     {
+      "name": "multi_annotation",
+      "type": "BOOLEAN",
+      "label": "Use multi-annotation",
+      "defaultValue": false,
+      "description": "can the image have more than one label? (Incompatible with Active Learning)",
+      "mandatory": true
+    },
+    {
       "type": "SEPARATOR",
       "name": "Active learning specific (optional)",
-      "label": "Active learning specific (optional)"
+      "label": "Active learning specific (optional)",
+      "visibilityCondition": "!model.multi_annotation"
     },
     {
       "type": "DATASET",
@@ -80,7 +89,8 @@
       "description": "The queries dataset is the output of the Query Sampler recipe of the Labeling and Active Learning plugin. Queries are the samples to be labeled in priority as proposed by an Active Learning strategy.",
       "mandatory": false,
       "canSelectForeign": false,
-      "canCreateDataset": true
+      "canCreateDataset": true,
+      "visibilityCondition": "!model.multi_annotation"
     }
   ]
 }

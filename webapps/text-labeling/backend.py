@@ -10,7 +10,6 @@ from lal.config import DkuConfig
 from lal.utils import LOCAL_VAR_PREFIX
 from lal.classifiers.ner.tokenizers import SUPPORTED_LANGUAGES_SPACY
 
-
 def create_dku_config(config):
     dku_config = DkuConfig(
         local_vars=dataiku.Project().get_variables()['local'],

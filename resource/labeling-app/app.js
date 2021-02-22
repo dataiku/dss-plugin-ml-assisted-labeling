@@ -126,7 +126,10 @@ export default new Vue({
             <div v-if="config && item && !isDone" class="ongoing-training-main">
                 <div class="sample-container" @click="handleContainerClick($event)">
                     <tabular-sample v-if="type === 'tabular'" :item="item.data"/>
-                    <image-sample v-if="type === 'image'" :item="item.data"/>
+                    <image-sample v-if="type === 'image'" :item="item.data"
+                                  :selectedLabel="selectedLabel"
+                                  :labels.sync="annotation.label"
+                    />
                     <sound-sample v-if="type === 'sound'" :item="item.data"/>
                     <ImageCanvas v-if="type === 'image-object'"
                                  :base64source="item.data.enriched.img"
