@@ -244,12 +244,12 @@ export default new Vue({
                                 </div>
                                 <div slot="popover" style="text-align: left; max-width: 500px">
                                     <div v-if="config.isAlEnabled">
-                                        <p>When Active learning is enabled so the most informative examples, with
-                                           highest uncertainty scores, are displayed first. </p>
+                                        <p>When Active learning is enabled, the most informative examples with the
+                                           highest uncertainty scores are displayed first. </p>
                                         <p>The colored bar is a halting criterion indicator. The indicator starts in
-                                           the green area in which samples appears to be better than random sampling.
+                                           the green area in which samples appear to be better than random sampling.
                                            In the orange zone, the sampling is not significantly better than random sampling.
-                                           Red samples are the ones for which the model is almost sure, so it is probably
+                                           For red samples the model is very certain, so it is probably
                                            not worth labeling them.</p>
                                         <p>The indicator is refreshed after each query generation. We advise the
                                            experimenter to retrain model and regenerate queries as often as possible
