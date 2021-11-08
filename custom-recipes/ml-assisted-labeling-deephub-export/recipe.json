@@ -1,22 +1,12 @@
-// This file is the descriptor for the Custom code recipe test
 {
-    // Meta data for display purposes
     "meta": {
-        // label: name of the recipe as displayed, should be short
         "label": "Reformat image annotations",
-        // description: longer string to help end users understand what this recipe does
         "description": "Reformat image annotations dataset created with ML-assisted Labeling plugin into a dataset compatible for object detection in DSS.",
 
-        // icon: must be one of the FontAwesome 3.2.1 icons, complete list here at https://fontawesome.com/v3.2.1/icons/
         "icon": "icon-picture"
     },
     "kind": "PYTHON",
     "selectableFromDataset": "input_dataset",
-    // Inputs and outputs are defined by roles. In the recipe's I/O tab, the user can associate one
-    // or more dataset to each input and output role.
-    // The "arity" field indicates whether the user can associate several datasets to the role ('NARY')
-    // or at most one ('UNARY'). The "required" field indicates whether the user is allowed to
-    // associate no dataset with the role.
     "inputRoles": [
         {
             "name": "input_dataset",
@@ -39,14 +29,6 @@
             "acceptsManagedFolder": false
         }
     ],
-    // The field "params" holds a list of all the params
-    //   for which the user will be prompted for values in the Settings tab of the recipe.
-    //
-    //   The available parameter types include:
-    //   STRING, STRINGS, INT, DOUBLE, BOOLEAN, SELECT, MULTISELECT, MAP, TEXTAREA, PRESET, COLUMN, COLUMNS
-    //
-    //   For the full list and for more details, see the documentation: https://doc.dataiku.com/dss/latest/plugins/reference/params.html
-
     "params": [
         {
             "name": "target_column",
@@ -58,12 +40,6 @@
             "mandatory": true
         }
 
-        // The 'COLUMNS' type works in the same way, except that it is a list of strings.
     ],
-    // The field "resourceKeys" holds a list of keys that allows to limit the number
-    // of concurrent executions and activities triggered by this recipe.
-    //
-    // Administrators can configure the limit per resource key in the Administration > Settings > Flow build
-    // screen.
     "resourceKeys": []
 }
