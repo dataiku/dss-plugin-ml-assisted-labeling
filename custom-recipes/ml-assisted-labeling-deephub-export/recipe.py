@@ -10,14 +10,12 @@ def format_labeling_plugin_annotations(image_annotations):
     """ Format labeling annotations to be compatible with dss object detection (deephub)"""
 
     deephub_image_annotations = []
-    # if images were skipped during labelling plugin, their annotations is nan:
+    # if images were skipped during labeling plugin, their annotations is nan:
     image_annotations = json.loads(image_annotations) if isinstance(image_annotations, str) else []
     for annotation in image_annotations:
         deephub_image_annotations.append(
-            {"bbox": [annotation.get("left"), annotation.get("top"), annotation.get("width"), annotation.get("height")],
-             "area": annotation.get("height") * annotation.get("width"),
-             "iscrowd": False,
-             "category": annotation.get("label")
+            {"bbox": [annotation["left"], annotation["top"], annotation["width"], annotation["height"]],
+             "category": annotation["label"]
              })
     image_annotations = json.dumps(deephub_image_annotations)
     return image_annotations
@@ -29,8 +27,8 @@ input_dataset = dataiku.Dataset(get_input_names_for_role("input_dataset")[0])
 output_df = input_dataset.get_dataframe()
 
 target_column = get_recipe_config()["target_column"]
-if target_column not in output_df.columns:
-    raise Exception("Column {} not in input_df with columns [{}]".format(target_column, list(output_df.columns)))
+if target_column not in input_df.columns:
+    raise Exception("Column {} not in input_df with columns [{}]".format(target_column, input_df.columns.tolist()))
 
 logging.info("Annotations target column chosen: {}".format(target_column))
 
