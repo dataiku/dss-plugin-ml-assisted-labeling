@@ -15,7 +15,7 @@ def format_labeling_plugin_annotations(image_annotations):
     for annotation in image_annotations:
         deephub_image_annotations.append(
             {"bbox": [annotation["left"], annotation["top"], annotation["width"], annotation["height"]],
-             "category": annotation[target_column]
+             "category": annotation["label"]
              })
     image_annotations = json.dumps(deephub_image_annotations)
     return image_annotations
