@@ -1,1 +1,0 @@
-[33mWARNING [0m ml_assisted_labeling_to_computer_vision.object_detection:object_detection.py:23 Image was not labelled, skipping
