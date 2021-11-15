@@ -7,7 +7,12 @@ logger = logging.getLogger(__name__)
 
 
 def format_labeling_plugin_annotations(image_annotations):
-    """ Format labeling annotations to be compatible with dss object detection (deephub)"""
+    """ Format labeling annotations to be compatible with dss object detection (deephub)
+        :param image_annotations: json serialized with labeling format:
+            '[{"top":118, "left":527,"width":174, "height":94, "label":"fish"}]'
+        :return: json serialized with deephub format:
+            '[{"bbox": [527, 118, 174, 94], "category":"fish"}]'
+    """
 
     deephub_image_annotations = []
     # if images were skipped during labeling plugin, their annotations is nan:
@@ -21,7 +26,7 @@ def format_labeling_plugin_annotations(image_annotations):
             raise ValueError()
 
     except (JSONDecodeError, ValueError) as e:
-        raise Exception("Image annotations {} could not be parsed".format(image_annotations))
+        raise Exception("Image annotations '{}' could not be parsed".format(image_annotations))
 
     for annotation in image_annotations:
         deephub_image_annotations.append(
