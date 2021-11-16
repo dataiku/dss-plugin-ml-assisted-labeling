@@ -21,6 +21,8 @@ pipeline {
             sh 'echo "Done with unit tests"'
          }
       }
+      /* No integration test yet, uncomment if you had integration tests to this plugin
+
       stage('Run Integration Tests') {
          when { environment name: 'INTEGRATION_TEST_FILES_STATUS_CODE', value: "0"}
          steps {
@@ -32,7 +34,7 @@ pipeline {
             }
             sh 'echo "Done with integration tests"'
          }
-      }
+      } */
    }
    post {
      always {
