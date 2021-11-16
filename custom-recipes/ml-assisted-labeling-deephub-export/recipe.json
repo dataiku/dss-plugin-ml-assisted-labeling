@@ -35,7 +35,7 @@
             "label": "Target column",
             "type": "COLUMN",
             "columnRole": "input_dataset",
-            "defaultValue" : "label", // todo here prefill with smarter choice once we add format guesser
+            "defaultValue" : "label",
             "description": "Dataset's column containing your annotations",
             "mandatory": true
         }
