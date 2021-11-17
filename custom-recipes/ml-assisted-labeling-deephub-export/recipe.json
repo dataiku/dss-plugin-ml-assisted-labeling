@@ -1,0 +1,45 @@
+{
+    "meta": {
+        "label": "Reformat image annotations",
+        "description": "Reformat image annotations dataset created with ML-assisted Labeling plugin into a dataset compatible for object detection in DSS.",
+
+        "icon": "icon-picture"
+    },
+    "kind": "PYTHON",
+    "selectableFromDataset": "input_dataset",
+    "inputRoles": [
+        {
+            "name": "input_dataset",
+            "label": "Input Dataset",
+            "description": "Dss Dataset containing at least one column with images path and one with annotations",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset": true,
+            "acceptsManagedFolder": false
+        }
+    ],
+    "outputRoles": [
+        {
+            "name": "output_dataset",
+            "label": "Output Dataset",
+            "description": "Dataset where each row represent an image from the input folder.",
+            "arity": "UNARY",
+            "required": false,
+            "acceptsDataset": true,
+            "acceptsManagedFolder": false
+        }
+    ],
+    "params": [
+        {
+            "name": "target_column",
+            "label": "Target column",
+            "type": "COLUMN",
+            "columnRole": "input_dataset",
+            "defaultValue" : "label",
+            "description": "Dataset's column containing your annotations",
+            "mandatory": true
+        }
+
+    ],
+    "resourceKeys": []
+}
