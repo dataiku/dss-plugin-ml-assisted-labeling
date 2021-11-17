@@ -26,7 +26,7 @@ def format_each_image_annotations(image_annotations):
     deephub_image_annotations = []
     try:
         image_annotations = json.loads(image_annotations)
-    except (JSONDecodeError) as e:
+    except (JSONDecodeError, TypeError) as e:
         raise Exception("Image annotations '{}' could not be parsed".format(image_annotations))
 
     for annotation in image_annotations:

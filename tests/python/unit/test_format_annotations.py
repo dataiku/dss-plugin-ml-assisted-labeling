@@ -38,6 +38,6 @@ def test_format_labeling_plugin_annotations__img_skipped():
 
 
 def test_format_labeling_plugin_annotations__wrong_format():
-    for wrong_labeling_annotations in ("toto", ""):
+    for wrong_labeling_annotations in ("toto", "", 1):
         with pytest.raises(Exception):
             format_labeling_plugin_annotations(pd.Series([wrong_labeling_annotations]))
