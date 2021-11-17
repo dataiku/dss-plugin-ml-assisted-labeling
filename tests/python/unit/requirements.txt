@@ -1,2 +1,3 @@
 pytest~=6.2
 allure-pytest~=2.8
+pandas==1.1.5

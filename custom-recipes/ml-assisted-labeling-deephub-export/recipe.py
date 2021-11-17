@@ -11,7 +11,7 @@ if target_column not in dataset_df.columns:
     raise Exception("Column {} not in dataset with columns {}".format(target_column, dataset_df.columns.tolist()))
 logger.info("Annotations target column chosen: {}".format(target_column))
 
-dataset_df[target_column] = dataset_df[target_column].map(format_labeling_plugin_annotations)
+dataset_df[target_column] = format_labeling_plugin_annotations(dataset_df[target_column])
 
 output_dataset = dataiku.Dataset(get_output_names_for_role("output_dataset")[0])
 output_dataset.write_with_schema(dataset_df)

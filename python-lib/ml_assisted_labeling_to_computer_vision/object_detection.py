@@ -1,31 +1,32 @@
 import json
 import logging
-import math
 from json import JSONDecodeError
 
 logger = logging.getLogger(__name__)
 
 
-def format_labeling_plugin_annotations(image_annotations):
+def format_labeling_plugin_annotations(annotations_series):
+    """
+        Format all images annotations to make them compatible with DSS computer vision.
+        (Ignore NAN rows which correspond to images skipped during labeling)
+    """
+    # Filling missing values (image not annotated) with an empty label
+    formatted_annotation_series = annotations_series.fillna(json.dumps([]))
+    formatted_annotation_series = formatted_annotation_series.map(format_each_image_annotations)
+    return formatted_annotation_series
+
+
+def format_each_image_annotations(image_annotations):
     """ Format labeling annotations to be compatible with dss object detection (deephub)
         :param image_annotations: json serialized with labeling format:
             '[{"top":118, "left":527,"width":174, "height":94, "label":"fish"}]'
         :return: json serialized with deephub format:
             '[{"bbox": [527, 118, 174, 94], "category":"fish"}]'
     """
-
     deephub_image_annotations = []
-    # if images were skipped during labeling plugin, their annotations is nan:
     try:
-        if isinstance(image_annotations, str):
-            image_annotations = json.loads(image_annotations)
-        elif isinstance(image_annotations, float) and math.isnan(image_annotations):
-            logger.warning("Image was not labelled, skipping")
-            image_annotations = []
-        else:
-            raise ValueError("Unsupported type: {}".format(type(image_annotations)))
-
-    except (JSONDecodeError, ValueError) as e:
+        image_annotations = json.loads(image_annotations)
+    except (JSONDecodeError) as e:
         raise Exception("Image annotations '{}' could not be parsed".format(image_annotations))
 
     for annotation in image_annotations:
