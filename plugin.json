@@ -4,7 +4,7 @@
     "meta": {
         "label": "ML-assisted Labeling",
         "description": "Label tabular, image, audio and text data efficiently with Active Learning",
-        "author": "Dataiku (Alexandre ABRAHAM, Andrey AVTOMONOV, Henri CHABERT)",
+        "author": "Dataiku (Alexandre ABRAHAM, Andrey AVTOMONOV, Henri CHABERT, Claire Behue)",
         "icon": "icon-tags",
         "licenseInfo": "Apache Software License",
         "url": "https://www.dataiku.com/product/plugins/ml-assisted-labeling/",
