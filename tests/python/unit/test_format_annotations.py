@@ -31,13 +31,6 @@ def test_format_labeling_plugin_annotations__img_skipped():
     assert output == expected_output
 
 def test_format_labeling_plugin_annotations__wrong_format():
-    skipped_labeling_annotations = "toto"
-
-    with pytest.raises(Exception):
-        output = format_labeling_plugin_annotations(skipped_labeling_annotations)
-
-def test_format_labeling_plugin_annotations__wrong_format_2():
-    skipped_labeling_annotations = ''
-
-    with pytest.raises(Exception):
-        output = format_labeling_plugin_annotations(skipped_labeling_annotations)
+    for skipped_labeling_annotations in ("toto", ""):
+        with pytest.raises(Exception):
+            format_labeling_plugin_annotations(skipped_labeling_annotations)

@@ -23,7 +23,7 @@ def format_labeling_plugin_annotations(image_annotations):
             logger.warning("Image was not labelled, skipping")
             image_annotations = []
         else:
-            raise ValueError()
+            raise ValueError("Unsupported type: {}".format(type(image_annotations)))
 
     except (JSONDecodeError, ValueError) as e:
         raise Exception("Image annotations '{}' could not be parsed".format(image_annotations))
