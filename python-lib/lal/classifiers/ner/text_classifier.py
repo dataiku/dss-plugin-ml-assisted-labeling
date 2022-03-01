@@ -78,7 +78,8 @@ class TextClassifier(TableBasedDataClassifier):
         prelabels = []
         if not history:
             return prelabels
-        regexp = '({})'.format('|'.join(list(history.keys())))
+        history_keys = [re.escape(hk) for hk in list(history.keys())]
+        regexp = '({})'.format('|'.join(history_keys))
         regexp = ('\\b{}\\b' if self.token_engine == self.WHITESPACE_TOKEN_ENGINE else '{}').format(regexp)
         emojis = list(re.finditer(emoji.get_emoji_regexp(), text))
         for match in re.finditer(regexp, text, re.IGNORECASE):
