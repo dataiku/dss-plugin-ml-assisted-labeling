@@ -168,8 +168,7 @@ const TextArea = {
             const startToken = this.getTokenFromNode(startNode);
             if (!startToken || range.toString() === startToken.whitespace) {
                 startNode = null;
-            } 
-            else if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
+            } else if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
                 startNode = startNode.nextElementSibling; // Compatibility with Firefox
             }
 
