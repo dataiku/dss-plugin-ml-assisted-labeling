@@ -165,19 +165,20 @@ const TextArea = {
             startNode = startNode.nodeType === Node.TEXT_NODE ? startNode.parentElement : startNode;
             endNode = endNode.nodeType === Node.TEXT_NODE ? endNode.parentElement : endNode;
 
-            while(startNode.getAttribute('data-is-selectable') === 'false') {
-                startNode = startNode.nextElementSibling;
-            }
-
-            while (endNode.getAttribute('data-is-selectable') === 'false') {
-                endNode = endNode.previousElementSibling;
-            }
-
             const startToken = this.getTokenFromNode(startNode);
             if (!startToken || range.toString() === startToken.whitespace) {
                 startNode = null;
-            } else if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
+            } 
+            else if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
                 startNode = startNode.nextElementSibling; // Compatibility with Firefox
+            }
+
+            while(startNode && startNode.getAttribute('data-is-selectable') === 'false') {
+                startNode = startNode.nextElementSibling;
+            }
+
+            while (endNode && endNode.getAttribute('data-is-selectable') === 'false') {
+                endNode = endNode.previousElementSibling;
             }
             return [startNode, endNode];
         },
