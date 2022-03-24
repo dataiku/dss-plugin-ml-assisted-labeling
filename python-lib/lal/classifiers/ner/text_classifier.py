@@ -26,7 +26,7 @@ class TextClassifier(TableBasedDataClassifier):
         self.use_tokenization = True
         self.tokenizer = self.use_tokenization and MultilingualTokenizer()
         self.text_column = config.get("text_column")
-        self.label_column = config.get('label_col_name')
+        self.label_column_name = config.get('label_col_name')
         self.language = config.get("language")
         self.language_column = config.get("language_column")
         self.token_engine = config.get("tokenization_engine")
@@ -62,7 +62,7 @@ class TextClassifier(TableBasedDataClassifier):
     def build_history_from_meta(self, user_meta):
         history = {}
         for meta in user_meta:
-            for lab in self.deserialize_label(meta[self.label_column]):
+            for lab in self.deserialize_label(meta[self.label_column_name]):
                 txt = lab["text"].lower()
                 if txt in history and lab["label"] == history[txt]["label"]:
                     history[txt]["cpt"] += 1
