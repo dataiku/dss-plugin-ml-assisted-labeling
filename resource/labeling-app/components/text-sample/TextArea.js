@@ -130,6 +130,7 @@ const TextArea = {
             tokenDOM.id = this.getTokenId(index);
             tokenDOM.setAttribute('data-start', token.start);
             tokenDOM.setAttribute('data-end', token.end);
+            tokenDOM.setAttribute('data-is-selectable', token.text.trim().length > 0);
             return tokenDOM
         },
         resetSelection() {
@@ -146,6 +147,9 @@ const TextArea = {
 
             let [startNode, endNode] = this.sanitizeBoundaryNodes(selection);
             if (!startNode || !endNode) return;
+
+            const nodesComparison = startNode.compareDocumentPosition(endNode);
+            if (![0, 4].includes(nodesComparison)) return;
 
             const [startToken, endToken] = [this.getTokenFromNode(startNode), this.getTokenFromNode(endNode)];
             if (!startToken || !endToken) return;
@@ -166,6 +170,14 @@ const TextArea = {
                 startNode = null;
             } else if (range.startOffset >= startNode.textContent.length - startToken.whitespace.length) {
                 startNode = startNode.nextElementSibling; // Compatibility with Firefox
+            }
+
+            while(startNode && startNode.getAttribute('data-is-selectable') === 'false') {
+                startNode = startNode.nextElementSibling;
+            }
+
+            while (endNode && endNode.getAttribute('data-is-selectable') === 'false') {
+                endNode = endNode.previousElementSibling;
             }
             return [startNode, endNode];
         },

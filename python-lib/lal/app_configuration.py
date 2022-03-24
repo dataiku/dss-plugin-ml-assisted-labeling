@@ -42,20 +42,30 @@ def prepare_dataset(required_schema, dataset):
     logging.info("Preparing dataset: {0}".format(dataset.name))
     required_cols = {c['name'] for c in required_schema}
     try:
-        df = dataset.get_dataframe()
-        if not required_cols.issubset(df.columns):
-            raise ValueError(
-                "The target dataset should have columns: {}. The provided dataset has columns: {}. "
-                "Please edit the schema in the dataset settings.".format(
-                    ', '.join(required_cols), ', '.join(dataset.cols)))
+        _ = dataset.read_metadata()
     except Exception as e:
-        logging.info("{0} probably empty: {1}".format(dataset.name, e))
+        raise ValueError("Dataset {} does not exist (Original error: {e}".format(dataset.name, e))
+
+    try:
+        ds_cols = {c['name'] for c in dataset.read_schema()}
+    except Exception as e:
+        logging.info("Dataset has no schema, will create it.")
+        ds_cols = set()
+
+    
+    if len(ds_cols) == 0:
+        logging.info("Dataset is empty, creating the schema")
         current_df = pd.DataFrame(columns=required_cols, index=[])
         for col in required_schema:
-            n = col["name"]
-            t = col["type"]
-            t = schema_handling.DKU_PANDAS_TYPES_MAP.get(t, np.object_)
-            current_df[n] = current_df[n].astype(t)
+            pandas_type = schema_handling.DKU_PANDAS_TYPES_MAP.get(col["type"], np.object_)
+            current_df[col["name"]] = current_df[col["name"]].astype(pandas_type)
         logging.info("Writing schema: {0} for {1}".format(current_df.columns, dataset.name))
         dataset.write_with_schema(current_df)
+    elif len(ds_cols) > 0 and required_cols.issubset(ds_cols):
+        logging.info("Dataset is not empty but has the right schema. Skipping schema creation")
+    else:
+        raise ValueError(
+            "The target dataset should be empty or have columns: {}. The provided dataset has columns: {}. "
+            "Please edit the schema in the dataset settings or create a new dataset.".format(
+                ', '.join(required_cols), ', '.join(ds_cols)))
     logging.info("Done preparing {0}".format(dataset.name))
