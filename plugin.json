@@ -1,6 +1,6 @@
 {
     "id": "ml-assisted-labeling",
-    "version": "4.0.1",
+    "version": "4.1.0",
     "meta": {
         "label": "ML-assisted Labeling",
         "description": "Label tabular, image, audio and text data efficiently with Active Learning",
