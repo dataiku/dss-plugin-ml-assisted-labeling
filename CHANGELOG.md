@@ -1,5 +1,8 @@
 # Changelog
 
+## [Version 4.1.0](https://github.com/dataiku/dss-plugin-ml-assisted-labeling/releases/tag/v4.1.1) - Bugfix release - 2023-02
+- 🪲 Fixed bug where category selector was sometimes not scrollable
+
 ## [Version 4.1.0](https://github.com/dataiku/dss-plugin-ml-assisted-labeling/releases/tag/v4.1.0) - New release - 2022-10
 - 🔥 Remove Image classification app
 
