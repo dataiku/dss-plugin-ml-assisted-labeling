@@ -245,9 +245,9 @@ canvas {
     margin-right: -5px;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
     flex-wrap: wrap;
     flex: 1;
+    overflow: scroll;
 }
 
 .category-selector.inactive * {
