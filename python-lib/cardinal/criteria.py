@@ -1,10 +1,10 @@
 from itertools import combinations
 
-import dataiku
 import numpy as np
 import logging
 
 try:
+    import dataiku
     lal = dataiku.import_from_plugin('ml-assisted-labeling', 'lal')
 except Exception as e:
     logging.warning("Couldn't import lal from ml-assisted-labeling plugin, will assume it's already in PYTHONPATH")
@@ -75,7 +75,7 @@ def get_halting_values(scores):
     high_indices = np.where(binids >= 10)[0]
     high_index = high_indices[0] if high_indices.size else n - 10
     # Force at least 10 samples to be green
-    high_index = min(n - 10, high_index)
+    high_index = max(min(n - 10, high_index), 0)
 
     # Normalize scores from 0 to 1 for display
     vmin = scores.min()
