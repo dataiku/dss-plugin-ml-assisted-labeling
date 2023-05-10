@@ -4,14 +4,21 @@ from flask import request, jsonify
 from werkzeug.exceptions import HTTPException
 
 import dataiku
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def define_endpoints(app, handler):
 
     def get_user():
         request_headers = dict(request.headers)
-        auth_info = dataiku.api_client().get_auth_info_from_browser_headers(request_headers)
-        user = auth_info["authIdentifier"]
+        try:
+            auth_info = dataiku.api_client().get_auth_info_from_browser_headers(request_headers)
+            user = auth_info["authIdentifier"]
+        except Exception as err:
+            user = "unauth-guest"
+            logger.error(f"Unable to find authenticated user. Maybe the webapp is used in public? Applying '{user}' as user.")
         return user
 
     @app.errorhandler(Exception)
