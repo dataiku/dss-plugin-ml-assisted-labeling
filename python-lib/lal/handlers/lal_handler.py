@@ -44,7 +44,7 @@ class LALHandler(object):
 
     logger = logging.getLogger(__name__)
 
-    def __init__(self, classifier, label_col_name, meta_df, labels_df, do_users_share_labels=True):
+    def __init__(self, classifier, label_col_name, meta_df: pd.DataFrame, labels_df, do_users_share_labels=True):
         """
         :type classifier: C
         """
@@ -53,7 +53,7 @@ class LALHandler(object):
         self.lbl_col = label_col_name
         self.lbl_id_col = label_col_name + "_id"
         self._skipped = {}
-        self.meta_df = meta_df.set_index(self.lbl_id_col, drop=False)
+        self.meta_df: pd.DataFrame = meta_df.set_index(self.lbl_id_col, drop=False)
         self.labels_df = labels_df
         self.do_users_share_labels = do_users_share_labels
         self.last_used_label_id = self.meta_df[self.lbl_id_col].max() if len(self.meta_df) else 0
@@ -62,10 +62,10 @@ class LALHandler(object):
         if self.do_users_share_labels:
             return self.meta_df if status is None else self.meta_df[self.meta_df.status == status]
         else:
+            user_meta = self.user_meta(user)
             if status is None:
-                return self.meta_df[self.meta_df.annotator == user]
-            return self.meta_df[
-                (self.meta_df.status == status) & (self.meta_df.annotator == user)]
+                return user_meta
+            return user_meta[self.meta_df.status == status]
 
     def get_remaining(self, user):
         labeled_ids = set(self.get_meta_by_status(user).data_id.values)
@@ -207,7 +207,7 @@ class LALHandler(object):
         }
 
     def user_meta(self, user):
-        return self.meta_df[self.meta_df.annotator == user]
+        return self.meta_df[self.meta_df.annotator.astype(str) == str(user)]
 
     def first(self, user):
         return self.create_annotation_response(self.user_meta(user).sort_values(self.lbl_id_col).iloc[0],
