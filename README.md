@@ -1,6 +1,4 @@
-# ML Assisted Labeling Plugin  
-
-⚠️ This plugin is now "deprecated", we recommend using the native [labeling](https://doc.dataiku.com/dss/latest/machine-learning/labeling.html) features instead.
+# ML Assisted Labeling Plugin 
 
 This plugin lets you label your text, tabular, image or audio data efficiently by leveraging webapps and active learning recipes.
 
