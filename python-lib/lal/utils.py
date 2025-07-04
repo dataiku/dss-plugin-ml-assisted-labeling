@@ -7,6 +7,19 @@ import pandas as pd
 LOCAL_VAR_PREFIX = "ML-ASSISTED-LABELING"
 
 
+def package_is_at_least(p, min_version):
+    return package_version_compat(p.__version__) >= package_version_compat(min_version)
+
+def package_version_compat(package_version_str):
+    """ Compatibility function to use packaging instead of distutils when possible, this avoids warnings and is future-proof
+    """
+    try:
+        from packaging import version
+        return version.parse(package_version_str)
+    except ImportError:
+        from distutils.version import LooseVersion
+        return LooseVersion(package_version_str)
+
 def increment_queries_session(queries_ds_name):
     session_var_name = f'ML-ASSISTED-LABELING__{queries_ds_name}__session'
     variables = dataiku.Project().get_variables()

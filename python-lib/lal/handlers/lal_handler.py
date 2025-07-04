@@ -156,10 +156,10 @@ class LALHandler(object):
             'annotator': user,
         }
         self.meta_df = self.meta_df[self.meta_df[self.lbl_id_col] != lbl_id]
-        self.meta_df = self.meta_df.append(meta, ignore_index=True)
+        self.meta_df.loc[len(self.meta_df)] = meta
 
         self.labels_df = self.labels_df[self.labels_df[self.lbl_id_col] != lbl_id]
-        self.labels_df = self.labels_df.append(label, ignore_index=True)
+        self.labels_df.loc[len(self.labels_df)] = label
 
         self.save_item_label(self.labels_df, label)
         self.save_item_meta(self.meta_df, meta)
@@ -282,7 +282,7 @@ class LALHandler(object):
             'annotator': user,
         }
         self.meta_df = self.meta_df[self.meta_df[self.lbl_id_col] != lbl_id]
-        self.meta_df = self.meta_df.append(meta, ignore_index=True)
+        self.meta_df.loc[len(self.meta_df)] = meta
 
         if label_id:
             self.labels_df = self.labels_df[self.labels_df[self.lbl_id_col] != lbl_id]
