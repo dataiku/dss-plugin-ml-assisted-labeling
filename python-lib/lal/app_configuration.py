@@ -55,7 +55,7 @@ def prepare_dataset(required_schema, dataset):
     
     if len(ds_cols) == 0:
         logging.info("Dataset is empty, creating the schema")
-        current_df = pd.DataFrame(columns=required_cols, index=[])
+        current_df = pd.DataFrame(columns=list(required_cols), index=[])
         for col in required_schema:
             pandas_type = schema_handling.DKU_PANDAS_TYPES_MAP.get(col["type"], np.object_)
             current_df[col["name"]] = current_df[col["name"]].astype(pandas_type)
