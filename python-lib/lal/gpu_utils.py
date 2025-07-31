@@ -1,7 +1,15 @@
 import os
 
+from lal import utils
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session, clear_session
+
+if utils.package_is_at_least(tf, "2.14"):
+    import tensorflow.python.keras.backend as K
+    set_session = K.set_session
+    clear_session = K.clear_session
+else:
+    set_session = tensorflow.compat.v1.keras.backend.set_session
+    clear_session = tensorflow.compat.v1.keras.backend.clear_session
 
 
 def load_gpu_options(should_use_gpu, list_gpu, gpu_allocation):
