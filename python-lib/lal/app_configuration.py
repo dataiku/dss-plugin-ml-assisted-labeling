@@ -37,35 +37,61 @@ def prepare_datasets(config, unlabeled_schema=None):
 
     prepare_dataset(metadata_required_schema, dataiku.Dataset(config['metadata_ds']))
 
+def reconstruct_dataset(dataset: dataiku.Dataset, required_schema):
+    logging.info(f"Reconstructing dataset: {dataset.name}")
+    required_cols = {c['name'] for c in required_schema}
+
+    empty_df = pd.DataFrame(columns=required_cols, index=[])
+
+    for col in required_schema:
+        pandas_type = schema_handling.DKU_PANDAS_TYPES_MAP.get(col["type"], np.object_)
+        empty_df[col["name"]] = empty_df[col["name"]].astype(pandas_type)
+
+    try:
+        dataset.write_with_schema(empty_df)
+    except Exception as err:
+        logging.error("There was a problem reconstructing the dataset.")
+
 
 def prepare_dataset(required_schema, dataset):
     logging.info("Preparing dataset: {0}".format(dataset.name))
     required_cols = {c['name'] for c in required_schema}
+
     try:
         _ = dataset.read_metadata()
     except Exception as e:
         raise ValueError("Dataset {} does not exist (Original error: {e}".format(dataset.name, e))
 
+    is_empty = False
+    should_reconstruct = False
+
     try:
+        _ = next(dataset.iter_rows())
+    except StopIteration:
+        is_empty = True
+    except Exception as err:
+        logging.error(f"Will try to reconstruct the dataset as the following error happened reading the dataset {dataset.name}:\n{err}")
+        should_reconstruct = True
+
+    if not should_reconstruct:
         ds_cols = {c['name'] for c in dataset.read_schema()}
-    except Exception as e:
-        logging.info("Dataset has no schema, will create it.")
+    else:
         ds_cols = set()
 
     
-    if len(ds_cols) == 0:
-        logging.info("Dataset is empty, creating the schema")
-        current_df = pd.DataFrame(columns=required_cols, index=[])
-        for col in required_schema:
-            pandas_type = schema_handling.DKU_PANDAS_TYPES_MAP.get(col["type"], np.object_)
-            current_df[col["name"]] = current_df[col["name"]].astype(pandas_type)
-        logging.info("Writing schema: {0} for {1}".format(current_df.columns, dataset.name))
-        dataset.write_with_schema(current_df)
-    elif len(ds_cols) > 0 and required_cols.issubset(ds_cols):
-        logging.info("Dataset is not empty but has the right schema. Skipping schema creation")
-    else:
-        raise ValueError(
-            "The target dataset should be empty or have columns: {}. The provided dataset has columns: {}. "
-            "Please edit the schema in the dataset settings or create a new dataset.".format(
-                ', '.join(required_cols), ', '.join(ds_cols)))
+    if should_reconstruct:
+        logging.info(f"Dataset {dataset.name} needs reconstruction")
+        reconstruct_dataset(dataset, required_schema)
+    elif len(ds_cols) > 0:
+        if required_cols.issubset(ds_cols):
+            logging.info("Dataset is not empty but has the right schema. Skipping schema creation") 
+        elif is_empty:
+            logging.info(f"Dataset {dataset.name} does not have the right schema but is empty. Reconstructing it.")
+            reconstruct_dataset(dataset, required_schema)
+        else:
+            raise ValueError(
+                "The target dataset should be empty or have columns: {}. The provided dataset has columns: {}. "
+                "Please edit the schema in the dataset settings or create a new dataset.".format(
+                    ', '.join(required_cols), ', '.join(ds_cols)))
+        
     logging.info("Done preparing {0}".format(dataset.name))
