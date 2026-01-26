@@ -90,6 +90,16 @@ export default new Vue({
             } else {
                 let batchPromise = DKUApi.batch();
                 batchPromise.then(data => {
+                    if (typeof data === 'string') {
+                        data = data.replace('NaN', '"NaN"')
+                        data = JSON.parse(data);
+                        for (const key in data) {
+                            if (data[key] === "NaN") {
+                                data[key] = NaN;
+                            }
+                        }
+                    }
+
                     this.stats = data.stats;
                     this.type = data.type;
                     this.isMultiLabel = data.isMultiLabel;
