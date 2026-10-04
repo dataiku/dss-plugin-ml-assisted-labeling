@@ -1,5 +1,9 @@
 # Changelog
 
+## [Version 4.1.2](https://github.com/dataiku/dss-plugin-ml-assisted-labeling/releases/tag/v4.1.2) - Documentation update - 2026-10
+
+- Update documentation links to the DSS reference documentation.
+
 ## [Version 4.1.1](https://github.com/dataiku/dss-plugin-ml-assisted-labeling/releases/tag/v4.1.1) - Bugfix release - 2023-02
 - 🪲 Fixed bug where category selector was sometimes not scrollable
 

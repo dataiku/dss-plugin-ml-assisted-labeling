@@ -1,13 +1,13 @@
 {
     "id": "ml-assisted-labeling",
-    "version": "4.1.1",
+    "version": "4.1.2",
     "meta": {
         "label": "ML-assisted Labeling",
         "description": "Label tabular, image, audio and text data efficiently with Active Learning.",
         "author": "Dataiku (Alexandre ABRAHAM, Andrey AVTOMONOV, Henri CHABERT)",
         "icon": "icon-tags",
         "licenseInfo": "Apache Software License",
-        "url": "https://www.dataiku.com/product/plugins/ml-assisted-labeling/",
+        "url": "https://doc.dataiku.com/dss/latest/machine-learning/ml-assisted-labeling.html",
         "tags": [
             "Machine Learning",
             "Image",
