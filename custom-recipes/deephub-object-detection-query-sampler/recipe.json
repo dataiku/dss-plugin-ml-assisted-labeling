@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "label": "DeepHub object detection query sampler",
+    "description": "Score images with native DeepHub object detection first, keeping the image path column. This recipe prioritizes the lowest confidence; images without detections come first. The scoring threshold affects which detections are returned.",
+    "icon": "icon-filter",
+    "supportLevel": "NOT_SUPPORTED"
+  },
+  "kind": "PYTHON",
+  "selectableFromDataset": "predictions",
+  "inputRoles": [
+    {
+      "name": "predictions",
+      "label": "DeepHub scoring dataset",
+      "description": "One scored row for every image in the input dataset.",
+      "arity": "UNARY",
+      "required": true,
+      "acceptsDataset": true,
+      "acceptsManagedFolder": false
+    },
+    {
+      "name": "input_images",
+      "label": "Input images dataset",
+      "description": "The input dataset used for DeepHub scoring.",
+      "arity": "UNARY",
+      "required": true,
+      "acceptsDataset": true,
+      "acceptsManagedFolder": false
+    },
+    {
+      "name": "images",
+      "label": "Images to label",
+      "description": "The folder containing the input images.",
+      "arity": "UNARY",
+      "required": true,
+      "acceptsDataset": false,
+      "acceptsManagedFolder": true
+    }
+  ],
+  "outputRoles": [
+    {
+      "name": "queries",
+      "label": "Queries dataset",
+      "arity": "UNARY",
+      "required": true,
+      "acceptsDataset": true
+    }
+  ],
+  "params": [
+    {
+      "name": "input_path_column",
+      "label": "Input image path column",
+      "type": "COLUMN",
+      "columnRole": "input_images",
+      "mandatory": true
+    },
+    {
+      "name": "path_column",
+      "label": "Scored image path column",
+      "type": "COLUMN",
+      "columnRole": "predictions",
+      "mandatory": true
+    },
+    {
+      "name": "prediction_column",
+      "label": "Prediction column",
+      "type": "COLUMN",
+      "columnRole": "predictions",
+      "defaultValue": "prediction",
+      "mandatory": true
+    }
+  ]
+}
