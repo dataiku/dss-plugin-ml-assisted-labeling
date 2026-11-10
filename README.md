@@ -6,6 +6,12 @@ Not all samples bring the same amount of information when it comes to training a
 
 Read the complete documentation on our [website](https://www.dataiku.com/product/plugins/ml-assisted-labeling/).
 
+### Query sampling with DeepHub object detection
+
+Score an image dataset with a native DeepHub object detection model, keeping the image path column in the scoring output. Run the **DeepHub object detection query sampler** with the original image dataset, its image folder, and the scoring output. Select the path columns and the prediction column; configure the resulting queries dataset in the image object labeling webapp. After adding labels, retrain the model, rerun scoring and the sampler, and restart the webapp.
+
+The sampler uses `1 - confidence` for the highest-confidence detection per image; an empty detection list receives 1.0 and is prioritized for labeling. DSS and the underlying model can filter detections by confidence, so their thresholds affect the resulting order. The original dataset must list each image once, and every input image must have a prediction. Folder images not listed in that dataset are excluded from the queue. This recipe supports confidence sampling; margin and entropy require class scores that DeepHub's scoring output does not provide.
+
 ## License
 
 The ML Assisted labeling plugin is:
