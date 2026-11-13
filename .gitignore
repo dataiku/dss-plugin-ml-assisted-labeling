@@ -110,3 +110,7 @@ node_modules
 package.json
 package-lock.json
 *.DS_Store
+
+!apps/*/project/app.json
+!apps/*/project/project.zip
+apps/*/project/

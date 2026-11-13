@@ -8,9 +8,17 @@ Read the complete documentation on our [website](https://www.dataiku.com/product
 
 ### Query sampling with DeepHub object detection
 
-Score an image dataset with a native DeepHub object detection model, keeping the image path column in the scoring output. Run the **DeepHub object detection query sampler** with the original image dataset, its image folder, and the scoring output. Select the path columns and the prediction column; configure the resulting queries dataset in the image object labeling webapp. After adding labels, retrain the model, rerun scoring and the sampler, and restart the webapp.
+The object-detection app starts in manual-labeling mode. To enable its **Retrain model and refresh queries** action, first set up this Flow in the same project:
+
+1. Use **Reformat image annotations** on the app's labels dataset, and train and deploy a native DeepHub object detection model using its output and the app's image folder.
+2. Use **List folder contents** on that folder to create an image paths dataset. Use Prepare or Sample/Filter if needed to exclude non-image files and provide the path column expected by the model.
+3. Score the image paths with the deployed model, keeping the path column. Connect the scored dataset, original image paths dataset and same image folder to **DeepHub object detection query sampler**. Set its output as **Queries** in the labeling webapp settings.
+
+Pause labeling for all users before running the refresh action, and resume only after it succeeds and restarts the webapp. It rebuilds the annotations, trains the model, rebuilds the image paths, scores them, refreshes queries and restarts the webapp. A failure stops the remaining steps; in particular, training must activate a new model version. The check for labels changing during the refresh cannot prevent concurrent writes, so pausing labeling is required. If a new category is missing from the model, update and redeploy the model before refreshing. DeepHub excludes images with no object annotations from training.
 
 The sampler uses `1 - confidence` for the highest-confidence detection per image; an empty detection list receives 1.0 and is prioritized for labeling. DSS and the underlying model can filter detections by confidence, so their thresholds affect the resulting order. The original dataset must list each image once, and every input image must have a prediction. Folder images not listed in that dataset are excluded from the queue. This recipe supports confidence sampling; margin and entropy require class scores that DeepHub's scoring output does not provide.
+
+The legacy RetinaNet sampler and its object-detection-plugin training actions are no longer available. Existing RetinaNet weights cannot be used with the DeepHub sampler; train a native DeepHub model before scoring. The object-detection app template starts in manual-labeling mode: configure the scoring and query recipes and connect their output to the webapp to enable active learning.
 
 ## Running tests
 
