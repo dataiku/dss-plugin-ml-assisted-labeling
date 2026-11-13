@@ -12,6 +12,12 @@ Score an image dataset with a native DeepHub object detection model, keeping the
 
 The sampler uses `1 - confidence` for the highest-confidence detection per image; an empty detection list receives 1.0 and is prioritized for labeling. DSS and the underlying model can filter detections by confidence, so their thresholds affect the resulting order. The original dataset must list each image once, and every input image must have a prediction. Folder images not listed in that dataset are excluded from the queue. This recipe supports confidence sampling; margin and entropy require class scores that DeepHub's scoring output does not provide.
 
+## Running tests
+
+Install [uv](https://docs.astral.sh/uv/) and run `make tests` with a supported Python version (3.9–3.13). Use `make tests PYTHON=python3.11` to select a different interpreter. The test environment includes the plugin's runtime requirements and development-only test tools. Unit test results are written to `tests/allure_report`.
+
+Runtime dependencies are declared in `pyproject.toml` and resolved for all supported Python versions in `uv.lock`. After changing dependencies, run `make requirements` and commit the updated lock file and `code-env/python/spec/requirements.txt`; DSS installs from the generated requirements file. Run `make check-requirements` to check that the generated file is current. Development-only tools are excluded from the DSS requirements.
+
 ## License
 
 The ML Assisted labeling plugin is:

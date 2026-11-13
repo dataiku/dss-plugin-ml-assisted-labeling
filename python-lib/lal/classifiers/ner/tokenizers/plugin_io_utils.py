@@ -72,7 +72,7 @@ def clean_text_df(df: pd.DataFrame, dropna_columns: List[AnyStr] = None) -> pd.D
 
     """
     for col in df.columns:
-        df[col] = df[col].str.strip().replace("", np.NaN)
+        df[col] = df[col].str.strip().replace("", np.nan)
     df = df.dropna(subset=dropna_columns)
     return df
 

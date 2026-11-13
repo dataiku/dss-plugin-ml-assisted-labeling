@@ -1,7 +1,5 @@
 import os
-
-import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session, clear_session
+import sys
 
 
 def load_gpu_options(should_use_gpu, list_gpu, gpu_allocation):
@@ -17,13 +15,11 @@ def load_gpu_options(should_use_gpu, list_gpu, gpu_allocation):
     """
     gpu_options = {}
     if should_use_gpu:
-        gpu_options['n_gpu'] = len(list_gpu.split(','))
-        
-        config = tf.ConfigProto()
         os.environ["CUDA_VISIBLE_DEVICES"] = list_gpu.strip()
-        config.gpu_options.visible_device_list = list_gpu.strip()
-        config.gpu_options.per_process_gpu_memory_fraction = gpu_allocation
-        set_session(tf.Session(config=config))
+        from dataiku.doctor.deep_learning.gpu import load_gpu_options as load_dss_gpu_options
+        gpu_list = [gpu.strip() for gpu in list_gpu.split(',')]
+        load_dss_gpu_options(gpu_list, per_process_gpu_memory_fraction=gpu_allocation)
+        gpu_options['n_gpu'] = len(gpu_list)
     else:
         deactivate_gpu()
         gpu_options['n_gpu'] = 0
@@ -32,16 +28,13 @@ def load_gpu_options(should_use_gpu, list_gpu, gpu_allocation):
 
 
 def reset_session():
-    clear_session()
+    if 'tensorflow' in sys.modules:
+        from tensorflow.python.keras import backend as legacy_backend
+        from tensorflow.keras.backend import clear_session
+        legacy_backend.clear_session()
+        clear_session()
 
 
 def deactivate_gpu():
     """Disable gpu."""
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-    
-def set_gpus(gpus):
-    """Short method to set gpu configuration."""
-    config = tf.ConfigProto()
-    config.gpu_options.visible_device_list = gpus.strip()
-    set_session(tf.Session(config=config))

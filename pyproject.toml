@@ -1,0 +1,30 @@
+[project]
+name = "ml-assisted-labeling-tests"
+version = "0.0.0"
+requires-python = ">=3.9,<3.14"
+dependencies = [
+    "numpy<2.4",
+    "pandas>=2.3,<2.4",
+    "python-dateutil>=2.8.2,<3",
+    "requests<3",
+    "scipy",
+    "scikit-learn",
+    "flask",
+    "pillow",
+    "regex",
+    "emoji>=2,<3",
+    "fastcore",
+    "jieba",
+    "pymorphy3",
+    "pymorphy3-dicts-uk",
+    "pyvi",
+    "spacy[lookups,th]>=3.8.11,<3.9",
+    "spacymoji>=3.1,<4",
+    "tensorflow>=2.19,<2.21",
+]
+
+[dependency-groups]
+dev = ["pytest", "allure-pytest"]
+
+[tool.uv]
+package = false

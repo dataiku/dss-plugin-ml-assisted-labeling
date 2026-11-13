@@ -4,28 +4,18 @@ import dataiku
 import numpy as np
 from PIL import Image
 
-from lal.utils import prettify_error
-
-try:
-    dataiku.use_plugin_libs('object-detection-cpu')
-except:
-    try:
-        dataiku.use_plugin_libs('object-detection-gpu')
-    except:
-        raise ImportError(prettify_error(
-            'ML assisted labeling object detection relies on the DSS object detection '
-            'plugin. The plugin could not be found on this instance. Please install it '
-            'to use this recipe. More information: https://www.dataiku.com/product/plugins/object-detection/'
-        ))
-
-
-import dataiku
-
 def can_use_gpu(inputs):
     """Check that system supports gpu."""
-    # Check that 'tensorflow-gpu' is installed on the current code-env
-    import pkg_resources
-    has_tf_gpu = "tensorflow-gpu" in [d.key for d in pkg_resources.working_set]
+    # TensorFlow 2 uses the same distribution for CPU and GPU.
+    from importlib.metadata import PackageNotFoundError, version
+    has_tf_gpu = False
+    for package in ('tensorflow', 'tensorflow-gpu'):
+        try:
+            version(package)
+            has_tf_gpu = True
+            break
+        except PackageNotFoundError:
+            pass
     if not has_tf_gpu:
         return False
 
