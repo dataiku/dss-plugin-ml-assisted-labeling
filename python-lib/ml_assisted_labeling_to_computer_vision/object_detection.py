@@ -11,7 +11,7 @@ def format_labeling_plugin_annotations(annotations_series):
         (Ignore NAN rows which correspond to images skipped during labeling)
     """
     # Filling missing values (image not annotated) with an empty label
-    formatted_annotation_series = annotations_series.fillna(json.dumps([]))
+    formatted_annotation_series = annotations_series.astype(object).where(annotations_series.notna(), json.dumps([]))
     formatted_annotation_series = formatted_annotation_series.map(format_each_image_annotations)
     return formatted_annotation_series
 

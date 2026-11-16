@@ -14,9 +14,9 @@ import spacy
 from spacy.language import Language
 from spacy.tokens import Doc, Token
 from spacy.vocab import Vocab
-from emoji import UNICODE_EMOJI
+import emoji
 from fastcore.utils import store_attr
-from spacymoji import Emoji
+import spacymoji
 
 from .language_dict import SUPPORTED_LANGUAGES_SPACY, SPACY_LANGUAGE_MODELS, UNSUPPORTED_SPACY_EMOJI_LANG
 from .plugin_io_utils import generate_unique, truncate_text_list
@@ -25,7 +25,7 @@ from .plugin_io_utils import generate_unique, truncate_text_list
 # Setting custom spaCy token extensions to allow for easier filtering in downstream tasks
 Token.set_extension("is_hashtag", getter=lambda token: token.text[0] == "#", force=True)
 Token.set_extension("is_username", getter=lambda token: token.text[0] == "@", force=True)
-Token.set_extension("is_emoji", getter=lambda token: any(c in UNICODE_EMOJI for c in token.text), force=True)
+Token.set_extension("is_emoji", getter=lambda token: bool(emoji.emoji_list(token.text)), force=True)
 SYMBOL_CHARS_REGEX = re.compile(r"(\p{M}|\p{S})+")  # matches unicode categories M (marks) and S (symbols)
 Token.set_extension(
     "is_symbol",
@@ -167,18 +167,20 @@ class MultilingualTokenizer:
                 f"SpaCy tokenization not available for language '{language}' because of error: '{e}'"
             )
         if self.hashtags_as_token:
-            re_token_match = spacy.tokenizer._get_regex_pattern(nlp.Defaults.token_match)
-            re_token_match = r"""({re_token_match}|#\w+)"""
-            nlp.tokenizer.token_match = re.compile(re_token_match).match
-            _prefixes = list(nlp.Defaults.prefixes)
-            if "#" in _prefixes:
-                _prefixes.remove("#")
-                nlp.tokenizer.prefix_search = spacy.util.compile_prefix_regex(_prefixes).search
+            token_match = nlp.Defaults.token_match
+            matcher_regex = getattr(getattr(token_match, '__self__', None), 'pattern', None)
+            if token_match is None or matcher_regex is not None:
+                re_token_match = r"(?:{}|#\w+)".format(matcher_regex or r'(?!)')
+                nlp.tokenizer.token_match = re.compile(re_token_match).match
+                _prefixes = list(nlp.Defaults.prefixes)
+                if "#" in _prefixes:
+                    _prefixes.remove("#")
+                    nlp.tokenizer.prefix_search = spacy.util.compile_prefix_regex(_prefixes).search
         if self.stopwords_folder_path and language in SUPPORTED_LANGUAGES_SPACY:
             self._customize_stopwords(nlp, language)
         logging.info(f"Loading tokenizer for language '{language}': done in {perf_counter() - start:.2f} seconds")
         if language not in UNSUPPORTED_SPACY_EMOJI_LANG:
-            nlp.add_pipe(Emoji(nlp), first=True)
+            nlp.add_pipe("emoji", first=True)
         return nlp
 
     def _customize_stopwords(self, nlp: Language, language: AnyStr) -> None:

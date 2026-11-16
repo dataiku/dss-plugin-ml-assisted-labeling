@@ -156,10 +156,10 @@ class LALHandler(object):
             'annotator': user,
         }
         self.meta_df = self.meta_df[self.meta_df[self.lbl_id_col] != lbl_id]
-        self.meta_df = self.meta_df.append(meta, ignore_index=True)
+        self.meta_df = pd.concat([self.meta_df, pd.DataFrame([meta])], ignore_index=True)
 
         self.labels_df = self.labels_df[self.labels_df[self.lbl_id_col] != lbl_id]
-        self.labels_df = self.labels_df.append(label, ignore_index=True)
+        self.labels_df = pd.concat([self.labels_df, pd.DataFrame([label])], ignore_index=True)
 
         self.save_item_label(self.labels_df, label)
         self.save_item_meta(self.meta_df, meta)
@@ -282,7 +282,7 @@ class LALHandler(object):
             'annotator': user,
         }
         self.meta_df = self.meta_df[self.meta_df[self.lbl_id_col] != lbl_id]
-        self.meta_df = self.meta_df.append(meta, ignore_index=True)
+        self.meta_df = pd.concat([self.meta_df, pd.DataFrame([meta])], ignore_index=True)
 
         if label_id:
             self.labels_df = self.labels_df[self.labels_df[self.lbl_id_col] != lbl_id]

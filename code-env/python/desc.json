@@ -1,6 +1,13 @@
 {
-  "acceptedPythonInterpreters": ["PYTHON36"],
+  "acceptedPythonInterpreters": [
+    "PYTHON39",
+    "PYTHON310",
+    "PYTHON311",
+    "PYTHON312",
+    "PYTHON313"
+  ],
   "forceConda": false,
   "installCorePackages": true,
-  "installJupyterSupport": false
+  "installJupyterSupport": false,
+  "corePackagesSet": "PANDAS23"
 }

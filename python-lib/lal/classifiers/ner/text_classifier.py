@@ -81,10 +81,9 @@ class TextClassifier(TableBasedDataClassifier):
         history_keys = [re.escape(hk) for hk in list(history.keys())]
         regexp = '({})'.format('|'.join(history_keys))
         regexp = ('\\b{}\\b' if self.token_engine == self.WHITESPACE_TOKEN_ENGINE else '{}').format(regexp)
-        emojis = list(re.finditer(emoji.get_emoji_regexp(), text))
         for match in re.finditer(regexp, text, re.IGNORECASE):
-            pl_start = match.start() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.start()])
-            pl_end = match.end() - sum([x.end() - x.start() - 1 for x in emojis if x.end() <= match.end()])
+            pl_start = match.start()
+            pl_end = match.end()
             if self.is_legit_prelabel(pl_start, pl_end, tokenized_text["tokens"]):
                 prelabels.append({
                     "text": match.group(),
@@ -130,11 +129,13 @@ class TextClassifier(TableBasedDataClassifier):
 
     def tokenization_by_pattern(self, text, pattern):
         tokens = []
+        emoji_pattern = '|'.join(re.escape(value) for value in sorted(
+            {item['emoji'] for item in emoji.emoji_list(text)}, key=len, reverse=True)) or r'(?!)'
         tokens_it = re.finditer(r"{emoji_pattern}|{pattern}".format(
-            emoji_pattern=emoji.get_emoji_regexp().pattern,
+            emoji_pattern=emoji_pattern,
             pattern=pattern
         ), text, re.UNICODE)
-        current = next(tokens_it)
+        current = next(tokens_it, None)
         i = 0
         while current:
             try:
