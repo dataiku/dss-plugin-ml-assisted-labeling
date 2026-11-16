@@ -1,9 +1,9 @@
 """Check generated DSS plugin metadata and archive safeguards."""
 
 import json
-import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -14,8 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def generate(project, *args):
     return subprocess.run(
-        [os.environ.get("UV", "uv"), "run", "--no-project", "--python", "3.11",
-         "python", "scripts/generate_plugin.py", *args],
+        [sys.executable, "scripts/generate_plugin.py", *args],
         cwd=project, text=True, capture_output=True,
     )
 
@@ -63,6 +62,7 @@ def test_duplicate_version_is_rejected(project):
 
 
 def test_packaging_rejects_dirty_or_stale_committed_manifest(project):
+    make = ["make", "PYTHON=" + sys.executable]
     subprocess.run(["git", "init", "-q"], cwd=project, check=True)
     generated = generate(project)
     assert generated.returncode == 0, generated.stderr
@@ -73,11 +73,11 @@ def test_packaging_rejects_dirty_or_stale_committed_manifest(project):
                    cwd=project, check=True)
     subprocess.run(["git", "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
                     "commit", "-qm", "fixture"], cwd=project, check=True)
-    assert subprocess.run(["make", "check-plugin-head"], cwd=project, capture_output=True).returncode == 0
+    assert subprocess.run(make + ["check-plugin-head"], cwd=project, capture_output=True).returncode == 0
 
     dist = project / "dist"
     (project / "release_info.json").write_text("keep")
-    package = subprocess.run(["make", "plugin"], cwd=project, text=True, capture_output=True)
+    package = subprocess.run(make + ["plugin"], cwd=project, text=True, capture_output=True)
     assert package.returncode == 0, package.stdout + package.stderr
     with ZipFile(dist / "dss-plugin-plugin-id-5.0.0.zip") as archive:
         assert json.loads(archive.read("plugin.json")) == json.loads(generated.stdout)
@@ -91,7 +91,7 @@ def test_packaging_rejects_dirty_or_stale_committed_manifest(project):
     original = pyproject.read_text()
     pyproject.write_text(original.replace('version = "5.0.0"', 'version = "5.1.0"'))
     (project / "plugin.json").write_text(generate(project).stdout, encoding="utf-8")
-    assert subprocess.run(["make", "plugin"], cwd=project, capture_output=True).returncode != 0
+    assert subprocess.run(make + ["plugin"], cwd=project, capture_output=True).returncode != 0
     assert (dist / "sentinel").read_text() == "keep"
     assert (project / "release_info.json").read_text() == "keep"
 
@@ -103,6 +103,6 @@ def test_packaging_rejects_dirty_or_stale_committed_manifest(project):
     subprocess.run(["git", "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
                     "commit", "-qm", "stale manifest"], cwd=project, check=True)
     (project / "plugin.json").write_text(generated.stdout, encoding="utf-8")
-    assert subprocess.run(["make", "plugin"], cwd=project, capture_output=True).returncode != 0
+    assert subprocess.run(make + ["plugin"], cwd=project, capture_output=True).returncode != 0
     assert (dist / "sentinel").read_text() == "keep"
     assert (project / "release_info.json").read_text() == "keep"

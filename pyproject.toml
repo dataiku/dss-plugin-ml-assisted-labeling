@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest", "allure-pytest"]
+dev = ["pytest", "allure-pytest", "tomli>=2; python_version < '3.11'"]
 integration = ["dataiku-api-client>=14,<16"]
 
 [tool.dataiku-plugin]
