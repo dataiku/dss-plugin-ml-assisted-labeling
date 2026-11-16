@@ -32,7 +32,7 @@ def flow():
     model = Mock()
     model.get_settings.return_value.get_raw.return_value = {"contentType": "prediction/deep_hub", "miniTask": {"predictionType": "DEEP_HUB_IMAGE_OBJECT_DETECTION", "targetVariable": "label"}}
     model.get_active_version.side_effect = [{"id": "old"}, {"id": "new"}]
-    model.get_version_details.return_value.get_preprocessing_settings.return_value = {"target_remapping": [{"sourceValue": "cat"}]}
+    model.client._perform_json.return_value = {"preprocessing": {"target_remapping": [{"sourceValue": "cat"}]}}
     project = Mock(project_key="PROJECT")
     project.get_webapp.return_value.get_settings.return_value.get_raw.return_value = {"config": config}
     project.list_recipes.return_value = [SimpleNamespace(get_settings=lambda r=r: SimpleNamespace(get_recipe_raw_definition=lambda: r)) for r in recipes]
@@ -56,13 +56,15 @@ class RefreshTests(unittest.TestCase):
     def test_refresh_builds_in_order(self):
         f = self.flow
         run(f)
+        f.model.client._perform_json.assert_called_once_with(
+            "GET", "/projects/PROJECT/savedmodels/model/versions/old/details")
         self.assertEqual([call.args[0] for call in f.scenario.method_calls],
                          ["converted", "model", "all_files", "manifest", "scored", "queries"])
         self.assertTrue(all(call.kwargs["build_mode"] == "NON_RECURSIVE_FORCED_BUILD"
                             for call in f.scenario.method_calls))
 
     def test_bad_setup_does_not_build(self):
-        for change in ("folder", "category", "missing_queries", "duplicate", "malformed", "model_type", "target"):
+        for change in ("folder", "category", "missing_queries", "duplicate", "malformed", "model_type", "target", "missing_remapping"):
             f = flow()
             if change == "folder":
                 f.recipes[1]["inputs"]["data"]["items"][0]["ref"] = "another_folder"
@@ -76,11 +78,39 @@ class RefreshTests(unittest.TestCase):
                 f.model.get_settings.return_value.get_raw.return_value["miniTask"]["predictionType"] = "BINARY_CLASSIFICATION"
             elif change == "target":
                 f.model.get_settings.return_value.get_raw.return_value["miniTask"]["targetVariable"] = "another_target"
+            elif change == "missing_remapping":
+                f.model.client._perform_json.return_value = {"preprocessing": {}}
             else:
                 f.project.list_recipes.return_value.append(f.project.list_recipes.return_value[0])
             with self.subTest(change=change), self.assertRaises(ValueError):
                 run(f)
             self.assertFalse(f.scenario.method_calls)
+
+    def test_invalid_flow_guards_do_not_build(self):
+        for change in ("foreign", "cycle", "append", "multi_output", "other_role"):
+            f = flow()
+            if change == "foreign":
+                f.config["labels_ds"] = "OTHER.labels"
+            elif change == "cycle":
+                f.recipes[4]["type"] = "shaker"
+                f.recipes[4]["inputs"]["main"]["items"][0]["ref"] = "manifest"
+            elif change == "append":
+                f.recipes[0]["outputs"]["queries"]["items"][0]["appendMode"] = True
+            elif change == "multi_output":
+                f.recipes[0]["outputs"]["extra"] = {"items": [{"ref": "extra"}]}
+            elif change == "other_role":
+                f.recipes[4]["outputs"]["extra"] = {"items": [{"ref": "queries"}]}
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                run(f)
+            self.assertFalse(f.scenario.method_calls)
+
+    def test_project_qualified_references_are_supported(self):
+        f = self.flow
+        f.config["labels_ds"] = "PROJECT.labels"
+        f.recipes[1]["inputs"]["data"]["items"][0]["ref"] = "PROJECT.folder"
+        f.recipes[0]["outputs"]["queries"]["items"][0]["ref"] = "PROJECT.queries"
+        run(f)
+        self.assertEqual(f.scenario.method_calls[-1].args[0], "queries")
 
     def test_no_new_active_model_stops_before_scoring(self):
         f = self.flow
@@ -103,6 +133,13 @@ class RefreshTests(unittest.TestCase):
                 raise RuntimeError("scoring failed")
         f.scenario.build_dataset.side_effect = build
         with self.assertRaisesRegex(RuntimeError, "scoring failed"):
+            run(f)
+        self.assertEqual(f.scenario.method_calls[-1].args[0], "scored")
+
+    def test_changed_metadata_stops_before_queries(self):
+        f = self.flow
+        f.scenario.train_model.side_effect = lambda *a, **kw: f.frames["metadata"].__setitem__("session", [2])
+        with self.assertRaisesRegex(ValueError, "Labels changed"):
             run(f)
         self.assertEqual(f.scenario.method_calls[-1].args[0], "scored")
 

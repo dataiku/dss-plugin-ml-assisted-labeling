@@ -27,6 +27,23 @@ class TestObjectDetectionTemplate(unittest.TestCase):
                 plugins = {p['pluginId'] for p in manifest['exportedWithPlugins']}
                 self.assertTrue(plugins.isdisjoint({'object-detection', 'object-detection-cpu', 'object-detection-gpu'}))
 
+    def test_webapp_insights_and_authorizations_point_to_existing_webapps(self):
+        root = Path(__file__).resolve().parents[1] / 'apps'
+        for app in ('object-detection', 'tabular-classification', 'text-labeling'):
+            with self.subTest(app=app), ZipFile(root / app / 'project.zip') as project:
+                names = set(project.namelist())
+                insights = [name for name in names if name.startswith('project_config/insights/') and name.endswith('.json')]
+                for name in insights:
+                    insight = json.loads(project.read(name))
+                    if insight['type'] == 'web_app':
+                        webapp = insight['params']['webAppSmartId']
+                        self.assertIn('project_config/web_apps/{}.json'.format(webapp), names)
+                params = json.loads(project.read('project_config/params.json'))
+                for authorization in params.get('dashboardAuthorizations', {}).get('authorizations', []):
+                    ref = authorization['objectRef']
+                    if ref['objectType'] == 'WEB_APP':
+                        self.assertIn('project_config/web_apps/{}.json'.format(ref['objectId']), names)
+
     def test_tabular_template_active_training_uses_project_environment(self):
         path = Path(__file__).resolve().parents[1] / 'apps/tabular-classification/project.zip'
         with ZipFile(path) as project:
@@ -46,6 +63,8 @@ class TestObjectDetectionTemplate(unittest.TestCase):
             self.assertNotIn('project_config/scenarios/Download_weights.json', names)
             self.assertIn('project_config/datasets/object-labels.json', names)
             self.assertIn('project_config/managed_folders/Sz5YxlDP.json', names)
+            self.assertNotIn('project_config/managed_folders/eEvugZ8i.json', names)
+            self.assertFalse(any(name.startswith('ipython_notebooks/.ipynb_checkpoints/') for name in names))
             for dataset in ('object-labels', 'object-metadata'):
                 definition = json.loads(project.read('project_config/datasets/{}.json'.format(dataset)))
                 self.assertEqual(definition['schema']['columns'], [])

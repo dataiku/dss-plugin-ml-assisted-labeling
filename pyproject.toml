@@ -1,6 +1,6 @@
 [project]
 name = "ml-assisted-labeling-tests"
-version = "0.0.0"
+version = "5.0.0"
 requires-python = ">=3.9,<3.14"
 dependencies = [
     "numpy<2.4",
@@ -25,6 +25,20 @@ dependencies = [
 
 [dependency-groups]
 dev = ["pytest", "allure-pytest"]
+integration = ["dataiku-api-client>=14,<16"]
+
+[tool.dataiku-plugin]
+id = "ml-assisted-labeling"
+
+[tool.dataiku-plugin.meta]
+label = "ML-assisted Labeling"
+description = "Label tabular, image, audio and text data efficiently with Active Learning."
+author = "Dataiku (Alexandre ABRAHAM, Andrey AVTOMONOV, Henri CHABERT)"
+icon = "icon-tags"
+licenseInfo = "Apache Software License"
+url = "https://www.dataiku.com/product/plugins/ml-assisted-labeling/"
+tags = ["Machine Learning", "Image", "Computer Vision", "NLP", "Audio", "Labeling"]
+supportLevel = "NOT_SUPPORTED"
 
 [tool.uv]
 package = false
